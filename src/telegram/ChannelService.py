@@ -1,7 +1,10 @@
-from telethon import TelegramClient, functions
-from telethon.tl.types import messages, Message, MessageService
+from typing import List, Optional, Self
 
-from typing import Optional, List
+from telethon import TelegramClient, functions
+from telethon.tl.types import Message, MessageService, messages
+
+from models.Models import Channel
+from models.Models import Message as _Message
 
 
 class ChannelService:
@@ -9,10 +12,10 @@ class ChannelService:
     Telegram wrapper class that provides telegram channel related methods
     """
 
-    def __init__(self, api_id: int, api_hash: str):
+    def __init__(self: Self, api_id: int, api_hash: str):
         self.telegram_client: TelegramClient = TelegramClient("anon", api_id, api_hash)
 
-    async def get_channel(self, channel_id: str):
+    async def get_channel(self: Self, channel_id: str) -> Channel:
         """
         Returns a telegram Channel object
         """
@@ -25,7 +28,7 @@ class ChannelService:
                 channel = response.chats[0]
                 channel_full = response.full_chat
 
-                return {
+                result: Channel = {
                     "id": channel_full.id,
                     "about": channel_full.about,
                     "participants_count": channel_full.participants_count,
@@ -34,16 +37,18 @@ class ChannelService:
                     "title": channel.title,
                     "created_date": channel.date,
                 }
+
+                return result
         except Exception as error:
             print(f"Error: {error}")
 
     async def get_channel_messages(
-        self,
+        self: Self,
         channel_id: str,
         offset_id: Optional[int] = 0,
         reverse: Optional[bool] = True,
         limit: Optional[int] = 100,
-    ):
+    ) -> List[_Message]:
         """
         Fetches messages from a channel.
 
@@ -62,7 +67,7 @@ class ChannelService:
                     reverse=reverse,
                 )
 
-                result = []
+                result: List[_Message] = []
 
                 # process the response
                 # filter non Messages such as announcements/channel edit
@@ -70,24 +75,23 @@ class ChannelService:
                 for message in response:
                     # MessageService is returned by the client in the array, need to filter out
                     if isinstance(message, Message):
-                        result.append(
-                            {
-                                "channel_id": channel_id,
-                                "id": message.id,
-                                "date": message.date,
-                                "message": message.message,
-                                "view_count": message.views,
-                                "forward_count": message.forwards,
-                                "reply_count": message.replies,
-                                "edit_date": message.edit_date,
-                            }
-                        )
+                        temp: _Message = {
+                            "channel_id": channel_id,
+                            "id": message.id,
+                            "date": message.date,
+                            "message": message.message,
+                            "view_count": message.views,
+                            "forward_count": message.forwards,
+                            "reply_count": message.replies,
+                            "edit_date": message.edit_date,
+                        }
+                        result.append(temp)
 
                 return result
         except Exception as error:
             print(f"Error: {error}")
 
-    async def channel_exists(self, channel_id: str) -> bool:
+    async def channel_exists(self: Self, channel_id: str) -> bool:
         """
         Returns True if a telegram channel is valid
         """
@@ -103,7 +107,7 @@ class ChannelService:
         except Exception as error:
             print(f"Error: {error}")
 
-    async def get_recommended_channels(self, channel_id: str) -> List[str]:
+    async def get_recommended_channels(self: Self, channel_id: str) -> List[str]:
         """
         Returns a list of recommended channel ids for a given channel
 
