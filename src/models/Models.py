@@ -24,5 +24,5 @@ class Message(BaseModel):
     edit_date: datetime | None
     forward_count: int
     message: str
-    reply_count: int
+    reply_count: int | None = 0
     view_count: int
