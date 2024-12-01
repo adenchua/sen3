@@ -55,39 +55,36 @@ class ChannelService:
 
         To obtain the latest messages from a channel, set the reverse parameter to False.
         """
-        try:
-            client: TelegramClient
-            async with self.telegram_client as client:
-                response: list[Message | MessageService] = await client.get_messages(
-                    entity=channel_id,
-                    limit=limit,
-                    offset_id=offset_id,
-                    reverse=reverse,
-                )
+        client: TelegramClient
+        async with self.telegram_client as client:
+            response: list[Message | MessageService] = await client.get_messages(
+                entity=channel_id,
+                limit=limit,
+                offset_id=offset_id,
+                reverse=reverse,
+            )
 
-                result: list[_Message] = []
+            result: list[_Message] = []
 
-                # process the response
-                # filter non Messages such as announcements/channel edit
-                # parse message
-                for message in response:
-                    # MessageService is returned by the client in the array, need to filter out
-                    if isinstance(message, Message):
-                        temp = _Message(
-                            channel_id=channel_id,
-                            id=message.id,
-                            date=message.date,
-                            message=message.message,
-                            view_count=message.views,
-                            forward_count=message.forwards,
-                            reply_count=message.replies,
-                            edit_date=message.edit_date,
-                        )
-                        result.append(temp.model_dump())
+            # process the response
+            # filter non Messages such as announcements/channel edit
+            # parse message
+            for message in response:
+                # MessageService is returned by the client in the array, need to filter out
+                if isinstance(message, Message):
+                    temp = _Message(
+                        channel_id=channel_id,
+                        id=message.id,
+                        date=message.date,
+                        message=message.message,
+                        view_count=message.views,
+                        forward_count=message.forwards,
+                        reply_count=message.replies,
+                        edit_date=message.edit_date,
+                    )
+                    result.append(temp.model_dump())
 
-                return result
-        except Exception as error:
-            print(f"Error: {error}")
+            return result
 
     async def channel_exists(self, channel_id: str) -> bool:
         """
@@ -102,8 +99,6 @@ class ChannelService:
         except ValueError:
             # Telethon throws ValueError if the channel id is invalid
             return False
-        except Exception as error:
-            print(f"Error: {error}")
 
     async def get_recommended_channels(self, channel_id: str) -> list[str]:
         """
@@ -111,20 +106,15 @@ class ChannelService:
 
         Recommendations are given by telegram and usually 10 channels will be recommended
         """
-        try:
-            client: TelegramClient
-            async with self.telegram_client as client:
-                response: messages.Chats = await client(
-                    functions.channels.GetChannelRecommendationsRequest(
-                        channel=channel_id
-                    )
-                )
+        client: TelegramClient
+        async with self.telegram_client as client:
+            response: messages.Chats = await client(
+                functions.channels.GetChannelRecommendationsRequest(channel=channel_id)
+            )
 
-                result: list[str] = []
+            result: list[str] = []
 
-                for channel in response.chats:
-                    result.append(channel.username)
+            for channel in response.chats:
+                result.append(channel.username)
 
-                return result
-        except Exception as error:
-            print(f"Error: {error}")
+            return result

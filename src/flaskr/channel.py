@@ -1,7 +1,8 @@
+import logging
 import os
 
 from dotenv import load_dotenv
-from flask import Blueprint, request
+from flask import Blueprint, abort, request
 
 from telegram.ChannelService import ChannelService
 
@@ -17,29 +18,41 @@ API_HASH: str = os.getenv("TELEGRAM_API_HASH", "")
 
 @blueprint.route("/<channel_id>", methods=["GET"])
 async def get_channel(channel_id):
-    channel_service = ChannelService(API_ID, API_HASH)
-    result = await channel_service.get_channel(channel_id)
-    return wrap_response(result)
+    try:
+        channel_service = ChannelService(API_ID, API_HASH)
+        result = await channel_service.get_channel(channel_id)
+        return wrap_response(result)
+    except Exception:
+        logging.exception("Error occurred for get_channel")
+        abort(500)
 
 
 @blueprint.route("/<channel_id>/messages", methods=["GET"])
 async def get_channel_messages(channel_id):
-    limit = request.args.get("limit", None)
-    reverse = request.args.get("reverse", None)
+    try:
+        limit = request.args.get("limit", None)
+        reverse = request.args.get("reverse", None)
 
-    limit = limit if limit is None else int(limit)
+        limit = limit if limit is None else int(limit)
 
-    channel_service = ChannelService(API_ID, API_HASH)
-    result = await channel_service.get_channel_messages(
-        channel_id=channel_id,
-        limit=limit,
-        reverse=reverse,
-    )
-    return wrap_response(result)
+        channel_service = ChannelService(API_ID, API_HASH)
+        result = await channel_service.get_channel_messages(
+            channel_id=channel_id,
+            limit=limit,
+            reverse=reverse,
+        )
+        return wrap_response(result)
+    except Exception:
+        logging.exception("Error occurred for get_channel_messages")
+        abort(500)
 
 
 @blueprint.route("/<channel_id>/recommended", methods=["GET"])
 async def get_channel_recommendations(channel_id):
-    channel_service = ChannelService(API_ID, API_HASH)
-    result = await channel_service.get_recommended_channels(channel_id)
-    return wrap_response(result)
+    try:
+        channel_service = ChannelService(API_ID, API_HASH)
+        result = await channel_service.get_recommended_channels(channel_id)
+        return wrap_response(result)
+    except Exception:
+        logging.exception("Error occurred for get_channel_recommendations")
+        abort(500)
