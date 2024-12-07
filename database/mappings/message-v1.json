@@ -1,0 +1,43 @@
+{
+  "settings": {
+    "index": {
+      "number_of_shards": 1,
+      "number_of_replicas": 0
+    }
+  },
+  "mappings": {
+    "dynamic": "strict",
+    "properties": {
+      "chat_id": {
+        "type": "keyword"
+      },
+      "created_date": {
+        "type": "date",
+        "format": "strict_date_time"
+      },
+      "edited_date": {
+        "type": "date",
+        "format": "strict_date_time"
+      },
+      "forward_count": {
+        "type": "integer"
+      },
+      "message_id": {
+        "type": "keyword"
+      },
+      "text": {
+        "type": "text"
+      },
+      "updated_date": {
+        "type": "date",
+        "format": "strict_date_time"
+      },
+      "view_count": {
+        "type": "integer"
+      }
+    }
+  },
+  "aliases": {
+    "message": {}
+  }
+}

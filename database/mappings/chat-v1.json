@@ -1,0 +1,65 @@
+{
+  "settings": {
+    "index": {
+      "number_of_shards": 1,
+      "number_of_replicas": 0
+    }
+  },
+  "mappings": {
+    "dynamic": "strict",
+    "properties": {
+      "about": {
+        "type": "text"
+      },
+      "crawl_active": {
+        "type": "boolean"
+      },
+      "created_date": {
+        "type": "date",
+        "format": "strict_date_time"
+      },
+      "is_channel": {
+        "type": "boolean"
+      },
+      "is_verified": {
+        "type": "boolean"
+      },
+      "last_crawl_date": {
+        "type": "date",
+        "format": "strict_date_time"
+      },
+      "message_offset_id": {
+        "type": "integer"
+      },
+      "participant_stats": {
+        "type": "nested",
+        "dynamic": "strict",
+        "properties": {
+          "count": {
+            "type": "integer"
+          },
+          "date": {
+            "type": "date",
+            "format": "strict_date_time"
+          }
+        }
+      },
+      "recommended_channels": {
+        "type": "text"
+      },
+      "title": {
+        "type": "text"
+      },
+      "updated_date": {
+        "type": "date",
+        "format": "strict_date_time"
+      },
+      "username": {
+        "type": "keyword"
+      }
+    }
+  },
+  "aliases": {
+    "chat": {}
+  }
+}
