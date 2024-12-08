@@ -4,7 +4,9 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "node --env-file=.env --import=tsx --watch ./src/index.ts"
+    "start": "node --env-file=.env --import=tsx --watch ./src/index.ts",
+    "lint": "eslint src/**/*",
+    "format": "prettier --write '**/**/*.{js,ts,json,cjs,md}' --config ./.prettierrc"
   },
   "author": "Aden Chua",
   "description": "Backend server for sen3",
