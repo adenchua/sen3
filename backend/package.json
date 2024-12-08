@@ -1,0 +1,28 @@
+{
+  "name": "backend",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node --env-file=.env --import=tsx --watch ./src/index.ts"
+  },
+  "author": "Aden Chua",
+  "description": "Backend server for sen3",
+  "dependencies": {
+    "express": "^5.0.1",
+    "helmet": "^8.0.0",
+    "morgan": "^1.10.0"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.16.0",
+    "@types/express": "^5.0.0",
+    "@types/morgan": "^1.9.9",
+    "eslint": "^9.16.0",
+    "eslint-config-prettier": "^9.1.0",
+    "globals": "^15.13.0",
+    "prettier": "3.4.2",
+    "tsx": "^4.19.2",
+    "typescript": "^5.7.2",
+    "typescript-eslint": "^8.17.0"
+  }
+}
