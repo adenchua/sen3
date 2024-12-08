@@ -76,11 +76,11 @@ class ChatService:
                     temp = _Message(
                         chat_id=chat_id,
                         id=message.id,
-                        date=message.date,
-                        message=message.message,
+                        created_date=message.date,
+                        text=message.message,
                         view_count=message.views,
                         forward_count=message.forwards,
-                        edit_date=message.edit_date,
+                        edited_date=message.edit_date,
                     )
                     result.append(temp.model_dump())
 

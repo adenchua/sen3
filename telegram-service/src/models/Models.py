@@ -21,8 +21,8 @@ class Message(BaseModel):
 
     id: int
     chat_id: str
-    date: datetime
-    edit_date: datetime | None
+    created_date: datetime
+    edited_date: datetime | None
     forward_count: int
-    message: str
+    text: str
     view_count: int
