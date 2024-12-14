@@ -27,6 +27,7 @@ export default class DatabaseService {
       body: document as object,
       id: documentId,
       index: indexName,
+      refresh: true,
     });
 
     return response.body;
