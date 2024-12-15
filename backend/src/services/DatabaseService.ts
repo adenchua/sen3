@@ -33,6 +33,29 @@ export default class DatabaseService {
     return response.body;
   }
 
+  /** bulk ingest documents. Each document must contain a unique _id field */
+  async ingestDocuments<T extends { _id: string }>(
+    documents: Array<T>,
+    indexName: string,
+  ): Promise<number> {
+    const response = await this.databaseClient.helpers.bulk({
+      datasource: documents,
+      refresh: true,
+      onDocument(document) {
+        const { _id, ...rest } = document;
+
+        return [
+          {
+            index: { _index: indexName, _id },
+          },
+          rest,
+        ];
+      },
+    });
+
+    return response.successful;
+  }
+
   async fetchDocuments(indexName: string, query: opensearchtypes.SearchRequest["body"]) {
     const response = await this.databaseClient.search({
       index: indexName,

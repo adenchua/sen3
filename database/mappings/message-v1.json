@@ -15,6 +15,9 @@
         "type": "date",
         "format": "strict_date_time"
       },
+      "chat_username": {
+        "type": "keyword"
+      },
       "edited_date": {
         "type": "date",
         "format": "strict_date_time"

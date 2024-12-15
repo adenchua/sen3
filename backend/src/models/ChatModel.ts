@@ -26,7 +26,7 @@ interface RawChat {
 export class ChatModel {
   private chat: Chat | null;
   private databaseService: DatabaseService;
-  private databaseIndex: string = "chat";
+  private DATABASE_INDEX: string = "chat";
 
   constructor(databaseService: DatabaseService, chat?: Chat) {
     if (chat) {
@@ -36,31 +36,27 @@ export class ChatModel {
   }
 
   /** Transforms a chat object to a raw chat object */
-  private transformToRawChat(): RawChat | null {
-    if (this.chat == null) {
-      return null;
-    }
+  private transformToRawChat(chat: Chat): RawChat {
     // convert dates from Date object to iso string
-    const transformedParticipantStats = this.chat.participantStats.map((participantStat) => {
+    const transformedParticipantStats = chat.participantStats.map((participantStat) => {
       const { count, date } = participantStat;
       return { count, date: date.toISOString() };
     });
 
     return {
-      _id: this.chat.id,
-      about: this.chat.about,
-      crawl_active: this.chat.crawlActive,
-      created_date: this.chat.createdDate.toISOString(),
-      is_channel: this.chat.isChannel,
-      is_verified: this.chat.isVerified,
-      last_crawl_date:
-        this.chat.lastCrawlDate == null ? null : this.chat.lastCrawlDate.toISOString(),
-      message_offset_id: this.chat.messageOffsetId,
+      _id: chat.id,
+      about: chat.about,
+      crawl_active: chat.crawlActive,
+      created_date: chat.createdDate.toISOString(),
+      is_channel: chat.isChannel,
+      is_verified: chat.isVerified,
+      last_crawl_date: chat.lastCrawlDate == null ? null : chat.lastCrawlDate.toISOString(),
+      message_offset_id: chat.messageOffsetId,
       participant_stats: transformedParticipantStats,
-      recommended_channels: this.chat.recommendedChannels,
-      title: this.chat.title,
-      updated_date: this.chat.updatedDate.toISOString(),
-      username: this.chat.username,
+      recommended_channels: chat.recommendedChannels,
+      title: chat.title,
+      updated_date: chat.updatedDate.toISOString(),
+      username: chat.username,
     };
   }
 
@@ -70,10 +66,8 @@ export class ChatModel {
       return;
     }
 
-    // need type assertion to be partial since _id field is deleted before ingestion
-    const rawChat = this.transformToRawChat() as Partial<RawChat>;
-    const documentId = rawChat._id as string;
-    delete rawChat["_id"];
-    await this.databaseService.ingestDocument(rawChat, documentId, this.databaseIndex);
+    const rawChat = this.transformToRawChat(this.chat);
+    const { _id: id, ...rest } = rawChat;
+    await this.databaseService.ingestDocument(rest, id, this.DATABASE_INDEX);
   }
 }
