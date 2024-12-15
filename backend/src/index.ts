@@ -4,6 +4,7 @@ import morgan from "morgan";
 
 import chatRouter from "./routes/chatRouter";
 import messageRouter from "./routes/messageRouter";
+import telegramRouter from "./routes/telegramRouter";
 import { databaseInstance } from "./singletons";
 
 const PORT = process.env.SERVER_PORT || 5000;
@@ -18,6 +19,8 @@ app.use(morgan("combined"));
 app.use("/api/v1/chats", chatRouter);
 // register message routes
 app.use("/api/v1/messages", messageRouter);
+// register telegram routes
+app.use("/api/v1/telegram", telegramRouter);
 
 app.listen(PORT, async () => {
   const isConnected = await databaseInstance.ping();
