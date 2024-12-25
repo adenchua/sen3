@@ -50,7 +50,8 @@ class ChatService:
         """
         Fetches messages from a chat.
 
-        If an offset_id is provided, messages will be fetched from that offset id.
+        If an offset_id is provided with reverse set to True, 
+        messages will be fetched from that offset id.(not including the offset_id)
         e.g. if offset_id of 0 is provided with a limit of 3, messages of id 1,2,3 will be returned
 
         To obtain the latest messages from a chat, set the reverse parameter to False.
@@ -60,8 +61,8 @@ class ChatService:
             response: list[Message | MessageService] = await client.get_messages(
                 entity=chat_id,
                 limit=limit if limit is not None else 10, 
-                offset_id=offset_id,
-                reverse=reverse,
+                offset_id=offset_id if offset_id is not None else 0,
+                reverse=reverse if reverse is not None else True,
             )
             result: list[_Message] = []
 

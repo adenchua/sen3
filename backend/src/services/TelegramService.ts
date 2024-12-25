@@ -87,14 +87,19 @@ class TelegramService {
     return result;
   }
 
-  async fetchChatMessages(chatUsername: string, limit = 10): Promise<ParsedTelegramMesssage[]> {
+  async fetchChatMessages(
+    chatUsername: string,
+    limit = 10,
+    latest = false,
+    offsetId = 0,
+  ): Promise<ParsedTelegramMesssage[]> {
     if (limit && limit > 1000) {
       throw Error("MaxLimitTelegramMessageException: please keep limit to below 1000");
     }
 
     const apiURL = `${this.telegramAPIUrl}/api/v1/chats/${chatUsername}/messages`;
     const response = await axios.get<AxiosResponse<TelegramMessage[]>>(apiURL, {
-      params: { limit },
+      params: { limit, reverse: !latest, offset_id: offsetId },
     });
 
     const result: ParsedTelegramMesssage[] = response.data.data.map((telegramMessage) => {
