@@ -24,6 +24,17 @@ class TelegramService {
 
     return response.data.data;
   }
+
+  async fetchChatMessages(chatUsername: string, limit = 10) {
+    if (limit && limit > 1000) {
+      throw Error("MaxLimitTelegramMessageException: please keep limit to below 1000");
+    }
+
+    const apiURL = `${this.telegramAPIUrl}/api/v1/chats/${chatUsername}/messages`;
+    const response = await axios.get(apiURL, { params: { limit } });
+
+    return response.data.data;
+  }
 }
 
 export default TelegramService;

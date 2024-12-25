@@ -36,7 +36,6 @@ class ChatService:
                     title=chat.title,
                     created_date=chat.date,
                 )
-
                 return result.model_dump()
         except Exception as error:
             print(f"Error: {error}")
@@ -46,7 +45,7 @@ class ChatService:
         chat_id: str,
         offset_id: int | None = 0,
         reverse: bool | None = True,
-        limit: int | None = 100,
+        limit: int | None = 10,
     ) -> list[_Message]:
         """
         Fetches messages from a chat.
@@ -60,11 +59,10 @@ class ChatService:
         async with self.telegram_client as client:
             response: list[Message | MessageService] = await client.get_messages(
                 entity=chat_id,
-                limit=limit,
+                limit=limit if limit is not None else 10, 
                 offset_id=offset_id,
                 reverse=reverse,
             )
-
             result: list[_Message] = []
 
             # process the response
