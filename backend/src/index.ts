@@ -2,6 +2,7 @@ import express from "express";
 import helmet from "helmet";
 import morgan from "morgan";
 
+import errorHandlerMiddleware from "./middlewares/errorHandlerMiddleware";
 import chatRouter from "./routes/chatRouter";
 import messageRouter from "./routes/messageRouter";
 import telegramRouter from "./routes/telegramRouter";
@@ -22,6 +23,9 @@ app.use("/api/v1/messages", messageRouter);
 // register telegram routes
 app.use("/api/v1/telegram", telegramRouter);
 
+// catch async errors
+app.use(errorHandlerMiddleware);
+
 app.listen(PORT, async () => {
   const isConnected = await databaseInstance.ping();
 
@@ -30,5 +34,5 @@ app.listen(PORT, async () => {
   }
 
   console.log("Connection to database successful!");
-  console.log(`Server is running at PORT: ${PORT}`);
+  console.log(`Server is running at PORT: ${PORT}...`);
 });

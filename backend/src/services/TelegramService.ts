@@ -1,5 +1,7 @@
 import axios, { AxiosResponse } from "axios";
 
+import { ErrorResponse } from "../middlewares/errorHandlerMiddleware";
+
 interface TelegramChat {
   about: string;
   created_date: string;
@@ -94,7 +96,11 @@ class TelegramService {
     offsetId = 0,
   ): Promise<ParsedTelegramMesssage[]> {
     if (limit && limit > 1000) {
-      throw Error("MaxLimitTelegramMessageException: please keep limit to below 1000");
+      throw new ErrorResponse(
+        "Limit exceeded max limit of 1000",
+        "Max_Limit_Telegram_Message",
+        400,
+      );
     }
 
     const apiURL = `${this.telegramAPIUrl}/api/v1/chats/${chatUsername}/messages`;
