@@ -35,6 +35,31 @@ export class ChatModel {
     this.databaseService = databaseService;
   }
 
+  /** Transforms a raw database chat object to a chat object */
+  private transformToChat(rawChat: RawChat): Chat {
+    // convert dates from iso string to date object
+    const transformedParticipantStats = rawChat.participant_stats.map((participantStat) => {
+      const { count, date } = participantStat;
+      return { count, date: new Date(date) };
+    });
+
+    return {
+      id: rawChat._id,
+      about: rawChat.about,
+      crawlActive: rawChat.crawl_active,
+      createdDate: new Date(rawChat.created_date),
+      isChannel: rawChat.is_channel,
+      isVerified: rawChat.is_verified,
+      lastCrawlDate: rawChat.last_crawl_date ? new Date(rawChat.last_crawl_date) : null,
+      messageOffsetId: rawChat.message_offset_id,
+      participantStats: transformedParticipantStats,
+      recommendedChannels: rawChat.recommended_channels,
+      title: rawChat.title,
+      updatedDate: new Date(rawChat.updated_date),
+      username: rawChat.username,
+    };
+  }
+
   /** Transforms a chat object to a raw chat object */
   private transformToRawChat(chat: Chat): RawChat {
     // convert dates from Date object to iso string
@@ -69,5 +94,35 @@ export class ChatModel {
     const rawChat = this.transformToRawChat(this.chat);
     const { _id: id, ...rest } = rawChat;
     await this.databaseService.ingestDocument(rest, id, this.DATABASE_INDEX);
+  }
+
+  /** Fetches documents from an index in the database */
+  async fetch(fields: { crawlActive?: boolean }, from = 0, size = 10): Promise<Chat[]> {
+    const { crawlActive } = fields;
+    const response = await this.databaseService.fetchDocuments<RawChat>(this.DATABASE_INDEX, {
+      from,
+      size,
+      query: {
+        bool: {
+          must: [
+            ...(crawlActive != undefined
+              ? [
+                  {
+                    term: {
+                      crawl_active: {
+                        value: crawlActive,
+                      },
+                    },
+                  },
+                ]
+              : []),
+          ],
+        },
+      },
+    });
+
+    const result = response.map((rawChat) => this.transformToChat(rawChat as unknown as RawChat));
+
+    return result;
   }
 }

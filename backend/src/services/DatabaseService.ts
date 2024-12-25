@@ -18,6 +18,19 @@ export default class DatabaseService {
     this.databaseClient = client;
   }
 
+  private processHitsResponse<T>(
+    searchResponse: opensearchtypes.SearchResponse<T>,
+  ): Array<{ _id: string & T }> {
+    const result = searchResponse.hits.hits.map((hit) => {
+      return {
+        _id: hit._id,
+        ...hit._source,
+      };
+    });
+
+    return result as Array<{ _id: string & T }>;
+  }
+
   async ping(): Promise<boolean> {
     return (await this.databaseClient.ping()).statusCode === 200;
   }
@@ -56,12 +69,15 @@ export default class DatabaseService {
     return response.successful;
   }
 
-  async fetchDocuments(indexName: string, query: opensearchtypes.SearchRequest["body"]) {
-    const response = await this.databaseClient.search({
+  async fetchDocuments<T>(
+    indexName: string,
+    query: opensearchtypes.SearchRequest["body"],
+  ): Promise<Array<{ _id: string & T }>> {
+    const response = await this.databaseClient.search<opensearchtypes.SearchResponse<T>>({
       index: indexName,
       body: query,
     });
 
-    return response.body;
+    return this.processHitsResponse(response.body);
   }
 }
