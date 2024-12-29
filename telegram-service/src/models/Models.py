@@ -20,7 +20,8 @@ class Message(BaseModel):
     """Parsed Telegram message object"""
 
     id: int
-    chat_id: str
+    chat_id: int
+    chat_username: str
     created_date: datetime
     edited_date: datetime | None
     forward_count: int

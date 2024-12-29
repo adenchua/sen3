@@ -19,19 +19,19 @@ def is_true(value):
   return value.lower() == 'true'
 
 
-@blueprint.route("/<chat_id>", methods=["GET"])
-async def get_chat(chat_id):
+@blueprint.route("/<chat_username>", methods=["GET"])
+async def get_chat(chat_username):
     try:
         chat_service = ChatService(API_ID, API_HASH)
-        result = await chat_service.get_chat(chat_id)
+        result = await chat_service.get_chat(chat_username)
         return wrap_response(result)
     except Exception:
         logging.exception("Error occurred for get_chat")
         abort(500)
 
 
-@blueprint.route("/<chat_id>/messages", methods=["GET"])
-async def get_chat_messages(chat_id):
+@blueprint.route("/<chat_username>/messages", methods=["GET"])
+async def get_chat_messages(chat_username):
     try:
         limit = request.args.get("limit", default=None)
         reverse = request.args.get("reverse", default=None, type=is_true)
@@ -43,7 +43,7 @@ async def get_chat_messages(chat_id):
 
         chat_service = ChatService(API_ID, API_HASH)
         result = await chat_service.get_chat_messages(
-            chat_id=chat_id,
+            chat_username=chat_username,
             limit=limit,
             reverse=reverse,
             offset_id=offset_id
@@ -54,11 +54,11 @@ async def get_chat_messages(chat_id):
         abort(500)
 
 
-@blueprint.route("/<chat_id>/recommendations", methods=["GET"])
-async def get_chat_recommendations(chat_id):
+@blueprint.route("/<chat_username>/recommendations", methods=["GET"])
+async def get_chat_recommendations(chat_username):
     try:
         chat_service = ChatService(API_ID, API_HASH)
-        result = await chat_service.get_recommended_chats(chat_id)
+        result = await chat_service.get_recommended_chats(chat_username)
         return wrap_response(result)
     except Exception:
         logging.exception("Error occurred for get_chat_recommendations")
