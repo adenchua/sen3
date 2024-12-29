@@ -25,7 +25,8 @@ interface ParsedTelegramChat {
 }
 
 interface TelegramMessage {
-  chat_id: string;
+  chat_id: number;
+  chat_username: string;
   created_date: string;
   edited_date: string;
   forward_count: number;
@@ -35,7 +36,8 @@ interface TelegramMessage {
 }
 
 interface ParsedTelegramMesssage {
-  chatId: string;
+  chatId: number;
+  chatUsername: string;
   createdDate: string;
   editedDate: string;
   forwardCount: number;
@@ -67,6 +69,7 @@ class TelegramService {
   private parseMessage(message: TelegramMessage): ParsedTelegramMesssage {
     return {
       chatId: message.chat_id,
+      chatUsername: message.chat_username,
       createdDate: message.created_date,
       editedDate: message.edited_date,
       forwardCount: message.forward_count,
