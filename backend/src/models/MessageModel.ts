@@ -15,7 +15,7 @@ interface RawMessage {
 }
 
 export class MessageModel {
-  private message: Message | null;
+  private message: Message | null = null;
   private databaseService: DatabaseService;
   private DATABASE_INDEX: string = "message";
 

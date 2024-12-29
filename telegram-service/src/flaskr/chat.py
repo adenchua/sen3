@@ -15,8 +15,9 @@ load_dotenv()
 API_ID: int = os.getenv("TELEGRAM_API_ID", -1)
 API_HASH: str = os.getenv("TELEGRAM_API_HASH", "")
 
+
 def is_true(value):
-  return value.lower() == 'true'
+    return value.lower() == "true"
 
 
 @blueprint.route("/<chat_username>", methods=["GET"])
@@ -46,7 +47,7 @@ async def get_chat_messages(chat_username):
             chat_username=chat_username,
             limit=limit,
             reverse=reverse,
-            offset_id=offset_id
+            offset_id=offset_id,
         )
         return wrap_response(result)
     except Exception:

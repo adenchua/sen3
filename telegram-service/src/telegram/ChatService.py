@@ -50,7 +50,7 @@ class ChatService:
         """
         Fetches messages from a chat.
 
-        If an offset_id is provided with reverse set to True, 
+        If an offset_id is provided with reverse set to True,
         messages will be fetched from that offset id.(not including the offset_id)
         e.g. if offset_id of 0 is provided with a limit of 3, messages of id 1,2,3 will be returned
 
@@ -60,7 +60,7 @@ class ChatService:
         async with self.telegram_client as client:
             response: list[Message | MessageService] = await client.get_messages(
                 entity=chat_username,
-                limit=limit if limit is not None else 10, 
+                limit=limit if limit is not None else 10,
                 offset_id=offset_id if offset_id is not None else 0,
                 reverse=reverse if reverse is not None else True,
             )
@@ -109,7 +109,9 @@ class ChatService:
         client: TelegramClient
         async with self.telegram_client as client:
             response: messages.Chats = await client(
-                functions.channels.GetChannelRecommendationsRequest(channel=chat_username)
+                functions.channels.GetChannelRecommendationsRequest(
+                    channel=chat_username
+                )
             )
 
             result: list[str] = []

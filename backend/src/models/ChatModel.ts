@@ -24,7 +24,7 @@ interface RawChat {
 }
 
 export class ChatModel {
-  private chat: Chat | null;
+  private chat: Chat | null = null;
   private databaseService: DatabaseService;
   private DATABASE_INDEX: string = "chat";
 

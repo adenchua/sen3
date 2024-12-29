@@ -8,7 +8,7 @@ import messageRouter from "./routes/messageRouter";
 import telegramRouter from "./routes/telegramRouter";
 import { databaseInstance } from "./singletons";
 
-const PORT = process.env.SERVER_PORT || 5000;
+const PORT = process.env.BACKEND_SERVICE_PORT || 5001;
 const app = express();
 
 app.use(helmet());
