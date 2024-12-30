@@ -1,10 +1,15 @@
-FROM python:3.13.1-slim-bullseye
+FROM python:3.13.1-alpine
 
-WORKDIR /telegram-service
+WORKDIR /app
 
-COPY requirements.txt requirements.txt
+COPY ./telegram-service/requirements.txt ./telegram-service/requirements.txt
+
+WORKDIR /app/telegram-service
 RUN pip3 install -r requirements.txt
 
-COPY . .
+COPY ./telegram-service .
+COPY ./.env .
 
-CMD [ "python3", "-m" , "flask", "--app", "./src/flaskr", "run", "--host=0.0.0.0"]
+ENV PYTHONUNBUFFERED=1
+
+CMD [ "python3", "./src/main.py"]
