@@ -19,14 +19,14 @@ interface RequestBody {
 }
 
 export const createMessagesValidationChains: ValidationChain[] = [
-  body("messages").isArray({ min: 1 }).notEmpty(),
-  body("messages.*.createdDate").isISO8601().notEmpty(),
-  body("messages.*.chatUsername").isString().notEmpty(),
-  body("messages.*.editedDate").isISO8601().optional(),
-  body("messages.*.forwardCount").isNumeric().notEmpty(),
-  body("messages.*.messageId").isString().notEmpty(),
-  body("messages.*.text").isString().notEmpty(),
-  body("messages.*.viewCount").isNumeric().notEmpty(),
+  body("messages").isArray({ min: 1 }).exists(),
+  body("messages.*.createdDate").isISO8601().exists(),
+  body("messages.*.chatUsername").isString().exists(),
+  body("messages.*.editedDate").isISO8601().optional({ values: "null" }),
+  body("messages.*.forwardCount").isInt().optional({ values: "null" }),
+  body("messages.*.messageId").isString().exists(),
+  body("messages.*.text").isString().exists(),
+  body("messages.*.viewCount").isInt().optional({ values: "null" }),
 ];
 
 export default async function createMessages(request: Request, response: Response): Promise<void> {

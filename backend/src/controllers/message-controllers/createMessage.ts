@@ -17,14 +17,14 @@ interface RequestBody {
 }
 
 export const createMessageValidationChains: ValidationChain[] = [
-  body("chatId").isString().notEmpty(),
-  body("createdDate").isISO8601().notEmpty(),
-  body("chatUsername").isString().notEmpty(),
-  body("editedDate").isISO8601().optional(),
-  body("forwardCount").isNumeric().notEmpty(),
-  body("messageId").isString().notEmpty(),
-  body("text").isString().notEmpty(),
-  body("viewCount").isNumeric().notEmpty(),
+  body("chatId").isString().exists(),
+  body("createdDate").isISO8601().exists(),
+  body("chatUsername").isString().exists(),
+  body("editedDate").isISO8601().optional({ values: "null" }),
+  body("forwardCount").isInt().optional({ values: "null" }),
+  body("messageId").isString().exists(),
+  body("text").isString().exists(),
+  body("viewCount").isInt().optional({ values: "null" }),
 ];
 
 export default async function createMessage(request: Request, response: Response): Promise<void> {
