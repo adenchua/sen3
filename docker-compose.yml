@@ -16,6 +16,8 @@ services:
       nofile:
         soft: 65536 # Maximum number of open files for the opensearch user - set to at least 65536
         hard: 65536
+    ports:
+      - 9200:9200
     volumes:
       - ./database/opensearch-data:/usr/share/opensearch/data
     networks:

@@ -61,9 +61,9 @@ export class ChatModel {
   }
 
   /** Transforms a chat object to a raw chat object */
-  private transformToRawChat(chat: Chat): RawChat {
+  private transformToRawChat(chat: Partial<Chat>): Partial<RawChat> {
     // convert dates from Date object to iso string
-    const transformedParticipantStats = chat.participantStats.map((participantStat) => {
+    const transformedParticipantStats = chat.participantStats?.map((participantStat) => {
       const { count, date } = participantStat;
       return { count, date: date.toISOString() };
     });
@@ -72,7 +72,7 @@ export class ChatModel {
       _id: chat.id,
       about: chat.about,
       crawl_active: chat.crawlActive,
-      created_date: chat.createdDate.toISOString(),
+      created_date: chat.createdDate?.toISOString(),
       is_channel: chat.isChannel,
       is_verified: chat.isVerified,
       last_crawl_date: chat.lastCrawlDate == null ? null : chat.lastCrawlDate.toISOString(),
@@ -80,7 +80,7 @@ export class ChatModel {
       participant_stats: transformedParticipantStats,
       recommended_channels: chat.recommendedChannels,
       title: chat.title,
-      updated_date: chat.updatedDate.toISOString(),
+      updated_date: chat.updatedDate?.toISOString(),
       username: chat.username,
     };
   }
@@ -93,7 +93,7 @@ export class ChatModel {
 
     const rawChat = this.transformToRawChat(this.chat);
     const { _id: id, ...rest } = rawChat;
-    await this.databaseService.ingestDocument(rest, id, this.DATABASE_INDEX);
+    await this.databaseService.ingestDocument(rest, id!, this.DATABASE_INDEX);
   }
 
   /** Fetches documents from an index in the database */
@@ -124,5 +124,33 @@ export class ChatModel {
     const result = response.map((rawChat) => this.transformToChat(rawChat as unknown as RawChat));
 
     return result;
+  }
+
+  async fetchOne(id: string): Promise<Chat> {
+    const response = await this.databaseService.fetchDocuments(this.DATABASE_INDEX, {
+      size: 1,
+      query: {
+        term: {
+          _id: id,
+        },
+      },
+    });
+
+    const [result] = response.map((rawChat) => this.transformToChat(rawChat as unknown as RawChat));
+
+    return result;
+  }
+
+  async update(chatId: string, updatedFields: Partial<Chat>) {
+    // transform to database mapping
+    const transformedUpdatedFields = this.transformToRawChat(updatedFields);
+
+    const response = await this.databaseService.updateDocument<RawChat>(
+      this.DATABASE_INDEX,
+      chatId,
+      transformedUpdatedFields,
+    );
+
+    return response.body;
   }
 }
