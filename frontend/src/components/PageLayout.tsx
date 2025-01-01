@@ -15,10 +15,11 @@ import Drawer from "./Drawer";
 
 interface IProps {
   children: JSX.Element;
+  title: string;
 }
 
 function PageLayout(props: IProps) {
-  const { children } = props;
+  const { children, title } = props;
   const navigate = useNavigate();
 
   return (
@@ -73,7 +74,12 @@ function PageLayout(props: IProps) {
         }}
       >
         <Toolbar />
-        <Box p={4}>{children}</Box>
+        <Box p={4}>
+          <Typography variant="h4" sx={{ mb: 4 }}>
+            {title}
+          </Typography>
+          {children}
+        </Box>
       </Box>
     </>
   );
