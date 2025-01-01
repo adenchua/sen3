@@ -19,10 +19,10 @@ interface RequestBody {
 export const createChatValidationChains: ValidationChain[] = [
   body("id").isString().trim().notEmpty(),
   body("about").isString().trim().optional(),
-  body("createdDate").trim().isISO8601().notEmpty(),
-  body("isChannel").isBoolean().notEmpty(),
-  body("isVerified").isBoolean().notEmpty(),
-  body("participantCount").isNumeric().notEmpty(),
+  body("createdDate").trim().isISO8601().exists(),
+  body("isChannel").isBoolean().exists(),
+  body("isVerified").isBoolean().exists(),
+  body("participantCount").isNumeric().exists(),
   body("title").isString().trim().notEmpty(),
   body("username").isString().trim().notEmpty(),
 ];

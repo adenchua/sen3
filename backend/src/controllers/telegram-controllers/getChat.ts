@@ -1,6 +1,6 @@
 import { Request, Response } from "express";
 
-import invalidTelegramChatError from "../../errors/invalidTelegramChatError";
+import { invalidTelegramChatUsernameError } from "../../errors/invalidTelegramChatError";
 import { telegramInstance } from "../../singletons";
 import wrapResponse from "../../utils/responseUtils";
 
@@ -10,7 +10,7 @@ export default async function getChat(request: Request, response: Response): Pro
   const chat = await telegramInstance.fetchChat(chatUsername);
 
   if (chat == null) {
-    throw invalidTelegramChatError;
+    throw invalidTelegramChatUsernameError;
   }
 
   response.status(200).send(wrapResponse(chat));

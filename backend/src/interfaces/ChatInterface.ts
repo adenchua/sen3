@@ -1,4 +1,4 @@
-interface ParticipantStat {
+export interface ParticipantStat {
   count: number;
   date: Date;
 }

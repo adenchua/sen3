@@ -1,7 +1,7 @@
 import { Request, Response } from "express";
 import { query, ValidationChain } from "express-validator";
 
-import invalidTelegramChatError from "../../errors/invalidTelegramChatError";
+import { invalidTelegramChatUsernameError } from "../../errors/invalidTelegramChatError";
 import { telegramInstance } from "../../singletons";
 import wrapResponse from "../../utils/responseUtils";
 
@@ -32,7 +32,7 @@ export default async function getChatMessages(request: Request, response: Respon
 
   // chat does not exist, throw error
   if (chat == null) {
-    throw invalidTelegramChatError;
+    throw invalidTelegramChatUsernameError;
   }
 
   const messages = await telegramInstance.fetchChatMessages(

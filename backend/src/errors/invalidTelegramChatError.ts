@@ -1,9 +1,13 @@
 import { ErrorResponse } from "../middlewares/errorHandlerMiddleware";
 
-const invalidTelegramChatError = new ErrorResponse(
+export const invalidTelegramChatUsernameError = new ErrorResponse(
   "Telegram chat with provided username does not exist",
-  "Invalid_Telegram_Username",
+  "Invalid_Telegram_Chat_Username",
   400,
 );
 
-export default invalidTelegramChatError;
+export const invalidTelegramChatIdError = new ErrorResponse(
+  "Telegram chat with provided ID does not exist",
+  "Invalid_Telegram_Chat_ID",
+  400,
+);

@@ -16,10 +16,10 @@ services:
       nofile:
         soft: 65536 # Maximum number of open files for the opensearch user - set to at least 65536
         hard: 65536
+    ports:
+      - 9200:9200
     volumes:
       - ./database/opensearch-data:/usr/share/opensearch/data
-    ports:
-      - ${OPENSEARCH_DATABASE_PORT}:9200
     networks:
       - sen3
 
@@ -53,8 +53,21 @@ services:
       - sen3
     depends_on:
       - opensearch-node
+      - telegram-service
     restart: always
 
+  scripts:
+    build:
+      dockerfile: ./scripts/Dockerfile
+      context: ./
+    image: background-script:1.0.0
+    networks:
+      - sen3
+    depends_on:
+      - opensearch-node
+      - backend-service
+      - telegram-service
+    restart: always
 
 volumes:
   opensearch-data:

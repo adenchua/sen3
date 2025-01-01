@@ -80,4 +80,17 @@ export default class DatabaseService {
 
     return this.processHitsResponse(response.body);
   }
+
+  async updateDocument<T>(indexName: string, documentId: string, updatedFields: Partial<T>) {
+    const response = await this.databaseClient.update({
+      index: indexName,
+      id: documentId,
+      body: {
+        doc: updatedFields,
+      },
+      refresh: true,
+    });
+
+    return response.body;
+  }
 }
