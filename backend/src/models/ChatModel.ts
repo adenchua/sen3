@@ -99,7 +99,8 @@ export class ChatModel {
   /** Fetches documents from an index in the database */
   async fetch(fields: { crawlActive?: boolean }, from = 0, size = 10): Promise<Chat[]> {
     const { crawlActive } = fields;
-    const response = await this.databaseService.fetchDocuments<RawChat>(this.DATABASE_INDEX, {
+
+    const query = {
       from,
       size,
       query: {
@@ -119,7 +120,9 @@ export class ChatModel {
           ],
         },
       },
-    });
+    };
+
+    const response = await this.databaseService.fetchDocuments<RawChat>(this.DATABASE_INDEX, query);
 
     const result = response.map((rawChat) => this.transformToChat(rawChat as unknown as RawChat));
 

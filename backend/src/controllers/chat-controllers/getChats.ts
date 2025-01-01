@@ -23,7 +23,7 @@ export default async function getChats(request: Request, response: Response): Pr
 
   const _from = transformQueryParam<number>(from, Number);
   const _size = transformQueryParam<number>(size, Number);
-  const _crawlActive = transformQueryParam<boolean>(+crawlActive, Boolean);
+  const _crawlActive = transformQueryParam<boolean>(crawlActive, Boolean);
 
   const chatModel = new ChatModel(databaseInstance);
   const result = await chatModel.fetch({ crawlActive: _crawlActive }, _from, _size);
