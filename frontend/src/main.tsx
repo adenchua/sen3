@@ -10,7 +10,7 @@ import { APP_BACKGROUND_COLOR } from "./constants/styling.ts";
 const theme = createTheme({
   palette: {
     primary: {
-      main: orange[500],
+      main: orange[800],
     },
     background: {
       default: APP_BACKGROUND_COLOR,

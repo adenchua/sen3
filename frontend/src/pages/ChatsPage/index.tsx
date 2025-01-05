@@ -2,13 +2,18 @@ import Grid from "@mui/material/Grid2";
 import { useEffect, useState } from "react";
 
 import fetchChats from "../../api/fetchChats";
-import PageLayout from "../../components/PageLayout";
-import ChatInterface from "../../interfaces/chat";
-import ChatCard from "./ChatCard";
 import updateChat from "../../api/updateChat";
+import Button from "../../components/Button";
+import PageLayout from "../../components/PageLayout";
+import AddIcon from "../../icons/AddIcon";
+import ChatInterface from "../../interfaces/chat";
+import AddChatDialog from "./AddChatDialog";
+import ChatCard from "./ChatCard";
 
 function ChatsPage() {
   const [chats, setChats] = useState<ChatInterface[] | null>(null);
+  const [isCreateChatDialogOpened, setIsCreateChatDialogOpened] =
+    useState<boolean>(true);
 
   useEffect(() => {
     let isMounted = true;
@@ -26,6 +31,10 @@ function ChatsPage() {
       isMounted = false;
     };
   }, []);
+
+  function handleCloseDialog() {
+    setIsCreateChatDialogOpened(false);
+  }
 
   async function handleToggleCrawlStatus(chat: ChatInterface) {
     const { crawlActive, id } = chat;
@@ -47,18 +56,31 @@ function ChatsPage() {
 
   return (
     <PageLayout>
-      <Grid container spacing={2}>
-        {chats?.map((chat) => {
-          return (
-            <Grid key={chat.id}>
-              <ChatCard
-                chat={chat}
-                onToggleCrawlStatus={handleToggleCrawlStatus}
-              />
-            </Grid>
-          );
-        })}
-      </Grid>
+      <>
+        <Button
+          sx={{ mb: 2 }}
+          startIcon={<AddIcon />}
+          onClick={() => setIsCreateChatDialogOpened(true)}
+        >
+          Add Chat
+        </Button>
+        <Grid container spacing={2}>
+          {chats?.map((chat) => {
+            return (
+              <Grid key={chat.id}>
+                <ChatCard
+                  chat={chat}
+                  onToggleCrawlStatus={handleToggleCrawlStatus}
+                />
+              </Grid>
+            );
+          })}
+        </Grid>
+        <AddChatDialog
+          isOpen={isCreateChatDialogOpened}
+          onClose={handleCloseDialog}
+        />
+      </>
     </PageLayout>
   );
 }

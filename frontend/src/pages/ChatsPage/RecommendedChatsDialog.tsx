@@ -38,7 +38,7 @@ function RecommendedChatsDialog(props: IProps) {
   return (
     <InformationDialog
       heading={`Similar channels to @${channel.username}`}
-      subheading="These channels were recommended by Telegram based on similarities in
+      subheading="These channels are recommended based on similarities in
           their subscriber bases:"
       isOpen={isOpen}
       onClose={onClose}

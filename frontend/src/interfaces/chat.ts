@@ -14,6 +14,17 @@ interface ChatInterface {
   username: string;
 }
 
+export interface TelegramChatInterface {
+  about: string;
+  createdDate: string;
+  id: number;
+  isChannel: boolean;
+  isVerified: boolean;
+  participantsCount: number;
+  title: string;
+  username: string;
+}
+
 export interface ParticipantStat {
   count: number;
   date: string;

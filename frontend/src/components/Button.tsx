@@ -5,6 +5,7 @@ function Button(props: ButtonProps) {
 
   return (
     <MuiButton
+      variant="contained"
       disableElevation
       disableFocusRipple
       disableRipple
