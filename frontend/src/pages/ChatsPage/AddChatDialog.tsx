@@ -11,6 +11,7 @@ import { APP_BACKGROUND_COLOR } from "../../constants/styling";
 import SearchIcon from "../../icons/SearchIcon";
 import { TelegramChatInterface } from "../../interfaces/chat";
 import AddChatCard from "./AddChatCard";
+import addChat from "../../api/addChat";
 
 interface IProps {
   isOpen: boolean;
@@ -41,6 +42,11 @@ function AddChatDialog(props: IProps) {
     } catch {
       setChat(null);
     }
+  }
+
+  async function handleAddChat(_chat: TelegramChatInterface) {
+    await addChat(_chat);
+    onClose();
   }
 
   return (
@@ -78,7 +84,7 @@ function AddChatDialog(props: IProps) {
             </IconButton>
           </Grid>
         </Grid>
-        {chat && <AddChatCard chat={chat} />}
+        {chat && <AddChatCard chat={chat} onAddChat={handleAddChat} />}
         {chat === null && (
           <Typography sx={{ mt: 2 }}>
             This chat may not exist or could be set to private

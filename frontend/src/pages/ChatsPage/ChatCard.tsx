@@ -20,7 +20,7 @@ interface IProps {
 
 function ChatCard(props: IProps) {
   const { chat, onToggleCrawlStatus } = props;
-  const { title, about, crawlActive, lastCrawlDate, isChannel } = chat;
+  const { title, about, crawlActive, isChannel, username } = chat;
   const [isDialogOpen, setIsDialogOpen] = useState<boolean>(false);
 
   function handleCloseDialog() {
@@ -31,8 +31,8 @@ function ChatCard(props: IProps) {
     <>
       <Card
         sx={{
+          height: "100%",
           width: "320px",
-          height: "240px",
           display: "flex",
           flexDirection: "column",
         }}
@@ -42,7 +42,7 @@ function ChatCard(props: IProps) {
           sx={{
             display: "flex",
             flexDirection: "column",
-            gap: 0.5,
+            gap: 1,
             flexGrow: 1,
           }}
         >
@@ -78,13 +78,15 @@ function ChatCard(props: IProps) {
               />
             )}
           </Box>
-          <Typography fontWeight="bold">{title}</Typography>
-          <Typography variant="body2">
-            Last crawl date: {lastCrawlDate ?? "-"}
-          </Typography>
-          <Typography color="textSecondary" variant="body2" textAlign="justify">
-            {about}
-          </Typography>
+          <div>
+            <Typography fontWeight="bold">{title}</Typography>
+            <Typography variant="body2" color="textSecondary" sx={{ mb: 2 }}>
+              @{username}
+            </Typography>
+            <Typography color="textSecondary" variant="body2">
+              {about}
+            </Typography>
+          </div>
         </CardContent>
         <CardActions>
           {crawlActive && (

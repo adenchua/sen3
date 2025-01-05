@@ -8,10 +8,11 @@ import { TelegramChatInterface } from "../../interfaces/chat";
 
 interface IProps {
   chat: TelegramChatInterface;
+  onAddChat: (chat: TelegramChatInterface) => Promise<void>;
 }
 
 export default function AddChatCard(props: IProps) {
-  const { chat } = props;
+  const { chat, onAddChat } = props;
 
   return (
     <Paper
@@ -36,7 +37,7 @@ export default function AddChatCard(props: IProps) {
         </Typography>
       </div>
       <Box flexGrow={1} />
-      <Button>Add Chat</Button>
+      <Button onClick={() => onAddChat(chat)}>Add Chat</Button>
     </Paper>
   );
 }

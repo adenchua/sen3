@@ -13,7 +13,7 @@ import ChatCard from "./ChatCard";
 function ChatsPage() {
   const [chats, setChats] = useState<ChatInterface[] | null>(null);
   const [isCreateChatDialogOpened, setIsCreateChatDialogOpened] =
-    useState<boolean>(true);
+    useState<boolean>(false);
 
   useEffect(() => {
     let isMounted = true;
@@ -64,7 +64,7 @@ function ChatsPage() {
         >
           Add Chat
         </Button>
-        <Grid container spacing={2}>
+        <Grid container spacing={2} alignItems="stretch">
           {chats?.map((chat) => {
             return (
               <Grid key={chat.id}>
