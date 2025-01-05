@@ -46,21 +46,19 @@ function ChatsPage() {
   }
 
   return (
-    <PageLayout title="Manage Chats">
-      <>
-        <Grid container spacing={2}>
-          {chats?.map((chat) => {
-            return (
-              <Grid key={chat.id}>
-                <ChatCard
-                  chat={chat}
-                  onToggleCrawlStatus={handleToggleCrawlStatus}
-                />
-              </Grid>
-            );
-          })}
-        </Grid>
-      </>
+    <PageLayout>
+      <Grid container spacing={2}>
+        {chats?.map((chat) => {
+          return (
+            <Grid key={chat.id}>
+              <ChatCard
+                chat={chat}
+                onToggleCrawlStatus={handleToggleCrawlStatus}
+              />
+            </Grid>
+          );
+        })}
+      </Grid>
     </PageLayout>
   );
 }

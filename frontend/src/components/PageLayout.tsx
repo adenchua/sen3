@@ -8,6 +8,7 @@ import { useNavigate } from "react-router";
 
 import DRAWER_WIDTH from "../constants/drawerWidth";
 import APP_ROUTES from "../constants/routes";
+import { APP_BACKGROUND_COLOR } from "../constants/styling";
 import AccountIcon from "../icons/AccountIcon";
 import BrandingIcon from "../icons/BrandingIcon";
 import DrawerHideIcon from "../icons/DrawerHideIcon";
@@ -15,11 +16,10 @@ import Drawer from "./Drawer";
 
 interface IProps {
   children: JSX.Element;
-  title: string;
 }
 
 function PageLayout(props: IProps) {
-  const { children, title } = props;
+  const { children } = props;
   const navigate = useNavigate();
 
   return (
@@ -28,9 +28,8 @@ function PageLayout(props: IProps) {
         elevation={0}
         position="fixed"
         sx={{
-          borderBottom: "1px solid",
-          borderColor: "#E6E6E6",
           zIndex: (theme) => theme.zIndex.drawer + 1,
+          borderBottom: `2px solid ${APP_BACKGROUND_COLOR}`,
         }}
       >
         <Toolbar
@@ -74,12 +73,7 @@ function PageLayout(props: IProps) {
         }}
       >
         <Toolbar />
-        <Box p={4}>
-          <Typography variant="h4" sx={{ mb: 4 }}>
-            {title}
-          </Typography>
-          {children}
-        </Box>
+        <Box p={4}>{children}</Box>
       </Box>
     </>
   );
