@@ -1,10 +1,9 @@
 import axios from "axios";
 
-const updateChat = async (
-  id: string,
-  updatedCrawlStatus: boolean
-): Promise<void> => {
-  await axios.patch(`http://localhost:5098/api/v1/chats/${id}`, {
+import { BACKEND_SERVICE_API_URL } from "../constants/api";
+
+const updateChat = async (id: string, updatedCrawlStatus: boolean): Promise<void> => {
+  await axios.patch(`${BACKEND_SERVICE_API_URL}/api/v1/chats/${id}`, {
     crawlActive: updatedCrawlStatus,
     messageOffsetId: null,
   });

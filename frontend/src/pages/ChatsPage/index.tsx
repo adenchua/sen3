@@ -12,8 +12,7 @@ import ChatCard from "./ChatCard";
 
 function ChatsPage() {
   const [chats, setChats] = useState<ChatInterface[] | null>(null);
-  const [isCreateChatDialogOpened, setIsCreateChatDialogOpened] =
-    useState<boolean>(false);
+  const [isCreateChatDialogOpened, setIsCreateChatDialogOpened] = useState<boolean>(false);
 
   useEffect(() => {
     let isMounted = true;
@@ -57,29 +56,19 @@ function ChatsPage() {
   return (
     <PageLayout>
       <>
-        <Button
-          sx={{ mb: 2 }}
-          startIcon={<AddIcon />}
-          onClick={() => setIsCreateChatDialogOpened(true)}
-        >
+        <Button sx={{ mb: 2 }} startIcon={<AddIcon />} onClick={() => setIsCreateChatDialogOpened(true)}>
           Add Chat
         </Button>
-        <Grid container spacing={2} alignItems="stretch">
+        <Grid container spacing={2} alignItems='stretch'>
           {chats?.map((chat) => {
             return (
               <Grid key={chat.id}>
-                <ChatCard
-                  chat={chat}
-                  onToggleCrawlStatus={handleToggleCrawlStatus}
-                />
+                <ChatCard chat={chat} onToggleCrawlStatus={handleToggleCrawlStatus} />
               </Grid>
             );
           })}
         </Grid>
-        <AddChatDialog
-          isOpen={isCreateChatDialogOpened}
-          onClose={handleCloseDialog}
-        />
+        <AddChatDialog isOpen={isCreateChatDialogOpened} onClose={handleCloseDialog} />
       </>
     </PageLayout>
   );

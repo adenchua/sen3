@@ -1,11 +1,12 @@
 import axios from "axios";
 
+import { BACKEND_SERVICE_API_URL } from "../constants/api";
 import ApiResponseWrapper from "../interfaces/api";
 import ChatInterface from "../interfaces/chat";
 
 const fetchChats = async (): Promise<ChatInterface[]> => {
   const response = await axios.get<ApiResponseWrapper<ChatInterface[]>>(
-    `http://localhost:5098/api/v1/chats`
+    `${BACKEND_SERVICE_API_URL}/api/v1/chats`,
   );
 
   return response.data.data;
