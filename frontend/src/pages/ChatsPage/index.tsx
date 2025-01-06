@@ -48,7 +48,7 @@ function ChatsPage() {
           }
 
           return prevChat;
-        })
+        }),
       );
     }
   }
@@ -56,10 +56,14 @@ function ChatsPage() {
   return (
     <PageLayout>
       <>
-        <Button sx={{ mb: 2 }} startIcon={<AddIcon />} onClick={() => setIsCreateChatDialogOpened(true)}>
+        <Button
+          sx={{ mb: 2 }}
+          startIcon={<AddIcon />}
+          onClick={() => setIsCreateChatDialogOpened(true)}
+        >
           Add Chat
         </Button>
-        <Grid container spacing={2} alignItems='stretch'>
+        <Grid container spacing={2} alignItems="stretch">
           {chats?.map((chat) => {
             return (
               <Grid key={chat.id}>

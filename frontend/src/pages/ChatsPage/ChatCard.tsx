@@ -1,16 +1,19 @@
+import Box from "@mui/material/Box";
 import Card from "@mui/material/Card";
+import CardActions from "@mui/material/CardActions";
 import CardContent from "@mui/material/CardContent";
+import IconButton from "@mui/material/IconButton";
 import Typography from "@mui/material/Typography";
 import { useState } from "react";
-import { Box, CardActions, Chip, IconButton } from "@mui/material";
 
-import ChatInterface from "../../interfaces/chat";
-import TelegramChannelIcon from "../../icons/TelegramChannelIcon";
-import CrawlInactiveIcon from "../../icons/CrawlInactiveIcon";
-import CrawlActiveIcon from "../../icons/CrawlActiveIcon";
+import Chip from "../../components/Chip";
 import Tooltip from "../../components/Tooltip";
+import CrawlActiveIcon from "../../icons/CrawlActiveIcon";
+import CrawlInactiveIcon from "../../icons/CrawlInactiveIcon";
 import RecommendedChannelsIcon from "../../icons/RecommendedChannelsIcon";
+import TelegramChannelIcon from "../../icons/TelegramChannelIcon";
 import TelegramChatGroupIcon from "../../icons/TelegramChatGroupIcon";
+import ChatInterface from "../../interfaces/chat";
 import RecommendedChatsDialog from "./RecommendedChatsDialog";
 
 interface IProps {
@@ -47,34 +50,22 @@ function ChatCard(props: IProps) {
           }}
         >
           <Box>
-            {isChannel && (
-              <Chip
-                icon={<TelegramChannelIcon />}
-                label="Channel"
-                sx={{ mr: 1, borderRadius: 2 }}
-              />
+            {isChannel ? (
+              <Chip icon={<TelegramChannelIcon />} label="Channel" sx={{ mr: 1 }} />
+            ) : (
+              <Chip icon={<TelegramChatGroupIcon />} label="Chat Group" sx={{ mr: 1 }} />
             )}
-            {!isChannel && (
-              <Chip
-                icon={<TelegramChatGroupIcon />}
-                label="Chat Group"
-                sx={{ mr: 1, borderRadius: 2 }}
-              />
-            )}
-            {crawlActive && (
+            {crawlActive ? (
               <Chip
                 label="Crawl Active"
                 color="success"
                 icon={<CrawlActiveIcon fontSize="small" />}
-                sx={{ borderRadius: 2 }}
               />
-            )}
-            {!crawlActive && (
+            ) : (
               <Chip
                 label="Crawl Inactive"
                 color="default"
                 icon={<CrawlInactiveIcon fontSize="small" />}
-                sx={{ borderRadius: 2 }}
               />
             )}
           </Box>
@@ -89,21 +80,14 @@ function ChatCard(props: IProps) {
           </div>
         </CardContent>
         <CardActions>
-          {crawlActive && (
-            <IconButton
-              color="primary"
-              onClick={() => onToggleCrawlStatus(chat)}
-            >
+          {crawlActive ? (
+            <IconButton color="primary" onClick={() => onToggleCrawlStatus(chat)}>
               <Tooltip title="Disable message crawling">
                 <CrawlInactiveIcon />
               </Tooltip>
             </IconButton>
-          )}
-          {!crawlActive && (
-            <IconButton
-              color="primary"
-              onClick={() => onToggleCrawlStatus(chat)}
-            >
+          ) : (
+            <IconButton color="primary" onClick={() => onToggleCrawlStatus(chat)}>
               <Tooltip title="Enable message crawling">
                 <CrawlActiveIcon />
               </Tooltip>
@@ -119,11 +103,7 @@ function ChatCard(props: IProps) {
         </CardActions>
       </Card>
       {isChannel && (
-        <RecommendedChatsDialog
-          isOpen={isDialogOpen}
-          channel={chat}
-          onClose={handleCloseDialog}
-        />
+        <RecommendedChatsDialog isOpen={isDialogOpen} channel={chat} onClose={handleCloseDialog} />
       )}
     </>
   );

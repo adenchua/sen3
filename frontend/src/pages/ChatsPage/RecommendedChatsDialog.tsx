@@ -19,9 +19,7 @@ interface IProps {
 function RecommendedChatsDialog(props: IProps) {
   const { isOpen, channel, onClose } = props;
   const { username } = channel;
-  const [recommendedChannels, setRecommendedChannels] = useState<
-    ChatInterface[] | null
-  >(null);
+  const [recommendedChannels, setRecommendedChannels] = useState<ChatInterface[] | null>(null);
 
   useEffect(() => {
     async function fetchData() {
@@ -70,18 +68,10 @@ function RecommendedChatsDialog(props: IProps) {
                 >
                   <div>
                     <Typography>{recommendedChannel.title}</Typography>
-                    <Typography
-                      variant="body2"
-                      color="textSecondary"
-                      display="block"
-                    >
+                    <Typography variant="body2" color="textSecondary" display="block">
                       @{recommendedChannel.username}
                     </Typography>
-                    <Typography
-                      variant="caption"
-                      color="textSecondary"
-                      display="block"
-                    >
+                    <Typography variant="caption" color="textSecondary" display="block">
                       {recommendedChannel.participantStats[0].count} subscribers
                     </Typography>
                   </div>

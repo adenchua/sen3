@@ -5,13 +5,13 @@ import TextField, { TextFieldProps } from "@mui/material/TextField";
 import Typography from "@mui/material/Typography";
 import { useEffect, useRef, useState } from "react";
 
+import addChat from "../../api/addChat";
 import fetchTelegramChat from "../../api/fetchTelegramChat";
 import InformationDialog from "../../components/dialog/InformationDialog";
 import { APP_BACKGROUND_COLOR } from "../../constants/styling";
 import SearchIcon from "../../icons/SearchIcon";
 import { TelegramChatInterface } from "../../interfaces/chat";
 import AddChatCard from "./AddChatCard";
-import addChat from "../../api/addChat";
 
 interface IProps {
   isOpen: boolean;
@@ -35,9 +35,7 @@ function AddChatDialog(props: IProps) {
     }
 
     try {
-      const response = await fetchTelegramChat(
-        searchRef.current.value as string
-      );
+      const response = await fetchTelegramChat(searchRef.current.value as string);
       setChat(response);
     } catch {
       setChat(null);
@@ -86,9 +84,7 @@ function AddChatDialog(props: IProps) {
         </Grid>
         {chat && <AddChatCard chat={chat} onAddChat={handleAddChat} />}
         {chat === null && (
-          <Typography sx={{ mt: 2 }}>
-            This chat may not exist or could be set to private
-          </Typography>
+          <Typography sx={{ mt: 2 }}>This chat may not exist or could be set to private</Typography>
         )}
       </>
     </InformationDialog>
