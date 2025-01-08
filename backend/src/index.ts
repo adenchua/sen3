@@ -6,6 +6,7 @@ import morgan from "morgan";
 import errorHandlerMiddleware from "./middlewares/errorHandlerMiddleware";
 import chatRouter from "./routes/chatRouter";
 import messageRouter from "./routes/messageRouter";
+import subscriberRouter from "./routes/subscriberRouter";
 import telegramRouter from "./routes/telegramRouter";
 import { databaseInstance } from "./singletons";
 
@@ -24,6 +25,8 @@ app.use("/api/v1/chats", chatRouter);
 app.use("/api/v1/messages", messageRouter);
 // register telegram routes
 app.use("/api/v1/telegram", telegramRouter);
+// register subscriber routes
+app.use("/api/v1/subscribers", subscriberRouter);
 
 // catch async errors
 app.use(errorHandlerMiddleware);
