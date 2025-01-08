@@ -1,9 +1,10 @@
 import { Request, Response } from "express";
 import { body, ValidationChain } from "express-validator";
 
-import { databaseInstance } from "../../singletons";
+import { subscriberAlreadyExistsError } from "../../errors/subscriberError";
 import Subscriber from "../../interfaces/SubscriberInterface";
 import { SubscriberModel } from "../../models/SubscriberModel";
+import { databaseInstance } from "../../singletons";
 
 interface RequestBody {
   userId: string;
@@ -15,8 +16,8 @@ interface RequestBody {
 export const createSubscriberValidationChains: ValidationChain[] = [
   body("userId").isString().exists(),
   body("firstName").isString().exists(),
-  body("lastName").isString().optional(),
-  body("username").isString().optional(),
+  body("lastName").isString().optional({ values: "null" }),
+  body("username").isString().optional({ values: "null" }),
 ];
 
 export default async function createSubscriber(
@@ -34,8 +35,15 @@ export default async function createSubscriber(
     allowNotifications: true, // allow notifications by default
     isApproved: false,
   };
-
   const subscriberModel = new SubscriberModel(databaseInstance, newSubscriber);
+
+  const subscriber = await subscriberModel.fetchOne(userId);
+
+  // already exist, throw error
+  if (subscriber != null) {
+    throw subscriberAlreadyExistsError;
+  }
+
   await subscriberModel.save();
 
   response.status(201).send();

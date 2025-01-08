@@ -36,6 +36,18 @@ export class SubscriberModel {
     };
   }
 
+  transformToSubscriber(rawSubscriber: RawSubscriber): Subscriber {
+    return {
+      id: rawSubscriber._id,
+      allowNotifications: rawSubscriber.allow_notifications,
+      firstName: rawSubscriber.first_name,
+      isApproved: rawSubscriber.is_approved,
+      registeredDate: new Date(rawSubscriber.registered_date),
+      lastName: rawSubscriber.last_name,
+      username: rawSubscriber.username,
+    };
+  }
+
   /** Creates a subscriber in the database */
   async save(): Promise<void> {
     if (this.subscriber == null) {
@@ -45,5 +57,23 @@ export class SubscriberModel {
     const rawSubscriber = this.transformToRawSubscriber(this.subscriber);
     const { _id: id, ...rest } = rawSubscriber;
     await this.databaseService.ingestDocument(rest, id!, this.DATABASE_INDEX);
+  }
+
+  /** Fetches a subscriber by ID */
+  async fetchOne(id: string): Promise<Subscriber> {
+    const response = await this.databaseService.fetchDocuments(this.DATABASE_INDEX, {
+      size: 1,
+      query: {
+        term: {
+          _id: id,
+        },
+      },
+    });
+
+    const [result] = response.map((rawSubscriber) =>
+      this.transformToSubscriber(rawSubscriber as unknown as RawSubscriber),
+    );
+
+    return result;
   }
 }
