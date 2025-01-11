@@ -1,5 +1,6 @@
 import Subscriber from "../interfaces/SubscriberInterface";
 import DatabaseService from "../services/DatabaseService";
+import QueryBuilder from "../classes/QueryBuilder";
 
 /** database subscriber mapping */
 interface RawSubscriber {
@@ -61,14 +62,12 @@ export class SubscriberModel {
 
   /** Fetches a subscriber by ID */
   async fetchOne(id: string): Promise<Subscriber> {
-    const response = await this.databaseService.fetchDocuments(this.DATABASE_INDEX, {
-      size: 1,
-      query: {
-        term: {
-          _id: id,
-        },
-      },
-    });
+    const queryBuilder = new QueryBuilder();
+    queryBuilder.addPagination(0, 1);
+    queryBuilder.addTermQuery<string>("_id", id);
+    const query = queryBuilder.getQuery();
+
+    const response = await this.databaseService.fetchDocuments(this.DATABASE_INDEX, query);
 
     const [result] = response.map((rawSubscriber) =>
       this.transformToSubscriber(rawSubscriber as unknown as RawSubscriber),

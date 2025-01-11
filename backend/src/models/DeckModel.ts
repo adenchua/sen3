@@ -1,5 +1,6 @@
 import Deck from "../interfaces/DeckInterface";
 import DatabaseService from "../services/DatabaseService";
+import QueryBuilder from "../classes/QueryBuilder";
 
 /** database deck mapping */
 interface RawDeck {
@@ -39,6 +40,19 @@ export class DeckModel {
     };
   }
 
+  transformToDeck(rawDeck: RawDeck): Deck {
+    return {
+      id: rawDeck._id,
+      chatIds: rawDeck.chat_ids,
+      createdDate: new Date(rawDeck.created_date),
+      isActive: rawDeck.is_active,
+      keywords: rawDeck.keywords,
+      lastNotificationDate: new Date(rawDeck.last_notification_date),
+      subscriberId: rawDeck.subscriber_id,
+      title: rawDeck.title,
+    };
+  }
+
   /** Creates a deck in the database */
   async save(): Promise<string> {
     if (this.deck == null) {
@@ -48,5 +62,23 @@ export class DeckModel {
     const rawDeck = this.transformToRawDeck(this.deck);
     const documentId = await this.databaseService.ingestDocument(rawDeck, this.DATABASE_INDEX);
     return documentId;
+  }
+
+  async fetch(fields: { subscriberId?: string }, from = 0, size = 10): Promise<Deck[]> {
+    const { subscriberId } = fields;
+
+    const queryBuilder = new QueryBuilder();
+    queryBuilder.addPagination(from, size);
+    if (subscriberId != undefined) {
+      queryBuilder.addTermQuery<string>("subscriber_id", subscriberId);
+    }
+
+    const query = queryBuilder.getQuery();
+
+    const response = await this.databaseService.fetchDocuments<RawDeck>(this.DATABASE_INDEX, query);
+
+    const result = response.map((rawDeck) => this.transformToDeck(rawDeck as unknown as RawDeck));
+
+    return result;
   }
 }
