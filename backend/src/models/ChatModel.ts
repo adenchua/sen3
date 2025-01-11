@@ -1,5 +1,6 @@
 import Chat from "../interfaces/ChatInterface";
 import DatabaseService from "../services/DatabaseService";
+import QueryBuilder from "../classes/QueryBuilder";
 
 interface ParticipantStat {
   count: number;
@@ -93,35 +94,21 @@ export class ChatModel {
 
     const rawChat = this.transformToRawChat(this.chat);
     const { _id: id, ...rest } = rawChat;
-    await this.databaseService.ingestDocument(rest, id!, this.DATABASE_INDEX);
+    await this.databaseService.ingestDocument(rest, this.DATABASE_INDEX, id);
   }
 
-  /** Fetches documents from an index in the database */
+  /** Fetches chats in the database */
   async fetch(fields: { crawlActive?: boolean }, from = 0, size = 10): Promise<Chat[]> {
     const { crawlActive } = fields;
 
-    const query = {
-      from,
-      size,
-      query: {
-        bool: {
-          must: [
-            ...(crawlActive != undefined
-              ? [
-                  {
-                    term: {
-                      crawl_active: {
-                        value: crawlActive,
-                      },
-                    },
-                  },
-                ]
-              : []),
-          ],
-        },
-      },
-    };
+    const queryBuilder = new QueryBuilder();
+    queryBuilder.addPagination(from, size);
 
+    if (crawlActive != undefined) {
+      queryBuilder.addTermQuery<boolean>("crawl_active", crawlActive);
+    }
+
+    const query = queryBuilder.getQuery();
     const response = await this.databaseService.fetchDocuments<RawChat>(this.DATABASE_INDEX, query);
 
     const result = response.map((rawChat) => this.transformToChat(rawChat as unknown as RawChat));
@@ -130,14 +117,12 @@ export class ChatModel {
   }
 
   async fetchOne(id: string): Promise<Chat> {
-    const response = await this.databaseService.fetchDocuments(this.DATABASE_INDEX, {
-      size: 1,
-      query: {
-        term: {
-          _id: id,
-        },
-      },
-    });
+    const queryBuilder = new QueryBuilder();
+    queryBuilder.addPagination(0, 1);
+    queryBuilder.addTermQuery<string>("_id", id);
+    const query = queryBuilder.getQuery();
+
+    const response = await this.databaseService.fetchDocuments(this.DATABASE_INDEX, query);
 
     const [result] = response.map((rawChat) => this.transformToChat(rawChat as unknown as RawChat));
 
