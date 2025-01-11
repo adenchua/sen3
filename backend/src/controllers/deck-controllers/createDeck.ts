@@ -4,6 +4,7 @@ import { body, ValidationChain } from "express-validator";
 import Deck from "../../interfaces/DeckInterface";
 import { DeckModel } from "../../models/DeckModel";
 import { databaseInstance } from "../../singletons";
+import wrapResponse from "../../utils/responseUtils";
 
 interface RequestBody {
   chatIds: string[];
@@ -35,8 +36,10 @@ export default async function createDeck(request: Request, response: Response): 
     subscriberId: id,
   };
 
-  const deckModel = new DeckModel(databaseInstance, newDeck);
-  await deckModel.save();
+  // TODO: add validation for subscriber ID
 
-  response.status(201).send();
+  const deckModel = new DeckModel(databaseInstance, newDeck);
+  const documentId = await deckModel.save();
+
+  response.status(201).send(wrapResponse(documentId));
 }

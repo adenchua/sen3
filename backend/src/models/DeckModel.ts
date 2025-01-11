@@ -40,13 +40,13 @@ export class DeckModel {
   }
 
   /** Creates a deck in the database */
-  async save(): Promise<void> {
+  async save(): Promise<string> {
     if (this.deck == null) {
-      return;
+      throw new Error("No deck instantiated");
     }
 
     const rawDeck = this.transformToRawDeck(this.deck);
-    const { _id: id, ...rest } = rawDeck;
-    await this.databaseService.ingestDocument(rest, this.DATABASE_INDEX, id);
+    const documentId = await this.databaseService.ingestDocument(rawDeck, this.DATABASE_INDEX);
+    return documentId;
   }
 }

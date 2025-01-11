@@ -35,7 +35,7 @@ export default class DatabaseService {
     return (await this.databaseClient.ping()).statusCode === 200;
   }
 
-  async ingestDocument<T>(document: T, indexName: string, documentId?: string) {
+  async ingestDocument<T>(document: T, indexName: string, documentId?: string): Promise<string> {
     const response = await this.databaseClient.index({
       body: document as object,
       id: documentId,
@@ -43,7 +43,7 @@ export default class DatabaseService {
       refresh: true,
     });
 
-    return response.body;
+    return response.body._id;
   }
 
   /** bulk ingest documents. Each document must contain a unique _id field */
