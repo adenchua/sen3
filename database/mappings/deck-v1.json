@@ -1,0 +1,44 @@
+{
+  "settings": {
+    "index": {
+      "number_of_shards": 1,
+      "number_of_replicas": 1
+    }
+  },
+  "mappings": {
+    "dynamic": "strict",
+    "properties": {
+      "chat_ids": {
+        "type": "keyword"
+      },
+      "created_date": {
+        "type": "date",
+        "format": "strict_date_time"
+      },
+      "is_active": {
+        "type": "boolean"
+      },
+      "keywords": {
+        "type": "keyword"
+      },
+      "last_notification_date": {
+        "type": "date",
+        "format": "strict_date_time"
+      },
+      "subscriber_id": {
+        "type": "keyword"
+      },
+      "title": {
+        "type": "text",
+        "fields": {
+          "keyword": {
+            "type": "keyword"
+          }
+        }
+      }
+    }
+  },
+  "aliases": {
+    "deck": {}
+  }
+}

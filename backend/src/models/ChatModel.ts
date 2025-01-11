@@ -93,7 +93,7 @@ export class ChatModel {
 
     const rawChat = this.transformToRawChat(this.chat);
     const { _id: id, ...rest } = rawChat;
-    await this.databaseService.ingestDocument(rest, id!, this.DATABASE_INDEX);
+    await this.databaseService.ingestDocument(rest, this.DATABASE_INDEX, id);
   }
 
   /** Fetches documents from an index in the database */

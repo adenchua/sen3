@@ -56,7 +56,7 @@ export class SubscriberModel {
 
     const rawSubscriber = this.transformToRawSubscriber(this.subscriber);
     const { _id: id, ...rest } = rawSubscriber;
-    await this.databaseService.ingestDocument(rest, id!, this.DATABASE_INDEX);
+    await this.databaseService.ingestDocument(rest, this.DATABASE_INDEX, id);
   }
 
   /** Fetches a subscriber by ID */

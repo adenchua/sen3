@@ -35,7 +35,7 @@ export default class DatabaseService {
     return (await this.databaseClient.ping()).statusCode === 200;
   }
 
-  async ingestDocument<T>(document: T, documentId: string, indexName: string) {
+  async ingestDocument<T>(document: T, indexName: string, documentId?: string) {
     const response = await this.databaseClient.index({
       body: document as object,
       id: documentId,
