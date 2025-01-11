@@ -9,6 +9,7 @@ import createSubscriber, {
   createSubscriberValidationChains,
 } from "../controllers/subscriber-controllers/createSubscriber";
 import validationMiddleware from "../middlewares/validationMiddleware";
+import getDeckById from "../controllers/deck-controllers/getDeckById";
 
 const subscriberRouter = Router();
 
@@ -32,5 +33,6 @@ subscriberRouter.patch(
   validationMiddleware,
   updateDeck,
 );
+subscriberRouter.get("/:id/decks/:deckId", getDeckById);
 
 export default subscriberRouter;
