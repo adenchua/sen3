@@ -4,6 +4,7 @@ import createDeck, { createDeckValidationChains } from "../controllers/deck-cont
 import getDecksBySubscriberId, {
   getDecksBySubscriberIdValidationChains,
 } from "../controllers/deck-controllers/getDecksBySubscriberId";
+import updateDeck, { updateDeckValidationChains } from "../controllers/deck-controllers/updateDeck";
 import createSubscriber, {
   createSubscriberValidationChains,
 } from "../controllers/subscriber-controllers/createSubscriber";
@@ -24,6 +25,12 @@ subscriberRouter.get(
   getDecksBySubscriberIdValidationChains,
   validationMiddleware,
   getDecksBySubscriberId,
+);
+subscriberRouter.patch(
+  "/:id/decks/:deckId",
+  updateDeckValidationChains,
+  validationMiddleware,
+  updateDeck,
 );
 
 export default subscriberRouter;

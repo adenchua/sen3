@@ -1,6 +1,6 @@
+import QueryBuilder from "../classes/QueryBuilder";
 import Deck from "../interfaces/DeckInterface";
 import DatabaseService from "../services/DatabaseService";
-import QueryBuilder from "../classes/QueryBuilder";
 
 /** database deck mapping */
 interface RawDeck {
@@ -27,14 +27,16 @@ export class DeckModel {
     this.databaseService = databaseService;
   }
 
-  transformToRawDeck(deck: Deck): RawDeck {
+  transformToRawDeck(deck: Partial<Deck>): Partial<RawDeck> {
     return {
       _id: deck.id,
       chat_ids: deck.chatIds,
-      created_date: deck.createdDate.toISOString(),
+      created_date: deck.createdDate ? deck.createdDate.toISOString() : undefined,
       is_active: deck.isActive,
       keywords: deck.keywords,
-      last_notification_date: deck.lastNotificationDate.toISOString(),
+      last_notification_date: deck.lastNotificationDate
+        ? deck.lastNotificationDate.toISOString()
+        : undefined,
       subscriber_id: deck.subscriberId,
       title: deck.title,
     };
@@ -80,5 +82,30 @@ export class DeckModel {
     const result = response.map((rawDeck) => this.transformToDeck(rawDeck as unknown as RawDeck));
 
     return result;
+  }
+
+  async fetchOne(id: string): Promise<Deck> {
+    const queryBuilder = new QueryBuilder();
+    queryBuilder.addPagination(0, 1);
+    queryBuilder.addTermQuery("_id", id);
+    const query = queryBuilder.getQuery();
+
+    const response = await this.databaseService.fetchDocuments<RawDeck>(this.DATABASE_INDEX, query);
+
+    const [result] = response.map((rawDeck) => this.transformToDeck(rawDeck as unknown as RawDeck));
+
+    return result;
+  }
+
+  async update(deckId: string, updatedFields: Partial<Deck>) {
+    const transformedUpdatedFields = this.transformToRawDeck(updatedFields);
+
+    const response = await this.databaseService.updateDocument<RawDeck>(
+      this.DATABASE_INDEX,
+      deckId,
+      transformedUpdatedFields,
+    );
+
+    return response.body;
   }
 }
