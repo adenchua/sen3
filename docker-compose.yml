@@ -69,6 +69,18 @@ services:
       - telegram-service
     restart: always
 
+  telegram-bot:
+    build:
+      dockerfile: ./telegram-bot-runner/Dockerfile
+      context: ./
+    image: telegram-bot-runner:1.0.0
+    networks:
+      - sen3
+    depends_on:
+      - opensearch-node
+      - backend-service
+    restart: always
+
 volumes:
   opensearch-data:
 
