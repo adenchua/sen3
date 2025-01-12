@@ -25,13 +25,13 @@ export class SubscriberModel {
     this.databaseService = databaseService;
   }
 
-  transformToRawSubscriber(subscriber: Subscriber): RawSubscriber {
+  transformToRawSubscriber(subscriber: Partial<Subscriber>): Partial<RawSubscriber> {
     return {
       _id: subscriber.id,
       allow_notifications: subscriber.allowNotifications,
       first_name: subscriber.firstName,
       is_approved: subscriber.isApproved,
-      registered_date: subscriber.registeredDate.toISOString(),
+      registered_date: subscriber.registeredDate?.toISOString(),
       last_name: subscriber.lastName,
       username: subscriber.username,
     };
@@ -74,5 +74,39 @@ export class SubscriberModel {
     );
 
     return result;
+  }
+
+  async fetch(fields: { isApproved?: boolean }, from = 0, size = 10): Promise<Subscriber[]> {
+    const { isApproved } = fields;
+
+    const queryBuilder = new QueryBuilder();
+    queryBuilder.addPagination(from, size);
+    if (isApproved != undefined) {
+      queryBuilder.addTermQuery<boolean>("is_approved", isApproved);
+    }
+    const query = queryBuilder.getQuery();
+
+    const response = await this.databaseService.fetchDocuments<RawSubscriber>(
+      this.DATABASE_INDEX,
+      query,
+    );
+
+    const result = response.map((rawSubscriber) =>
+      this.transformToSubscriber(rawSubscriber as unknown as RawSubscriber),
+    );
+
+    return result;
+  }
+
+  async update(subscriberId: string, updatedFields: Partial<Subscriber>): Promise<void> {
+    const transformedUpdatedFields = this.transformToRawSubscriber(updatedFields);
+
+    const response = await this.databaseService.updateDocument<RawSubscriber>(
+      this.DATABASE_INDEX,
+      subscriberId,
+      transformedUpdatedFields,
+    );
+
+    return response.body;
   }
 }

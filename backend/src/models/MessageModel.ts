@@ -26,17 +26,17 @@ export class MessageModel {
     this.databaseService = databaseService;
   }
 
-  private transformToRawMessage(message: Message): RawMessage {
+  private transformToRawMessage(message: Partial<Message>): Partial<RawMessage> {
     return {
       _id: message.id,
       chat_id: message.chatId,
-      created_date: message.createdDate.toISOString(),
+      created_date: message.createdDate?.toISOString(),
       chat_username: message.chatUsername,
-      edited_date: message.editedDate == null ? null : message.editedDate.toISOString(),
+      edited_date: message.editedDate?.toISOString(),
       forward_count: message.forwardCount,
       message_id: message.messageId,
       text: message.text,
-      updated_date: message.updatedDate.toISOString(),
+      updated_date: message.updatedDate?.toISOString(),
       view_count: message.viewCount,
     };
   }
@@ -53,6 +53,9 @@ export class MessageModel {
 
   async saveMany(messages: Message[]): Promise<void> {
     const rawMessages = messages.map((message) => this.transformToRawMessage(message));
-    await this.databaseService.ingestDocuments(rawMessages, this.DATABASE_INDEX);
+    await this.databaseService.ingestDocuments(
+      rawMessages as unknown as RawMessage[],
+      this.DATABASE_INDEX,
+    );
   }
 }

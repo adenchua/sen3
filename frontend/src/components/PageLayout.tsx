@@ -44,7 +44,7 @@ function PageLayout(props: IProps) {
           </IconButton>
           <Box
             component="button"
-            onClick={() => navigate(APP_ROUTES.homepage)}
+            onClick={() => navigate(APP_ROUTES.homepage.path)}
             sx={{
               all: "unset",
               display: "flex",

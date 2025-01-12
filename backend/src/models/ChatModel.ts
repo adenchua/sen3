@@ -76,7 +76,7 @@ export class ChatModel {
       created_date: chat.createdDate?.toISOString(),
       is_channel: chat.isChannel,
       is_verified: chat.isVerified,
-      last_crawl_date: chat.lastCrawlDate == null ? null : chat.lastCrawlDate.toISOString(),
+      last_crawl_date: chat.lastCrawlDate?.toISOString(),
       message_offset_id: chat.messageOffsetId,
       participant_stats: transformedParticipantStats,
       recommended_channels: chat.recommendedChannels,
