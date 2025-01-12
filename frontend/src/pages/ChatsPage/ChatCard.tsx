@@ -2,12 +2,11 @@ import Box from "@mui/material/Box";
 import Card from "@mui/material/Card";
 import CardActions from "@mui/material/CardActions";
 import CardContent from "@mui/material/CardContent";
-import IconButton from "@mui/material/IconButton";
 import Typography from "@mui/material/Typography";
 import { useState } from "react";
 
 import Chip from "../../components/Chip";
-import Tooltip from "../../components/Tooltip";
+import IconButton from "../../components/IconButton";
 import CrawlActiveIcon from "../../icons/CrawlActiveIcon";
 import CrawlInactiveIcon from "../../icons/CrawlInactiveIcon";
 import RecommendedChannelsIcon from "../../icons/RecommendedChannelsIcon";
@@ -81,24 +80,27 @@ function ChatCard(props: IProps) {
         </CardContent>
         <CardActions>
           {crawlActive ? (
-            <IconButton color="primary" onClick={() => onToggleCrawlStatus(chat)}>
-              <Tooltip title="Disable message crawling">
-                <CrawlInactiveIcon />
-              </Tooltip>
-            </IconButton>
+            <IconButton
+              color="primary"
+              onClick={() => onToggleCrawlStatus(chat)}
+              title="Disable message crawling"
+              icon={<CrawlInactiveIcon />}
+            />
           ) : (
-            <IconButton color="primary" onClick={() => onToggleCrawlStatus(chat)}>
-              <Tooltip title="Enable message crawling">
-                <CrawlActiveIcon />
-              </Tooltip>
-            </IconButton>
+            <IconButton
+              color="primary"
+              onClick={() => onToggleCrawlStatus(chat)}
+              title="Enable message crawling"
+              icon={<CrawlActiveIcon />}
+            />
           )}
           {isChannel && (
-            <IconButton color="primary" onClick={() => setIsDialogOpen(true)}>
-              <Tooltip title="View similar channels">
-                <RecommendedChannelsIcon />
-              </Tooltip>
-            </IconButton>
+            <IconButton
+              color="primary"
+              onClick={() => setIsDialogOpen(true)}
+              title="View similar channels"
+              icon={<RecommendedChannelsIcon />}
+            />
           )}
         </CardActions>
       </Card>

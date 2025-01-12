@@ -10,6 +10,7 @@ import approveSubscriber from "../controllers/subscriber-controllers/approveSubs
 import createSubscriber, {
   createSubscriberValidationChains,
 } from "../controllers/subscriber-controllers/createSubscriber";
+import getSubscriberById from "../controllers/subscriber-controllers/getSubscriberById";
 import getSubscribers, {
   getSubscribersValidationChains,
 } from "../controllers/subscriber-controllers/getSubscribers";
@@ -24,6 +25,7 @@ subscriberRouter.post(
   createSubscriber,
 );
 subscriberRouter.get("/", getSubscribersValidationChains, validationMiddleware, getSubscribers);
+subscriberRouter.get("/:id", getSubscriberById);
 subscriberRouter.post("/:id/approve", approveSubscriber);
 
 subscriberRouter.post("/:id/decks", createDeckValidationChains, validationMiddleware, createDeck);
