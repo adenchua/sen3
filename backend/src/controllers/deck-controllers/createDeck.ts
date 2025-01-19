@@ -14,7 +14,7 @@ interface RequestBody {
 }
 
 export const createDeckValidationChains: ValidationChain[] = [
-  body("chatIds").isArray({ min: 1 }).exists(),
+  body("chatIds").isArray().exists(),
   body("chatIds.*").isString(),
   body("isActive").isBoolean().exists(),
   body("keywords").isArray().exists(),

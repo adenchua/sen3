@@ -13,7 +13,7 @@ interface RequestBody {
 }
 
 export const updateDeckValidationChains: ValidationChain[] = [
-  body("chatIds").isArray({ min: 1 }).optional(),
+  body("chatIds").isArray().optional(),
   body("chatIds.*").isString(),
   body("isActive").isBoolean().optional(),
   body("keywords").isArray().optional(),

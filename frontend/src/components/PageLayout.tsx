@@ -1,6 +1,5 @@
 import AppBar from "@mui/material/AppBar";
 import Box from "@mui/material/Box";
-import IconButton from "@mui/material/IconButton";
 import Toolbar from "@mui/material/Toolbar";
 import Typography from "@mui/material/Typography";
 import { JSX } from "react";
@@ -13,6 +12,7 @@ import AccountIcon from "../icons/AccountIcon";
 import BrandingIcon from "../icons/BrandingIcon";
 import DrawerHideIcon from "../icons/DrawerHideIcon";
 import Drawer from "./Drawer";
+import IconButton from "./IconButton";
 
 interface IProps {
   children: JSX.Element;
@@ -39,12 +39,10 @@ function PageLayout(props: IProps) {
             gap: 2,
           }}
         >
-          <IconButton disabled>
-            <DrawerHideIcon />
-          </IconButton>
+          <IconButton disabled icon={<DrawerHideIcon />} title="Hide sidebar" />
           <Box
             component="button"
-            onClick={() => navigate(APP_ROUTES.homepage)}
+            onClick={() => navigate(APP_ROUTES.homepage.path)}
             sx={{
               all: "unset",
               display: "flex",
@@ -60,9 +58,12 @@ function PageLayout(props: IProps) {
             </Typography>
           </Box>
           <Box flexGrow={1} />
-          <IconButton color="primary" disabled>
-            <AccountIcon fontSize="large" />
-          </IconButton>
+          <IconButton
+            color="primary"
+            disabled
+            icon={<AccountIcon fontSize="large" />}
+            title="Manage Account"
+          />
         </Toolbar>
       </AppBar>
 

@@ -7,6 +7,7 @@ import DRAWER_WIDTH from "../constants/drawerWidth";
 import APP_ROUTES from "../constants/routes";
 import ChatsPageIcon from "../icons/ChatsPageIcon";
 import LandingPageIcon from "../icons/LandingPageIcon";
+import RegistrantsPageIcon from "../icons/RegistrantPageIcon";
 import SubscribersPageIcon from "../icons/SubscribersPageIcon";
 
 function Drawer() {
@@ -27,18 +28,26 @@ function Drawer() {
         <DrawerNavigationButton
           icon={<LandingPageIcon />}
           text="Dashboard"
-          link={APP_ROUTES.homepage}
+          link={APP_ROUTES.homepage.path}
+          isDisabled={!APP_ROUTES.homepage.isActive}
         />
         <DrawerNavigationButton
           icon={<ChatsPageIcon />}
           text="Chats"
-          link={APP_ROUTES.chatsPage}
+          link={APP_ROUTES.chatsPage.path}
+          isDisabled={!APP_ROUTES.chatsPage.isActive}
         />
         <DrawerNavigationButton
           icon={<SubscribersPageIcon />}
           text="Subscribers"
-          link={APP_ROUTES.subscribersPage}
-          isDisabled
+          link={APP_ROUTES.subscribersPage.path}
+          isDisabled={!APP_ROUTES.subscribersPage.isActive}
+        />
+        <DrawerNavigationButton
+          icon={<RegistrantsPageIcon />}
+          text="Approve Registrants"
+          link={APP_ROUTES.registrantsPage.path}
+          isDisabled={!APP_ROUTES.registrantsPage.isActive}
         />
       </MenuList>
     </MuiDrawer>

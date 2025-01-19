@@ -1,4 +1,4 @@
-interface ChatInterface {
+export default interface ChatInterface {
   id: string;
   about: string;
   crawlActive: boolean;
@@ -29,5 +29,3 @@ export interface ParticipantStat {
   count: number;
   date: string;
 }
-
-export default ChatInterface;

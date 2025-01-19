@@ -1,5 +1,4 @@
 import Grid from "@mui/material/Grid2";
-import IconButton from "@mui/material/IconButton";
 import InputAdornment from "@mui/material/InputAdornment";
 import TextField, { TextFieldProps } from "@mui/material/TextField";
 import Typography from "@mui/material/Typography";
@@ -8,6 +7,7 @@ import { useEffect, useRef, useState } from "react";
 import addChat from "../../api/addChat";
 import fetchTelegramChat from "../../api/fetchTelegramChat";
 import InformationDialog from "../../components/dialog/InformationDialog";
+import IconButton from "../../components/IconButton";
 import { APP_BACKGROUND_COLOR } from "../../constants/styling";
 import SearchIcon from "../../icons/SearchIcon";
 import { TelegramChatInterface } from "../../interfaces/chat";
@@ -77,9 +77,13 @@ function AddChatDialog(props: IProps) {
             />
           </Grid>
           <Grid>
-            <IconButton color="primary" onClick={handleSearch} size="large">
-              <SearchIcon />
-            </IconButton>
+            <IconButton
+              color="primary"
+              onClick={handleSearch}
+              size="large"
+              icon={<SearchIcon />}
+              title="Search"
+            />
           </Grid>
         </Grid>
         {chat && <AddChatCard chat={chat} onAddChat={handleAddChat} />}
