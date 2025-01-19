@@ -16,12 +16,12 @@ import APP_ROUTES from "../../constants/routes";
 import RegistrantIcon from "../../icons/RegistrantIcon";
 import DeckInterface from "../../interfaces/deck";
 import SubscriberInterface from "../../interfaces/subscriber";
+import DeckDetails from "./DeckDetails";
 import DeckList from "./DeckList";
 
 export default function SubscriberDetailsPage() {
   const [subscriber, setSubscriber] = useState<SubscriberInterface | null>(null);
   const [decks, setDecks] = useState<DeckInterface[] | null>(null);
-  const [selectedDeck, setSelectedDeck] = useState<DeckInterface | null>(null);
   const { id } = useParams();
   const navigate = useNavigate();
 
@@ -39,10 +39,6 @@ export default function SubscriberDetailsPage() {
 
     fetchData();
   }, [id]);
-
-  function handleSelectDeck(deck: DeckInterface) {
-    setSelectedDeck(deck);
-  }
 
   return (
     <PageLayout>
@@ -76,11 +72,11 @@ export default function SubscriberDetailsPage() {
               </Paper>
             )}
             <Divider />
-            {decks && <DeckList decks={decks} onSelectDeck={handleSelectDeck} />}
+            {decks && subscriber && <DeckList decks={decks} subscriberId={subscriber.id} />}
           </Stack>
         </Grid>
         <Grid size={9} sx={{ height: "100%" }}>
-          {selectedDeck && <p>{selectedDeck.id}</p>}
+          {subscriber && <DeckDetails subscriberId={subscriber.id} />}
         </Grid>
       </Grid>
     </PageLayout>

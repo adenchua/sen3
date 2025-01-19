@@ -14,10 +14,11 @@ interface IProps {
   children: JSX.Element;
   isOpen: boolean;
   onClose: VoidFunction;
+  onConfirm: VoidFunction;
 }
 
-function InformationDialog(props: IProps) {
-  const { heading, subheading, children, isOpen, onClose } = props;
+export default function ActionDialog(props: IProps) {
+  const { heading, subheading, children, isOpen, onClose, onConfirm } = props;
 
   return (
     <Dialog
@@ -39,10 +40,13 @@ function InformationDialog(props: IProps) {
         {children}
       </DialogContent>
       <DialogActions>
-        <Button onClick={onClose}>Cancel</Button>
+        <Button onClick={onClose} color="inherit">
+          Cancel
+        </Button>
+        <Button onClick={onConfirm} color="primary">
+          Confirm
+        </Button>
       </DialogActions>
     </Dialog>
   );
 }
-
-export default InformationDialog;

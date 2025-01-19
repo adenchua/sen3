@@ -1,20 +1,26 @@
-import { StyleOutlined } from "@mui/icons-material";
+import StyleOutlined from "@mui/icons-material/StyleOutlined";
 import Box from "@mui/material/Box";
 import Stack from "@mui/material/Stack";
 import Typography from "@mui/material/Typography";
 
+import addDeck from "../../api/addDeck";
 import Button from "../../components/Button";
 import { APP_BACKGROUND_COLOR } from "../../constants/styling";
 import DeckInterface from "../../interfaces/deck";
 import DeckCard from "./DeckCard";
 
 interface IProps {
-  onSelectDeck: (deck: DeckInterface) => void;
   decks: DeckInterface[];
+  subscriberId: string;
 }
 
 export default function DeckList(props: IProps) {
-  const { onSelectDeck, decks } = props;
+  const { decks, subscriberId } = props;
+
+  async function handleCreateDeck(): Promise<void> {
+    const deckTitle = `Untitled Deck ${decks.length + 1}`;
+    await addDeck(subscriberId, deckTitle);
+  }
 
   return (
     <Stack spacing={2} sx={{ height: "100%", overflowY: "auto" }}>
@@ -26,12 +32,12 @@ export default function DeckList(props: IProps) {
         <Typography variant="h6" sx={{ mb: 2 }}>
           Manage decks
         </Typography>
-        <Button fullWidth startIcon={<StyleOutlined />}>
+        <Button fullWidth startIcon={<StyleOutlined />} onClick={handleCreateDeck}>
           Create Deck
         </Button>
       </Box>
       {decks.map((deck) => {
-        return <DeckCard deck={deck} onSelectDeck={onSelectDeck} key={deck.id} />;
+        return <DeckCard deck={deck} key={deck.id} />;
       })}
     </Stack>
   );

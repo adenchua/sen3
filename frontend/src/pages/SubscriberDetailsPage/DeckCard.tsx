@@ -1,8 +1,9 @@
-import { KeyboardDoubleArrowRightOutlined } from "@mui/icons-material";
+import KeyboardDoubleArrowRightOutlined from "@mui/icons-material/KeyboardDoubleArrowRightOutlined";
 import Box from "@mui/material/Box";
 import Grid from "@mui/material/Grid2";
 import Paper from "@mui/material/Paper";
 import Typography from "@mui/material/Typography";
+import { useSearchParams } from "react-router";
 
 import Chip from "../../components/Chip";
 import IconButton from "../../components/IconButton";
@@ -10,27 +11,33 @@ import DeckInterface from "../../interfaces/deck";
 
 interface IProps {
   deck: DeckInterface;
-  onSelectDeck: (deck: DeckInterface) => void;
 }
 
 export default function DeckCard(props: IProps) {
-  const { deck, onSelectDeck } = props;
+  const { deck } = props;
+  const [searchParams, setSearchParams] = useSearchParams();
+  const { title, chatIds, id, isActive } = deck;
+
+  const isSelectedDeck = searchParams.get("deckId") === id;
 
   return (
-    <Paper elevation={0} sx={{ p: 2, mb: 1 }}>
+    <Paper
+      elevation={0}
+      sx={{ p: 2, mb: 1, border: isSelectedDeck ? "1px solid" : "", borderColor: "primary.main" }}
+    >
       <Grid container justifyContent="space-between" alignItems="center">
         <Grid>
-          <Typography mb={1}>{deck.title}</Typography>
+          <Typography mb={1}>{title}</Typography>
           <Box>
-            <Chip label="Active" sx={{ mr: 1 }} color="success" />
-            <Chip label={`${deck.chatIds.length} chats`} />
+            {isActive && <Chip label="Active" sx={{ mr: 1 }} color="success" />}
+            <Chip label={`${chatIds.length} chats`} />
           </Box>
         </Grid>
         <Grid>
           <IconButton
             title="Select deck"
             color="primary"
-            onClick={() => onSelectDeck(deck)}
+            onClick={() => setSearchParams({ deckId: id })}
             icon={<KeyboardDoubleArrowRightOutlined />}
           />
         </Grid>
