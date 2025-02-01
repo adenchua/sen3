@@ -2,10 +2,10 @@ import axios from "axios";
 
 import { BACKEND_SERVICE_API_URL } from "../constants/api";
 import ApiResponseWrapper from "../interfaces/api";
-import ChatInterface from "../interfaces/chat";
+import { TelegramChatInterface } from "../interfaces/chat";
 
-const fetchRecommendedChannels = async (chatUsername: string): Promise<ChatInterface[]> => {
-  const response = await axios.get<ApiResponseWrapper<ChatInterface[]>>(
+const fetchRecommendedChannels = async (chatUsername: string): Promise<TelegramChatInterface[]> => {
+  const response = await axios.get<ApiResponseWrapper<TelegramChatInterface[]>>(
     `${BACKEND_SERVICE_API_URL}/api/v1/telegram/chats/${chatUsername}/recommendations`,
   );
 

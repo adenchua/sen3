@@ -4,11 +4,12 @@ import Paper from "@mui/material/Paper";
 import Typography from "@mui/material/Typography";
 import { useEffect, useState } from "react";
 
+import addChat from "../../api/addChat";
 import fetchRecommendedChannels from "../../api/fetchRecommendedChannels";
 import Button from "../../components/Button";
 import InformationDialog from "../../components/dialog/InformationDialog";
 import { APP_BACKGROUND_COLOR } from "../../constants/styling";
-import ChatInterface from "../../interfaces/chat";
+import ChatInterface, { TelegramChatInterface } from "../../interfaces/chat";
 
 interface IProps {
   isOpen: boolean;
@@ -19,7 +20,9 @@ interface IProps {
 function RecommendedChatsDialog(props: IProps) {
   const { isOpen, channel, onClose } = props;
   const { username } = channel;
-  const [recommendedChannels, setRecommendedChannels] = useState<ChatInterface[] | null>(null);
+  const [recommendedChannels, setRecommendedChannels] = useState<TelegramChatInterface[] | null>(
+    null,
+  );
 
   useEffect(() => {
     async function fetchData() {
@@ -32,6 +35,10 @@ function RecommendedChatsDialog(props: IProps) {
       fetchData();
     }
   }, [username, isOpen]);
+
+  async function handleAddChat(chat: TelegramChatInterface) {
+    await addChat(chat);
+  }
 
   return (
     <InformationDialog
@@ -72,11 +79,11 @@ function RecommendedChatsDialog(props: IProps) {
                       @{recommendedChannel.username}
                     </Typography>
                     <Typography variant="caption" color="textSecondary" display="block">
-                      {recommendedChannel.participantStats[0].count} subscribers
+                      {recommendedChannel.participantsCount} subscribers
                     </Typography>
                   </div>
                   <Box flexGrow={1} />
-                  <Button>Add Channel</Button>
+                  <Button onClick={() => handleAddChat(recommendedChannel)}>Add Channel</Button>
                 </Paper>
               );
             })}
