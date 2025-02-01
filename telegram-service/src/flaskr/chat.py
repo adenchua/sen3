@@ -5,7 +5,6 @@ from dotenv import load_dotenv
 from flask import Blueprint, abort, request
 
 from telegram.ChatService import ChatService
-
 from .responsewrapper import wrap_response
 
 blueprint = Blueprint("chat", __name__)
@@ -26,8 +25,11 @@ async def get_chat(chat_username):
         chat_service = ChatService(API_ID, API_HASH)
         result = await chat_service.get_chat(chat_username)
         return wrap_response(result)
-    except Exception:
-        logging.exception("Error occurred for get_chat")
+    except ValueError:
+        # invalid username or link
+        abort(404, f'chat with "{chat_username}" does not exist')
+    except Exception as error:
+        logging.exception(error)
         abort(500)
 
 
@@ -50,8 +52,11 @@ async def get_chat_messages(chat_username):
             offset_id=offset_id,
         )
         return wrap_response(result)
-    except Exception:
-        logging.exception("Error occurred for get_chat_messages")
+    except ValueError:
+        # invalid username or link
+        abort(404, f'chat with "{chat_username}" does not exist')
+    except Exception as error:
+        logging.exception(error)
         abort(500)
 
 
@@ -61,6 +66,9 @@ async def get_chat_recommendations(chat_username):
         chat_service = ChatService(API_ID, API_HASH)
         result = await chat_service.get_recommended_chats(chat_username)
         return wrap_response(result)
-    except Exception:
-        logging.exception("Error occurred for get_chat_recommendations")
+    except ValueError:
+        # invalid username or link
+        abort(404, f'chat with "{chat_username}" does not exist')
+    except Exception as error:
+        logging.exception(error)
         abort(500)

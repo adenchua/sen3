@@ -1,5 +1,5 @@
 from telethon import TelegramClient, functions
-from telethon.tl.types import Message, MessageService, messages
+from telethon.tl.types import Message, MessageService, messages, TypeUsername
 
 from models.Models import Chat
 from models.Models import Message as _Message
@@ -13,32 +13,44 @@ class ChatService:
     def __init__(self, api_id: int, api_hash: str):
         self.telegram_client: TelegramClient = TelegramClient("anon", api_id, api_hash)
 
+    def get_active_chat_username(self, usernames: list[TypeUsername]):
+        # loop through all usernames, get the first active username
+        # and set it as the main username
+        for chat_username in usernames:
+            if chat_username.active:
+                return chat_username.username
+        return None
+
     async def get_chat(self, chat_username: str) -> Chat:
         """
+        Retrieves a Telegram chat by the username or invite link or short link
         Returns a telegram Chat object
         """
-        try:
-            client: TelegramClient
-            async with self.telegram_client as client:
-                response: messages.ChatFull = await client(
-                    functions.channels.GetFullChannelRequest(channel=chat_username)
-                )
-                chat = response.chats[0]
-                chat_full = response.full_chat
+        client: TelegramClient
+        async with self.telegram_client as client:
+            response: messages.ChatFull = await client(
+                functions.channels.GetFullChannelRequest(channel=chat_username)
+            )
+            chat = response.chats[0]
+            chat_full = response.full_chat
 
-                result = Chat(
-                    id=chat_full.id,
-                    about=chat_full.about,
-                    participants_count=chat_full.participants_count,
-                    username=chat.username,
-                    is_channel=chat.broadcast,
-                    is_verified=chat.verified,
-                    title=chat.title,
-                    created_date=chat.date,
-                )
-                return result.model_dump()
-        except Exception as error:
-            print(f"Error: {error}")
+            temp_username: str | None = chat.username
+            # some channels have > 1 username, resulting in chat.username to be None
+            # telegram stores the usernames as an array in chat.usernames
+            if temp_username is None and chat.usernames is not None:
+                temp_username = self.get_active_chat_username(chat.usernames)
+
+            result = Chat(
+                id=chat_full.id,
+                about=chat_full.about,
+                participants_count=chat_full.participants_count,
+                username=temp_username,
+                is_channel=chat.broadcast,
+                is_verified=chat.verified,
+                title=chat.title,
+                created_date=chat.date,
+            )
+            return result.model_dump()
 
     async def get_chat_messages(
         self,
@@ -86,20 +98,6 @@ class ChatService:
 
             return result
 
-    async def chat_exists(self, chat_id: str) -> bool:
-        """
-        Returns True if a telegram chat is valid
-        """
-        try:
-            client: TelegramClient
-            async with self.telegram_client as client:
-                # throws ValueError if the chat id is invalid
-                await client.get_entity(chat_id)
-                return True
-        except ValueError:
-            # Telethon throws ValueError if the chat id is invalid
-            return False
-
     async def get_recommended_chats(self, chat_username: str) -> list[str]:
         """
         Returns a list of recommended chat ids for a given chat
@@ -117,6 +115,12 @@ class ChatService:
             result: list[str] = []
 
             for chat in response.chats:
-                result.append(chat.username)
+                temp_username: str = chat.username
+                # some channels have > 1 username, resulting in chat.username to be None
+                # telegram stores the usernames as an array in chat.usernames
+                if temp_username is None and chat.usernames is not None:
+                    temp_username = self.get_active_chat_username(chat.usernames)
+
+                result.append(temp_username)
 
             return result
