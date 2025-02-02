@@ -17,7 +17,7 @@ export default class QueryBuilder {
   }
 
   addTermQuery<T>(fieldName: string, value: T): void {
-    const temp = {
+    const mustQuery = {
       term: {
         [fieldName]: {
           value,
@@ -25,7 +25,46 @@ export default class QueryBuilder {
       },
     };
 
-    this.query!.query!.bool!.must!.push(temp);
+    this.query.query.bool.must.push(mustQuery);
+  }
+
+  addTermsQuery<T>(fieldName: string, values: T[]): void {
+    const mustQuery = {
+      terms: {
+        [fieldName]: values,
+      },
+    };
+
+    this.query.query.bool.must.push(mustQuery);
+  }
+
+  addRangeQuery(
+    fieldName: string,
+    operator: opensearchtypes.QueryDslRangeQuery,
+    value: string,
+  ): void {
+    const mustQuery = {
+      range: {
+        [fieldName]: {
+          [operator as string]: value,
+        },
+      },
+    };
+
+    this.query.query.bool.must.push(mustQuery);
+  }
+
+  addSimpleQueryStringQuery(fields: string[], queryStrings: string[]): void {
+    // words in each array joined by the OR operator
+    const validQueryString = queryStrings.join(" | ");
+    const mustQuery = {
+      simple_query_string: {
+        fields,
+        query: validQueryString,
+      },
+    };
+
+    this.query.query.bool.must.push(mustQuery);
   }
 
   addPagination(from: number, size: number): void {

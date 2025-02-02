@@ -76,13 +76,20 @@ export class SubscriberModel {
     return result;
   }
 
-  async fetch(fields: { isApproved?: boolean }, from = 0, size = 10): Promise<Subscriber[]> {
-    const { isApproved } = fields;
+  async fetch(
+    fields: { isApproved?: boolean; allowNotifications?: boolean },
+    from = 0,
+    size = 10,
+  ): Promise<Subscriber[]> {
+    const { isApproved, allowNotifications } = fields;
 
     const queryBuilder = new QueryBuilder();
     queryBuilder.addPagination(from, size);
     if (isApproved != undefined) {
       queryBuilder.addTermQuery<boolean>("is_approved", isApproved);
+    }
+    if (allowNotifications != undefined) {
+      queryBuilder.addTermQuery<boolean>("allow_notifications", allowNotifications);
     }
     const query = queryBuilder.getQuery();
 
