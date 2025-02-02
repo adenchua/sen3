@@ -118,19 +118,10 @@ class TelegramService {
     return result;
   }
 
-  async fetchRecommendedChats(chatUsername: string) {
+  async fetchRecommendedChats(chatUsername: string): Promise<ParsedTelegramChat[]> {
     const apiURL = `${this.telegramAPIUrl}/api/v1/chats/${chatUsername}/recommendations`;
-    const response = await axios.get<AxiosResponse<string[]>>(apiURL);
-    const { data: chatUsernameList } = response.data;
-
-    const result: ParsedTelegramChat[] = [];
-
-    for (const _chatUsername of chatUsernameList) {
-      const chatResponse = await this.fetchChat(_chatUsername);
-      if (chatResponse) {
-        result.push(chatResponse);
-      }
-    }
+    const response = await axios.get<AxiosResponse<ParsedTelegramChat[]>>(apiURL);
+    const { data: result } = response.data;
 
     return result;
   }
