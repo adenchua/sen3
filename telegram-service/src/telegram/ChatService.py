@@ -98,7 +98,7 @@ class ChatService:
 
             return result
 
-    async def get_recommended_chats(self, chat_username: str) -> list[str]:
+    async def get_recommended_chats(self, chat_username: str) -> list[Chat]:
         """
         Returns a list of recommended chat ids for a given chat
 
@@ -112,7 +112,7 @@ class ChatService:
                 )
             )
 
-            result: list[str] = []
+            result: list[Chat] = []
 
             for chat in response.chats:
                 temp_username: str = chat.username
@@ -121,6 +121,7 @@ class ChatService:
                 if temp_username is None and chat.usernames is not None:
                     temp_username = self.get_active_chat_username(chat.usernames)
 
-                result.append(temp_username)
+                temp_chat = await self.get_chat(temp_username)
+                result.append(temp_chat)
 
             return result
