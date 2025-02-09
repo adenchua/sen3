@@ -4,7 +4,8 @@ from requests.exceptions import HTTPError
 import logging
 
 from constants import BACKEND_SERVICE_API_URL
-from utils.date_helper import convert_to_iso, get_current_datetime_iso
+from utils.date_helper import adjust_to_24_hours_ago, get_current_datetime_iso
+from .NotificationService import NotificationService
 
 logging.basicConfig(
     format="{asctime} - {levelname} - {message}",
@@ -15,25 +16,55 @@ logging.basicConfig(
 
 
 class SubscriberNotificationBackgroundJob:
-    def __init__(self, intervalSeconds: int):
-        self.intervalSeconds = intervalSeconds
+    def __init__(self, intervalMinutes: int):
+        self.intervalMinutes = intervalMinutes
 
-    async def run_background_job(self):
+    async def run(self):
         """
         - retrieves all active subscribers that allow notitications
         - retrieves all active decks from each subscriber
-        - get any matched messages
-        - send to subscriber
-        - update timestamp
+        - get any matched messages and send it to subscriber
+        - update deck notified timestamp
         """
-        subscribers = await self.get_active_subscribers()
-        for subscriber in subscribers:
-            subscriber_id = subscriber["id"]
-            active_decks = await self.get_active_decks(subscriber_id)
-            for deck in active_decks:
-                matched_messages = await self.get_matched_messages(
-                    deck["chatIds"], deck["keywords"], deck["lastNotificationDate"]
+        while True:
+            logging.info(f"Running background job to notify subscribers...")
+            try:
+                notification_service = NotificationService()
+                subscribers = await self.get_active_subscribers()
+                # for each active subscriber, retrieve their active decks
+                for subscriber in subscribers:
+                    subscriber_id = subscriber["id"]
+                    active_decks = await self.get_active_decks(subscriber_id)
+                    # for each active deck, check if any messages matched
+                    for deck in active_decks:
+                        deck_id = deck["id"]
+                        matched_messages = await self.get_matched_messages(
+                            deck["chatIds"],
+                            deck["keywords"],
+                            deck["lastNotificationDate"],
+                        )
+                        # for each matched text, send to subscriber
+                        for matched_message in matched_messages:
+                            matched_message_id = matched_message["message_id"]
+                            message_content = matched_message["text"]
+                            await notification_service.send_message(
+                                message_content, subscriber_id
+                            )
+                            logging.info(
+                                f"Sent message {matched_message_id} to subscriber {subscriber_id}"
+                            )
+                        # update the last notified date for the deck
+                        await self.update_deck(subscriber_id, deck_id)
+            except HTTPError as http_error:
+                logging.exception(http_error)
+            except Exception as error:
+                logging.exception(error)
+            finally:
+                logging.info(
+                    f"Background job completed! Sleeping for {self.intervalMinutes} minutes..."
                 )
+                # sleep program for pre-determined interval before the next run
+                await asyncio.sleep(60 * self.intervalMinutes)
 
     async def get_active_subscribers(self):
         """
@@ -55,6 +86,16 @@ class SubscriberNotificationBackgroundJob:
         response_json: dict = response.json()
         return response_json["data"]
 
+    async def update_deck(self, subscriber_id: str, deck_id: str):
+        """
+        Updates a subscriber deck lastNotificationDate with the current timestamp
+        """
+        api_url = f"{BACKEND_SERVICE_API_URL}/api/v1/subscribers/{subscriber_id}/decks/{deck_id}"
+        response = requests.patch(
+            api_url, {"lastNotificationDate": get_current_datetime_iso()}
+        )
+        response.raise_for_status()
+
     async def get_matched_messages(
         self,
         chat_ids: list[str],
@@ -67,4 +108,17 @@ class SubscriberNotificationBackgroundJob:
         is None or <24hrs ago, it is set to match any messages from the last
         24 hrs
         """
-        print(chat_ids, keywords, last_notified_timestamp)
+        adjusted_timestamp = adjust_to_24_hours_ago(last_notified_timestamp)
+        api_url = f"{BACKEND_SERVICE_API_URL}/api/v1/messages"
+        response = requests.get(
+            api_url,
+            {
+                "chatIds": ",".join(chat_ids),
+                "keywords": ",".join(keywords),
+                "createdDateFrom": adjusted_timestamp,
+                "size": "100",
+            },
+        )
+        response.raise_for_status()
+        response_json: dict = response.json()
+        return response_json["data"]
