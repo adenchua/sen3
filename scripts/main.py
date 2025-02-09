@@ -32,6 +32,7 @@ async def run():
 
 
 if __name__ == "__main__":
+    logging.info("Starting up scripts... Sleeping for 60 seconds...")
     # sleep for 1 minute first on restart to prevent script spam upon startup
     time.sleep(60 * 1)
     logging.info("Running all background jobs...")

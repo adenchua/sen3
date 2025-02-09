@@ -5,6 +5,10 @@ import {
   Update_ResponseBody,
 } from "@opensearch-project/opensearch/api";
 
+interface DatabaseDocumentId {
+  _id: string;
+}
+
 export default class DatabaseService {
   private databaseClient: Client;
 
@@ -23,15 +27,17 @@ export default class DatabaseService {
     this.databaseClient = client;
   }
 
-  private processHitsResponse<T>(searchResponse: Search_ResponseBody): Array<{ _id: string & T }> {
+  private processHitsResponse<T>(
+    searchResponse: Search_ResponseBody,
+  ): Array<DatabaseDocumentId & T> {
     const result = searchResponse.hits.hits.map((hit) => {
       return {
         _id: hit._id,
-        ...hit._source,
+        ...(hit._source as T),
       };
     });
 
-    return result as Array<{ _id: string & T }>;
+    return result;
   }
 
   async ping(): Promise<boolean> {
@@ -50,7 +56,7 @@ export default class DatabaseService {
   }
 
   /** bulk ingest documents. Each document must contain a unique _id field */
-  async ingestDocuments<T extends { _id: string }>(
+  async ingestDocuments<T extends DatabaseDocumentId>(
     documents: Array<T>,
     indexName: string,
   ): Promise<number> {
@@ -75,7 +81,7 @@ export default class DatabaseService {
   async fetchDocuments<T>(
     indexName: string,
     query: Search_RequestBody,
-  ): Promise<Array<{ _id: string & T }>> {
+  ): Promise<Array<DatabaseDocumentId & T>> {
     const response = await this.databaseClient.search({
       index: indexName,
       body: query,

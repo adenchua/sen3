@@ -1,3 +1,4 @@
+import QueryBuilder from "../classes/QueryBuilder";
 import Message from "../interfaces/MessageInterface";
 import DatabaseService from "../services/DatabaseService";
 
@@ -41,6 +42,21 @@ export class MessageModel {
     };
   }
 
+  private transformToMessage(rawMessage: RawMessage): Message {
+    return {
+      id: rawMessage._id,
+      chatId: rawMessage.chat_id,
+      chatUsername: rawMessage.chat_username,
+      createdDate: new Date(rawMessage.created_date),
+      editedDate: rawMessage.edited_date ? new Date(rawMessage.edited_date) : null,
+      forwardCount: rawMessage.forward_count,
+      messageId: rawMessage.message_id,
+      text: rawMessage.text,
+      updatedDate: new Date(rawMessage.updated_date),
+      viewCount: rawMessage.view_count,
+    };
+  }
+
   async save(): Promise<void> {
     if (this.message == null) {
       return;
@@ -57,5 +73,40 @@ export class MessageModel {
       rawMessages as unknown as RawMessage[],
       this.DATABASE_INDEX,
     );
+  }
+
+  async fetch(
+    fields: { keywords?: string[]; chatIds?: string[]; createdDateFrom?: string },
+    from = 0,
+    size = 10,
+  ): Promise<Message[]> {
+    const { keywords, chatIds, createdDateFrom } = fields;
+
+    const queryBuilder = new QueryBuilder();
+    queryBuilder.addPagination(from, size);
+
+    if (keywords != undefined) {
+      queryBuilder.addSimpleQueryStringQuery(["text"], keywords);
+    }
+
+    if (chatIds != undefined) {
+      queryBuilder.addTermsQuery("chat_id", chatIds);
+    }
+
+    if (createdDateFrom != undefined) {
+      queryBuilder.addRangeQuery("created_date", "gte", createdDateFrom);
+    }
+
+    const query = queryBuilder.getQuery();
+    const response = await this.databaseService.fetchDocuments<RawMessage>(
+      this.DATABASE_INDEX,
+      query,
+    );
+
+    const result = response.map((rawChat) =>
+      this.transformToMessage(rawChat as unknown as RawMessage),
+    );
+
+    return result;
   }
 }

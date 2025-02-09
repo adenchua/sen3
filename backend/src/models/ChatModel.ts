@@ -15,8 +15,8 @@ interface RawChat {
   created_date: string;
   is_channel: boolean;
   is_verified: boolean;
-  last_crawl_date: string | null;
-  message_offset_id: number | null;
+  last_crawl_date?: string;
+  message_offset_id?: number;
   participant_stats: ParticipantStat[];
   recommended_channels: string[];
   title: string;
@@ -51,7 +51,7 @@ export class ChatModel {
       createdDate: new Date(rawChat.created_date),
       isChannel: rawChat.is_channel,
       isVerified: rawChat.is_verified,
-      lastCrawlDate: rawChat.last_crawl_date ? new Date(rawChat.last_crawl_date) : null,
+      lastCrawlDate: rawChat.last_crawl_date ? new Date(rawChat.last_crawl_date) : undefined,
       messageOffsetId: rawChat.message_offset_id,
       participantStats: transformedParticipantStats,
       recommendedChannels: rawChat.recommended_channels,
