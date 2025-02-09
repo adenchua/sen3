@@ -15,8 +15,8 @@ interface RawChat {
   created_date: string;
   is_channel: boolean;
   is_verified: boolean;
-  last_crawl_date?: string;
-  message_offset_id?: number;
+  last_crawl_date?: string | null;
+  message_offset_id?: number | null;
   participant_stats: ParticipantStat[];
   recommended_channels: string[];
   title: string;
