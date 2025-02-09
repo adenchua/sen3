@@ -7,6 +7,11 @@ import ChatInterface from "../interfaces/chat";
 const fetchChats = async (): Promise<ChatInterface[]> => {
   const response = await axios.get<ApiResponseWrapper<ChatInterface[]>>(
     `${BACKEND_SERVICE_API_URL}/api/v1/chats`,
+    {
+      params: {
+        size: 10_000,
+      },
+    },
   );
 
   return response.data.data;

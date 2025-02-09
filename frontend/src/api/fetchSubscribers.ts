@@ -10,6 +10,7 @@ const fetchSubscribers = async (isApproved: 1 | 0): Promise<SubscriberInterface[
     {
       params: {
         isApproved,
+        size: 10_000,
       },
     },
   );
