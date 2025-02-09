@@ -1,4 +1,5 @@
-import { Client, opensearchtypes } from "@opensearch-project/opensearch";
+import { Client } from "@opensearch-project/opensearch";
+import { Search_RequestBody, Search_ResponseBody } from "@opensearch-project/opensearch/api";
 
 export default class DatabaseService {
   private databaseClient: Client;
@@ -18,9 +19,7 @@ export default class DatabaseService {
     this.databaseClient = client;
   }
 
-  private processHitsResponse<T>(
-    searchResponse: opensearchtypes.SearchResponse<T>,
-  ): Array<{ _id: string & T }> {
+  private processHitsResponse<T>(searchResponse: Search_ResponseBody): Array<{ _id: string & T }> {
     const result = searchResponse.hits.hits.map((hit) => {
       return {
         _id: hit._id,
@@ -71,9 +70,9 @@ export default class DatabaseService {
 
   async fetchDocuments<T>(
     indexName: string,
-    query: opensearchtypes.SearchRequest["body"],
+    query: Search_RequestBody,
   ): Promise<Array<{ _id: string & T }>> {
-    const response = await this.databaseClient.search<opensearchtypes.SearchResponse<T>>({
+    const response = await this.databaseClient.search({
       index: indexName,
       body: query,
     });
