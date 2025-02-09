@@ -10,7 +10,7 @@ interface RequestBody {
   id: string;
   participantStat?: { count: number; date: string };
   crawlActive?: boolean;
-  messageOffsetId?: number | null;
+  messageOffsetId?: number;
   lastCrawlDate?: string;
   recommendedChannels?: string[];
 }
@@ -20,7 +20,7 @@ export const updateChatValidationChains: ValidationChain[] = [
   check("participantStat.count").isInt({ min: 0 }).optional(),
   check("participantStat.date").isISO8601().optional(),
   body("crawlActive").isBoolean().optional(),
-  body("messageOffsetId").isInt({ min: 0 }).optional({ values: "null" }),
+  body("messageOffsetId").isInt({ min: 0 }).optional(),
   body("lastCrawlDate").isISO8601().optional(),
   body("recommendedChannels").isArray().optional(),
   body("recommendedChannels.*").isString().trim(),

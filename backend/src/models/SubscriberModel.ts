@@ -64,7 +64,7 @@ export class SubscriberModel {
   async fetchOne(id: string): Promise<Subscriber> {
     const queryBuilder = new QueryBuilder();
     queryBuilder.addPagination(0, 1);
-    queryBuilder.addTermQuery<string>("_id", id);
+    queryBuilder.addTermQuery("_id", id);
     const query = queryBuilder.getQuery();
 
     const response = await this.databaseService.fetchDocuments(this.DATABASE_INDEX, query);
@@ -76,13 +76,20 @@ export class SubscriberModel {
     return result;
   }
 
-  async fetch(fields: { isApproved?: boolean }, from = 0, size = 10): Promise<Subscriber[]> {
-    const { isApproved } = fields;
+  async fetch(
+    fields: { isApproved?: boolean; allowNotifications?: boolean },
+    from = 0,
+    size = 10,
+  ): Promise<Subscriber[]> {
+    const { isApproved, allowNotifications } = fields;
 
     const queryBuilder = new QueryBuilder();
     queryBuilder.addPagination(from, size);
     if (isApproved != undefined) {
-      queryBuilder.addTermQuery<boolean>("is_approved", isApproved);
+      queryBuilder.addTermQuery("is_approved", isApproved);
+    }
+    if (allowNotifications != undefined) {
+      queryBuilder.addTermQuery("allow_notifications", allowNotifications);
     }
     const query = queryBuilder.getQuery();
 
@@ -98,7 +105,7 @@ export class SubscriberModel {
     return result;
   }
 
-  async update(subscriberId: string, updatedFields: Partial<Subscriber>): Promise<void> {
+  async update(subscriberId: string, updatedFields: Partial<Subscriber>) {
     const transformedUpdatedFields = this.transformToRawSubscriber(updatedFields);
 
     const response = await this.databaseService.updateDocument<RawSubscriber>(
@@ -107,6 +114,6 @@ export class SubscriberModel {
       transformedUpdatedFields,
     );
 
-    return response.body;
+    return response;
   }
 }

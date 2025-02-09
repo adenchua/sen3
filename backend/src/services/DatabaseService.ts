@@ -1,4 +1,13 @@
-import { Client, opensearchtypes } from "@opensearch-project/opensearch";
+import { Client } from "@opensearch-project/opensearch";
+import {
+  Search_RequestBody,
+  Search_ResponseBody,
+  Update_ResponseBody,
+} from "@opensearch-project/opensearch/api";
+
+interface DatabaseDocumentId {
+  _id: string;
+}
 
 export default class DatabaseService {
   private databaseClient: Client;
@@ -19,16 +28,16 @@ export default class DatabaseService {
   }
 
   private processHitsResponse<T>(
-    searchResponse: opensearchtypes.SearchResponse<T>,
-  ): Array<{ _id: string & T }> {
+    searchResponse: Search_ResponseBody,
+  ): Array<DatabaseDocumentId & T> {
     const result = searchResponse.hits.hits.map((hit) => {
       return {
         _id: hit._id,
-        ...hit._source,
+        ...(hit._source as T),
       };
     });
 
-    return result as Array<{ _id: string & T }>;
+    return result;
   }
 
   async ping(): Promise<boolean> {
@@ -47,7 +56,7 @@ export default class DatabaseService {
   }
 
   /** bulk ingest documents. Each document must contain a unique _id field */
-  async ingestDocuments<T extends { _id: string }>(
+  async ingestDocuments<T extends DatabaseDocumentId>(
     documents: Array<T>,
     indexName: string,
   ): Promise<number> {
@@ -71,9 +80,9 @@ export default class DatabaseService {
 
   async fetchDocuments<T>(
     indexName: string,
-    query: opensearchtypes.SearchRequest["body"],
-  ): Promise<Array<{ _id: string & T }>> {
-    const response = await this.databaseClient.search<opensearchtypes.SearchResponse<T>>({
+    query: Search_RequestBody,
+  ): Promise<Array<DatabaseDocumentId & T>> {
+    const response = await this.databaseClient.search({
       index: indexName,
       body: query,
     });
@@ -81,7 +90,11 @@ export default class DatabaseService {
     return this.processHitsResponse(response.body);
   }
 
-  async updateDocument<T>(indexName: string, documentId: string, updatedFields: Partial<T>) {
+  async updateDocument<T>(
+    indexName: string,
+    documentId: string,
+    updatedFields: Partial<T>,
+  ): Promise<Update_ResponseBody> {
     const response = await this.databaseClient.update({
       index: indexName,
       id: documentId,

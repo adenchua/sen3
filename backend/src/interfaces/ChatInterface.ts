@@ -11,8 +11,8 @@ export default interface Chat {
   createdDate: Date;
   isChannel: boolean;
   isVerified: boolean;
-  lastCrawlDate: Date | null;
-  messageOffsetId: number | null;
+  lastCrawlDate?: Date;
+  messageOffsetId?: number;
   participantStats: ParticipantStat[];
   recommendedChannels: string[];
   title: string;

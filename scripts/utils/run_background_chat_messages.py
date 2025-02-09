@@ -25,7 +25,7 @@ def update_chat_offset(chat_id: str, max_offset_id: int) -> None:
     }
     response = requests.patch(URL, json=dict(request_body))
     response.raise_for_status()
-    logging.info("Updated chat offset_id...")
+    logging.info(f"Updated {chat_id} offset_id...")
 
 
 def ingest_message(message: dict) -> None:

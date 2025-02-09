@@ -10,6 +10,7 @@ interface RequestBody {
   isActive: boolean;
   keywords: string[];
   title: string;
+  lastNotificationDate: string;
 }
 
 export const updateDeckValidationChains: ValidationChain[] = [
@@ -19,11 +20,14 @@ export const updateDeckValidationChains: ValidationChain[] = [
   body("keywords").isArray().optional(),
   body("keywords.*").isString(),
   body("title").isString().trim().optional(),
+  body("lastNotificationDate").isISO8601().optional(),
 ];
 
 export default async function updateDeck(request: Request, response: Response): Promise<void> {
-  const { chatIds, isActive, keywords, title } = request.body as RequestBody;
+  const { chatIds, isActive, keywords, title, lastNotificationDate } = request.body as RequestBody;
   const { deckId } = request.params;
+
+  const _lastNotificationDate = lastNotificationDate ? new Date(lastNotificationDate) : undefined;
 
   const deckModel = new DeckModel(databaseInstance);
   const deck = await deckModel.fetchOne(deckId);
@@ -32,7 +36,13 @@ export default async function updateDeck(request: Request, response: Response): 
     throw invalidDeckError;
   }
 
-  await deckModel.update(deckId, { chatIds, isActive, keywords, title });
+  await deckModel.update(deckId, {
+    chatIds,
+    isActive,
+    keywords,
+    title,
+    lastNotificationDate: _lastNotificationDate,
+  });
 
   response.sendStatus(204);
 }
