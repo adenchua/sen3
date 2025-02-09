@@ -76,11 +76,11 @@ export class DeckModel {
     const queryBuilder = new QueryBuilder();
     queryBuilder.addPagination(from, size);
     if (subscriberId != undefined) {
-      queryBuilder.addTermQuery<string>("subscriber_id", subscriberId);
+      queryBuilder.addTermQuery("subscriber_id", subscriberId);
     }
 
     if (isActive != undefined) {
-      queryBuilder.addTermQuery<boolean>("is_active", isActive);
+      queryBuilder.addTermQuery("is_active", isActive);
     }
 
     const query = queryBuilder.getQuery();
@@ -114,6 +114,6 @@ export class DeckModel {
       transformedUpdatedFields,
     );
 
-    return response.body;
+    return response;
   }
 }

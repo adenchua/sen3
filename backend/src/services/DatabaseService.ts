@@ -1,5 +1,9 @@
 import { Client } from "@opensearch-project/opensearch";
-import { Search_RequestBody, Search_ResponseBody } from "@opensearch-project/opensearch/api";
+import {
+  Search_RequestBody,
+  Search_ResponseBody,
+  Update_ResponseBody,
+} from "@opensearch-project/opensearch/api";
 
 export default class DatabaseService {
   private databaseClient: Client;
@@ -80,7 +84,11 @@ export default class DatabaseService {
     return this.processHitsResponse(response.body);
   }
 
-  async updateDocument<T>(indexName: string, documentId: string, updatedFields: Partial<T>) {
+  async updateDocument<T>(
+    indexName: string,
+    documentId: string,
+    updatedFields: Partial<T>,
+  ): Promise<Update_ResponseBody> {
     const response = await this.databaseClient.update({
       index: indexName,
       id: documentId,

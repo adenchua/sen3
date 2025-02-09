@@ -105,7 +105,7 @@ export class ChatModel {
     queryBuilder.addPagination(from, size);
 
     if (crawlActive != undefined) {
-      queryBuilder.addTermQuery<boolean>("crawl_active", crawlActive);
+      queryBuilder.addTermQuery("crawl_active", crawlActive);
     }
 
     const query = queryBuilder.getQuery();
@@ -119,7 +119,7 @@ export class ChatModel {
   async fetchOne(id: string): Promise<Chat> {
     const queryBuilder = new QueryBuilder();
     queryBuilder.addPagination(0, 1);
-    queryBuilder.addTermQuery<string>("_id", id);
+    queryBuilder.addTermQuery("_id", id);
     const query = queryBuilder.getQuery();
 
     const response = await this.databaseService.fetchDocuments(this.DATABASE_INDEX, query);
@@ -139,6 +139,6 @@ export class ChatModel {
       transformedUpdatedFields,
     );
 
-    return response.body;
+    return response;
   }
 }

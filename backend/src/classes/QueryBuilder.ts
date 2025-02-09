@@ -1,23 +1,25 @@
-import { opensearchtypes } from "@opensearch-project/opensearch";
-import { QueryDslQueryContainer } from "@opensearch-project/opensearch/api/types";
+import { Search_RequestBody } from "@opensearch-project/opensearch/api";
+import { FieldValue } from "@opensearch-project/opensearch/api/_types/_common";
+import {
+  DateRangeQuery,
+  QueryContainer,
+} from "@opensearch-project/opensearch/api/_types/_common.query_dsl";
 
 export default class QueryBuilder {
   private query = {
     from: 0,
     size: 10,
     query: {
-      bool: { must: [] as QueryDslQueryContainer[] },
+      bool: { must: [] as QueryContainer[] },
     },
-  } satisfies opensearchtypes.SearchRequest["body"];
+  } satisfies Search_RequestBody;
 
-  constructor() {}
-
-  getQuery(): opensearchtypes.SearchRequest["body"] {
+  getQuery(): Search_RequestBody {
     return this.query;
   }
 
-  addTermQuery<T>(fieldName: string, value: T): void {
-    const mustQuery = {
+  addTermQuery(fieldName: string, value: FieldValue): void {
+    const mustQuery: QueryContainer = {
       term: {
         [fieldName]: {
           value,
@@ -28,8 +30,8 @@ export default class QueryBuilder {
     this.query.query.bool.must.push(mustQuery);
   }
 
-  addTermsQuery<T>(fieldName: string, values: T[]): void {
-    const mustQuery = {
+  addTermsQuery(fieldName: string, values: FieldValue[]): void {
+    const mustQuery: QueryContainer = {
       terms: {
         [fieldName]: values,
       },
@@ -38,12 +40,8 @@ export default class QueryBuilder {
     this.query.query.bool.must.push(mustQuery);
   }
 
-  addRangeQuery(
-    fieldName: string,
-    operator: opensearchtypes.QueryDslRangeQuery,
-    value: string,
-  ): void {
-    const mustQuery = {
+  addRangeQuery(fieldName: string, operator: DateRangeQuery, value: string): void {
+    const mustQuery: QueryContainer = {
       range: {
         [fieldName]: {
           [operator as string]: value,
@@ -57,7 +55,7 @@ export default class QueryBuilder {
   addSimpleQueryStringQuery(fields: string[], queryStrings: string[]): void {
     // words in each array joined by the OR operator
     const validQueryString = queryStrings.join(" | ");
-    const mustQuery = {
+    const mustQuery: QueryContainer = {
       simple_query_string: {
         fields,
         query: validQueryString,
