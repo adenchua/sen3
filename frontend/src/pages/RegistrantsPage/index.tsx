@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import Grid from "@mui/material/Grid2";
 
 import PageLayout from "../../components/PageLayout";
 import fetchSubscribers from "../../api/fetchSubscribers";
@@ -37,15 +38,13 @@ function RegistrantsPage() {
 
   return (
     <PageLayout>
-      <>
+      <Grid container spacing={1}>
         {registrants?.map((registrant) => (
-          <RegistrantCard
-            key={registrant.id}
-            registrant={registrant}
-            onApproveRegistrant={handleApproveRegistrant}
-          />
+          <Grid key={registrant.id}>
+            <RegistrantCard registrant={registrant} onApproveRegistrant={handleApproveRegistrant} />
+          </Grid>
         ))}
-      </>
+      </Grid>
     </PageLayout>
   );
 }
