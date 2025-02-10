@@ -2,12 +2,16 @@ import asyncio
 import logging
 import time
 
-from utils import run_background_chat
-from utils import run_background_chat_messages
-from constants import CHAT_INTERVAL_DAYS, CHAT_MESSAGES_INTERVAL_MINUTES
+from constants import (
+    CHAT_INTERVAL_DAYS,
+    CHAT_MESSAGES_INTERVAL_MINUTES,
+    SUB_NOTIFICATIONS_INTERVAL_MINUTES,
+)
 from classes.SubscriberNotificationBackgroundJob import (
     SubscriberNotificationBackgroundJob,
 )
+from classes.ChatMessagesBackgroundJob import ChatMessagesBackgroundJob
+from classes.ChatUpdateBackgroundJob import ChatUpdateBackgroundJob
 
 logging.basicConfig(
     format="{asctime} - {levelname} - {message}",
@@ -19,20 +23,22 @@ logging.basicConfig(
 
 async def run():
     """
-    Starts a background job where it periodically crawls chat messages every CHAT_MESSAGES_INTERVAL_MINUTES
-    minutes and ingests it in the database. Separately, it gets an update of the chat every CHAT_INTERVAL_DAYS
-    days and updates the participant count
+    Starts the following jobs in the background:
+    - Periodically crawls chat messages every CHAT_MESSAGES_INTERVAL_MINUTES
+    minutes and ingests it in the database
+    - Periodically updates all chats every CHAT_INTERVAL_DAYS days and updates the participant count
+    - Periodically sends notifications to subscribers for any matched messages
     """
-    subscriber_notification_background_job = SubscriberNotificationBackgroundJob(15)
+    subscriber_notification_background_job = SubscriberNotificationBackgroundJob(
+        int(SUB_NOTIFICATIONS_INTERVAL_MINUTES)
+    )
+    chat_update_background_job = ChatUpdateBackgroundJob(int(CHAT_INTERVAL_DAYS))
+    chat_messages_background_job = ChatMessagesBackgroundJob(
+        int(CHAT_MESSAGES_INTERVAL_MINUTES)
+    )
 
-    task1 = asyncio.create_task(
-        run_background_chat.run_background_job(int(CHAT_INTERVAL_DAYS))
-    )
-    task2 = asyncio.create_task(
-        run_background_chat_messages.run_background_job(
-            int(CHAT_MESSAGES_INTERVAL_MINUTES)
-        )
-    )
+    task1 = asyncio.create_task(chat_update_background_job.run())
+    task2 = asyncio.create_task(chat_messages_background_job.run())
     task3 = asyncio.create_task(subscriber_notification_background_job.run())
 
     await asyncio.wait([task1, task2, task3])

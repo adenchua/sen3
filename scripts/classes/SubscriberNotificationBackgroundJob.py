@@ -16,8 +16,8 @@ logging.basicConfig(
 
 
 class SubscriberNotificationBackgroundJob:
-    def __init__(self, intervalMinutes: int):
-        self.intervalMinutes = intervalMinutes
+    def __init__(self, interval_minutes: int):
+        self.interval_minutes = interval_minutes
 
     async def run(self):
         """
@@ -61,10 +61,10 @@ class SubscriberNotificationBackgroundJob:
                 logging.exception(error)
             finally:
                 logging.info(
-                    f"Background job completed! Sleeping for {self.intervalMinutes} minutes..."
+                    f"Background job completed! Sleeping for {self.interval_minutes} minutes..."
                 )
                 # sleep program for pre-determined interval before the next run
-                await asyncio.sleep(60 * self.intervalMinutes)
+                await asyncio.sleep(60 * self.interval_minutes)
 
     async def get_active_subscribers(self):
         """
