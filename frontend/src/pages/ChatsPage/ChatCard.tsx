@@ -1,14 +1,15 @@
+import { Avatar } from "@mui/material";
 import Box from "@mui/material/Box";
 import Card from "@mui/material/Card";
 import CardActions from "@mui/material/CardActions";
 import CardContent from "@mui/material/CardContent";
 import Typography from "@mui/material/Typography";
+import { format } from "date-fns";
 import { useState } from "react";
 
-import Chip from "../../components/Chip";
 import IconButton from "../../components/IconButton";
-import CrawlActiveIcon from "../../icons/CrawlActiveIcon";
-import CrawlInactiveIcon from "../../icons/CrawlInactiveIcon";
+import Switch from "../../components/Switch";
+import { APP_BACKGROUND_COLOR } from "../../constants/styling";
 import RecommendedChannelsIcon from "../../icons/RecommendedChannelsIcon";
 import TelegramChannelIcon from "../../icons/TelegramChannelIcon";
 import TelegramChatGroupIcon from "../../icons/TelegramChatGroupIcon";
@@ -22,8 +23,9 @@ interface IProps {
 
 function ChatCard(props: IProps) {
   const { chat, onToggleCrawlStatus } = props;
-  const { title, about, crawlActive, isChannel, username } = chat;
+  const { title, about, crawlActive, isChannel, username, lastCrawlDate } = chat;
   const [isDialogOpen, setIsDialogOpen] = useState<boolean>(false);
+  const formattedLastCrawlDate = lastCrawlDate ? `Last crawl: ${format(lastCrawlDate, "Pp")}` : "";
 
   function handleCloseDialog() {
     setIsDialogOpen(false);
@@ -48,60 +50,37 @@ function ChatCard(props: IProps) {
             flexGrow: 1,
           }}
         >
-          <Box>
-            {isChannel ? (
-              <Chip icon={<TelegramChannelIcon />} label="Channel" sx={{ mr: 1 }} />
-            ) : (
-              <Chip icon={<TelegramChatGroupIcon />} label="Chat Group" sx={{ mr: 1 }} />
-            )}
-            {crawlActive ? (
-              <Chip
-                label="Crawl Active"
-                color="success"
-                icon={<CrawlActiveIcon fontSize="small" />}
-              />
-            ) : (
-              <Chip
-                label="Crawl Inactive"
-                color="default"
-                icon={<CrawlInactiveIcon fontSize="small" />}
-              />
-            )}
+          <Box display="flex" gap={1} alignItems="flex-start">
+            <Avatar variant="rounded">
+              {isChannel ? <TelegramChannelIcon /> : <TelegramChatGroupIcon />}
+            </Avatar>
+            <Box mt="-2px">
+              <Typography fontWeight="bold">{title}</Typography>
+              <Typography variant="body2" color="textSecondary">
+                @{username}
+              </Typography>
+            </Box>
           </Box>
-          <div>
-            <Typography fontWeight="bold">{title}</Typography>
-            <Typography variant="body2" color="textSecondary" sx={{ mb: 2 }}>
-              @{username}
-            </Typography>
-            <Typography color="textSecondary" variant="body2">
-              {about}
-            </Typography>
-          </div>
+          <Typography color="textSecondary" variant="body2">
+            {formattedLastCrawlDate}
+          </Typography>
+          <Typography color="textSecondary" variant="body2">
+            {about}
+          </Typography>
         </CardContent>
-        <CardActions>
-          {crawlActive ? (
-            <IconButton
-              color="primary"
-              onClick={() => onToggleCrawlStatus(chat)}
-              title="Disable message crawling"
-              icon={<CrawlInactiveIcon />}
-            />
-          ) : (
-            <IconButton
-              color="primary"
-              onClick={() => onToggleCrawlStatus(chat)}
-              title="Enable message crawling"
-              icon={<CrawlActiveIcon />}
-            />
-          )}
+        <CardActions
+          sx={{ borderTop: "2px solid", borderColor: APP_BACKGROUND_COLOR, display: "flex" }}
+        >
           {isChannel && (
             <IconButton
-              color="primary"
+              sx={{ border: "1px solid", borderRadius: "4px", borderColor: "#D9D9D9" }}
               onClick={() => setIsDialogOpen(true)}
               title="View similar channels"
               icon={<RecommendedChannelsIcon />}
             />
           )}
+          <Box flexGrow={1} />
+          <Switch checked={crawlActive} onChange={() => onToggleCrawlStatus(chat)} />
         </CardActions>
       </Card>
       {isChannel && (

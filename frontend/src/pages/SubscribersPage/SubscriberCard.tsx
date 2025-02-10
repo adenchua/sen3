@@ -4,12 +4,15 @@ import CardActions from "@mui/material/CardActions";
 import CardContent from "@mui/material/CardContent";
 import Grid from "@mui/material/Grid2";
 import Typography from "@mui/material/Typography";
+import { format } from "date-fns";
+import { useNavigate } from "react-router";
 
 import Button from "../../components/Button";
+import Switch from "../../components/Switch";
+import APP_ROUTES from "../../constants/routes";
+import { APP_BACKGROUND_COLOR } from "../../constants/styling";
 import RegistrantIcon from "../../icons/RegistrantIcon";
 import SubscriberInterface from "../../interfaces/subscriber";
-import { useNavigate } from "react-router";
-import APP_ROUTES from "../../constants/routes";
 
 interface IProps {
   subscriber: SubscriberInterface;
@@ -17,7 +20,7 @@ interface IProps {
 
 export default function SubscriberCard(props: IProps) {
   const { subscriber } = props;
-  const { firstName, lastName, registeredDate, username, id } = subscriber;
+  const { firstName, lastName, registeredDate, username, id, allowNotifications } = subscriber;
   const navigate = useNavigate();
 
   return (
@@ -33,7 +36,7 @@ export default function SubscriberCard(props: IProps) {
       <CardContent>
         <Grid container spacing={2} alignItems="center" mb={2}>
           <Grid>
-            <Avatar>
+            <Avatar variant="rounded">
               <RegistrantIcon />
             </Avatar>
           </Grid>
@@ -42,22 +45,29 @@ export default function SubscriberCard(props: IProps) {
               {firstName} {lastName}
             </Typography>
             <Typography variant="body2" color="textSecondary">
-              @{username} ({id})
+              @{username}
             </Typography>
           </Grid>
         </Grid>
         <Typography variant="body2" color="textSecondary">
-          Application date: {registeredDate}
+          Joined {format(registeredDate, "Pp")}
         </Typography>
       </CardContent>
-      <CardActions>
+      <CardActions
+        sx={{
+          borderTop: "2px solid",
+          borderColor: APP_BACKGROUND_COLOR,
+          display: "flex",
+          justifyContent: "space-between",
+        }}
+      >
         <Button
-          fullWidth
           onClick={() => navigate(`${APP_ROUTES.subscribersPage.path}/${id}`)}
           color="inherit"
         >
-          Manage
+          Manage deck
         </Button>
+        <Switch checked={allowNotifications} />
       </CardActions>
     </Card>
   );

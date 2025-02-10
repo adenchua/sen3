@@ -1,3 +1,3 @@
-import RegistrantIcon from "@mui/icons-material/Telegram";
+import RegistrantIcon from "@mui/icons-material/Face";
 
 export default RegistrantIcon;

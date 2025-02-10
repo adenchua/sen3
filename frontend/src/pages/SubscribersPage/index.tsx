@@ -10,7 +10,7 @@ export default function SubscribersPage() {
 
   useEffect(() => {
     async function fetchData() {
-      const response = await fetchSubscribers(1);
+      const response = await fetchSubscribers(true);
       setSubscribers(response);
     }
 
