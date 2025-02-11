@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import Grid from "@mui/material/Grid2";
 
 import fetchSubscribers from "../../api/fetchSubscribers";
 import PageLayout from "../../components/PageLayout";
@@ -19,11 +20,13 @@ export default function SubscribersPage() {
 
   return (
     <PageLayout>
-      <>
+      <Grid container spacing={1}>
         {subscribers?.map((subscriber) => (
-          <SubscriberCard key={subscriber.id} subscriber={subscriber} />
+          <Grid key={subscriber.id}>
+            <SubscriberCard key={subscriber.id} subscriber={subscriber} />
+          </Grid>
         ))}
-      </>
+      </Grid>
     </PageLayout>
   );
 }
