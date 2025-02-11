@@ -45,7 +45,7 @@ class SubscriberNotificationBackgroundJob:
                         )
                         # for each matched text, send to subscriber
                         for matched_message in matched_messages:
-                            matched_message_id = matched_message["message_id"]
+                            matched_message_id = matched_message["messageId"]
                             message_content = matched_message["text"]
                             await notification_service.send_message(
                                 message_content, subscriber_id
