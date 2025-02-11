@@ -53,8 +53,10 @@ class SubscriberNotificationBackgroundJob:
                             logging.info(
                                 f"Sent message {matched_message_id} to subscriber {subscriber_id}"
                             )
-                        # update the last notified date for the deck
-                        await self.update_deck(subscriber_id, deck_id)
+                            
+                        # only update last notified date of deck if there are matched messages
+                        if len(matched_messages) > 0:
+                            await self.update_deck(subscriber_id, deck_id)
             except HTTPError as http_error:
                 logging.exception(http_error)
             except Exception as error:

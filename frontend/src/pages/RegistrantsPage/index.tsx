@@ -12,7 +12,7 @@ function RegistrantsPage() {
 
   useEffect(() => {
     async function fetchData() {
-      const response = await fetchSubscribers(0);
+      const response = await fetchSubscribers(false);
       setRegistrants(response);
     }
 
