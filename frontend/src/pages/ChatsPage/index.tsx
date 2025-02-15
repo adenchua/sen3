@@ -1,5 +1,6 @@
 import Grid from "@mui/material/Grid2";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
+import { Box, TextField, Typography } from "@mui/material";
 
 import fetchChats from "../../api/fetchChats";
 import updateChat from "../../api/updateChat";
@@ -13,6 +14,23 @@ import ChatCard from "./ChatCard";
 function ChatsPage() {
   const [chats, setChats] = useState<ChatInterface[] | null>(null);
   const [isCreateChatDialogOpened, setIsCreateChatDialogOpened] = useState<boolean>(false);
+  const [chatFilter, setChatFilter] = useState<string>("");
+
+  // return chats with title or username that contains the chat filter
+  const filteredChat = useMemo(
+    () =>
+      chats?.filter((chat) => {
+        const lowercaseTitle = chat.title.toLowerCase();
+        const lowercaseUsername = chat.username.toLowerCase();
+        const lowercaseChatFilter = chatFilter.toLowerCase();
+
+        return (
+          lowercaseTitle.includes(lowercaseChatFilter) ||
+          lowercaseUsername.includes(lowercaseChatFilter)
+        );
+      }),
+    [chats, chatFilter],
+  );
 
   useEffect(() => {
     let isMounted = true;
@@ -55,16 +73,37 @@ function ChatsPage() {
 
   return (
     <PageLayout>
-      <>
-        <Button
-          sx={{ mb: 2 }}
-          startIcon={<AddIcon />}
-          onClick={() => setIsCreateChatDialogOpened(true)}
-        >
-          Add Chat
-        </Button>
-        <Grid container spacing={2} alignItems="stretch">
-          {chats?.map((chat) => {
+      <Grid container alignItems="center" spacing={2} mb={4}>
+        <Grid>
+          <TextField
+            type="search"
+            id="chat-search"
+            size="small"
+            placeholder="Filter chat"
+            onChange={(e) => setChatFilter(e.target.value)}
+            slotProps={{
+              input: {
+                sx: {
+                  minWidth: "300px",
+                  borderRadius: 100,
+                  backgroundColor: "#FFF",
+                },
+              },
+            }}
+          />
+        </Grid>
+        <Grid>
+          <Button startIcon={<AddIcon />} onClick={() => setIsCreateChatDialogOpened(true)}>
+            Add Chat
+          </Button>
+        </Grid>
+      </Grid>
+      <Box sx={{ height: "calc(100vh - 200px)", overflowY: "auto" }}>
+        <Grid container spacing={2}>
+          {chatFilter.length > 0 && filteredChat?.length === 0 && (
+            <Typography>There are no matching channel/groups with filter "{chatFilter}"</Typography>
+          )}
+          {filteredChat?.map((chat) => {
             return (
               <Grid key={chat.id}>
                 <ChatCard chat={chat} onToggleCrawlStatus={handleToggleCrawlStatus} />
@@ -72,8 +111,8 @@ function ChatsPage() {
             );
           })}
         </Grid>
-        <AddChatDialog isOpen={isCreateChatDialogOpened} onClose={handleCloseDialog} />
-      </>
+      </Box>
+      <AddChatDialog isOpen={isCreateChatDialogOpened} onClose={handleCloseDialog} />
     </PageLayout>
   );
 }

@@ -15,7 +15,7 @@ import Drawer from "./Drawer";
 import IconButton from "./IconButton";
 
 interface IProps {
-  children: JSX.Element;
+  children: JSX.Element | JSX.Element[];
 }
 
 function PageLayout(props: IProps) {
