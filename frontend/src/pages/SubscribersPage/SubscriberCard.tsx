@@ -13,15 +13,30 @@ import APP_ROUTES from "../../constants/routes";
 import { APP_BACKGROUND_COLOR } from "../../constants/styling";
 import RegistrantIcon from "../../icons/RegistrantIcon";
 import SubscriberInterface from "../../interfaces/subscriber";
+import DATE_FNS_DATE_FORMAT from "../../constants/dateFormat";
+import Tooltip from "../../components/Tooltip";
+import updateSubscriber from "../../api/subscribers/updateSubscriber";
 
 interface IProps {
   subscriber: SubscriberInterface;
+  onUpdateSubscriber: (updatedSubscriber: SubscriberInterface) => void;
 }
 
 export default function SubscriberCard(props: IProps) {
-  const { subscriber } = props;
+  const { subscriber, onUpdateSubscriber } = props;
   const { firstName, lastName, registeredDate, username, id, allowNotifications } = subscriber;
   const navigate = useNavigate();
+
+  async function handleToggleNotifications(
+    event: React.ChangeEvent<HTMLInputElement>,
+  ): Promise<void> {
+    const updatedAllowNotications = event.target.checked;
+    await updateSubscriber(id, {
+      allowNotifications: updatedAllowNotications,
+    });
+
+    onUpdateSubscriber({ ...subscriber, allowNotifications: updatedAllowNotications });
+  }
 
   return (
     <Card
@@ -50,7 +65,7 @@ export default function SubscriberCard(props: IProps) {
           </Grid>
         </Grid>
         <Typography variant="body2" color="textSecondary">
-          Joined {format(registeredDate, "Pp")}
+          Joined {format(registeredDate, DATE_FNS_DATE_FORMAT)}
         </Typography>
       </CardContent>
       <CardActions
@@ -67,7 +82,9 @@ export default function SubscriberCard(props: IProps) {
         >
           Manage deck
         </Button>
-        <Switch checked={allowNotifications} />
+        <Tooltip title="Toggle to enable notifications">
+          <Switch checked={allowNotifications} onChange={handleToggleNotifications} />
+        </Tooltip>
       </CardActions>
     </Card>
   );

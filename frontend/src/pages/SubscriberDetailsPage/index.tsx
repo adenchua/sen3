@@ -8,8 +8,8 @@ import Typography from "@mui/material/Typography";
 import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router";
 
-import fetchDecksBySubscriber from "../../api/fetchDecksBySubscriber";
-import fetchSubscriberById from "../../api/fetchSubscriberById";
+import fetchSubscriberById from "../../api//subscribers/fetchSubscriberById";
+import fetchDecksBySubscriber from "../../api/decks/fetchDecksBySubscriber";
 import Button from "../../components/Button";
 import PageLayout from "../../components/PageLayout";
 import APP_ROUTES from "../../constants/routes";
@@ -21,11 +21,13 @@ import DeckList from "./DeckList";
 
 export default function SubscriberDetailsPage() {
   const [subscriber, setSubscriber] = useState<SubscriberInterface | null>(null);
-  const [decks, setDecks] = useState<DeckInterface[] | null>(null);
+  const [decks, setDecks] = useState<DeckInterface[]>([]);
   const { id } = useParams();
   const navigate = useNavigate();
 
   useEffect(() => {
+    let isMounted = true;
+
     async function fetchData() {
       if (id == null) {
         return;
@@ -33,12 +35,22 @@ export default function SubscriberDetailsPage() {
 
       const subscriberResponse = await fetchSubscriberById(id);
       const decksResponse = await fetchDecksBySubscriber(id);
-      setSubscriber(subscriberResponse);
-      setDecks(decksResponse);
+      if (isMounted) {
+        setSubscriber(subscriberResponse);
+        setDecks(decksResponse);
+      }
     }
 
     fetchData();
+
+    return () => {
+      isMounted = false;
+    };
   }, [id]);
+
+  function handleAddDeck(newDeck: DeckInterface) {
+    setDecks((prev) => [newDeck, ...prev]);
+  }
 
   return (
     <PageLayout>
@@ -72,7 +84,9 @@ export default function SubscriberDetailsPage() {
               </Paper>
             )}
             <Divider />
-            {decks && subscriber && <DeckList decks={decks} subscriberId={subscriber.id} />}
+            {subscriber && (
+              <DeckList decks={decks} subscriberId={subscriber.id} onAddDeck={handleAddDeck} />
+            )}
           </Stack>
         </Grid>
         <Grid size={9} sx={{ height: "100%" }}>

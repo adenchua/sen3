@@ -1,7 +1,7 @@
 import axios from "axios";
 
-import { BACKEND_SERVICE_API_URL } from "../constants/api";
-import DeckInterface from "../interfaces/deck";
+import { BACKEND_SERVICE_API_URL } from "../../constants/api";
+import DeckInterface from "../../interfaces/deck";
 
 const updateDeck = async (
   deckId: string,

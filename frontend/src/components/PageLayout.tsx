@@ -8,14 +8,13 @@ import { useNavigate } from "react-router";
 import DRAWER_WIDTH from "../constants/drawerWidth";
 import APP_ROUTES from "../constants/routes";
 import { APP_BACKGROUND_COLOR } from "../constants/styling";
-import AccountIcon from "../icons/AccountIcon";
 import BrandingIcon from "../icons/BrandingIcon";
 import DrawerHideIcon from "../icons/DrawerHideIcon";
 import Drawer from "./Drawer";
 import IconButton from "./IconButton";
 
 interface IProps {
-  children: JSX.Element;
+  children: JSX.Element | JSX.Element[];
 }
 
 function PageLayout(props: IProps) {
@@ -58,15 +57,8 @@ function PageLayout(props: IProps) {
             </Typography>
           </Box>
           <Box flexGrow={1} />
-          <IconButton
-            color="primary"
-            disabled
-            icon={<AccountIcon fontSize="large" />}
-            title="Manage Account"
-          />
         </Toolbar>
       </AppBar>
-
       <Drawer />
       <Box
         sx={{

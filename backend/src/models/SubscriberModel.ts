@@ -3,7 +3,7 @@ import DatabaseService from "../services/DatabaseService";
 import QueryBuilder from "../classes/QueryBuilder";
 
 /** database subscriber mapping */
-interface RawSubscriber {
+interface DatabaseSubscriber {
   _id: string;
   allow_notifications: boolean;
   first_name: string;
@@ -14,18 +14,14 @@ interface RawSubscriber {
 }
 
 export class SubscriberModel {
-  private subscriber: Subscriber | null = null;
   private databaseService: DatabaseService;
   private DATABASE_INDEX: string = "subscriber";
 
-  constructor(databaseService: DatabaseService, subscriber?: Subscriber) {
-    if (subscriber) {
-      this.subscriber = subscriber;
-    }
+  constructor(databaseService: DatabaseService) {
     this.databaseService = databaseService;
   }
 
-  transformToRawSubscriber(subscriber: Partial<Subscriber>): Partial<RawSubscriber> {
+  transformToRawSubscriber(subscriber: Partial<Subscriber>): Partial<DatabaseSubscriber> {
     return {
       _id: subscriber.id,
       allow_notifications: subscriber.allowNotifications,
@@ -37,7 +33,7 @@ export class SubscriberModel {
     };
   }
 
-  transformToSubscriber(rawSubscriber: RawSubscriber): Subscriber {
+  transformToSubscriber(rawSubscriber: DatabaseSubscriber): Subscriber {
     return {
       id: rawSubscriber._id,
       allowNotifications: rawSubscriber.allow_notifications,
@@ -50,18 +46,14 @@ export class SubscriberModel {
   }
 
   /** Creates a subscriber in the database */
-  async save(): Promise<void> {
-    if (this.subscriber == null) {
-      return;
-    }
-
-    const rawSubscriber = this.transformToRawSubscriber(this.subscriber);
+  async save(subscriber: Subscriber): Promise<void> {
+    const rawSubscriber = this.transformToRawSubscriber(subscriber);
     const { _id: id, ...rest } = rawSubscriber;
     await this.databaseService.ingestDocument(rest, this.DATABASE_INDEX, id);
   }
 
   /** Fetches a subscriber by ID */
-  async fetchOne(id: string): Promise<Subscriber> {
+  async fetchOne(id: string): Promise<Subscriber | null> {
     const queryBuilder = new QueryBuilder();
     queryBuilder.addPagination(0, 1);
     queryBuilder.addTermQuery("_id", id);
@@ -69,8 +61,12 @@ export class SubscriberModel {
 
     const response = await this.databaseService.fetchDocuments(this.DATABASE_INDEX, query);
 
+    if (response.length === 0) {
+      return null;
+    }
+
     const [result] = response.map((rawSubscriber) =>
-      this.transformToSubscriber(rawSubscriber as unknown as RawSubscriber),
+      this.transformToSubscriber(rawSubscriber as unknown as DatabaseSubscriber),
     );
 
     return result;
@@ -93,13 +89,13 @@ export class SubscriberModel {
     }
     const query = queryBuilder.getQuery();
 
-    const response = await this.databaseService.fetchDocuments<RawSubscriber>(
+    const response = await this.databaseService.fetchDocuments<DatabaseSubscriber>(
       this.DATABASE_INDEX,
       query,
     );
 
     const result = response.map((rawSubscriber) =>
-      this.transformToSubscriber(rawSubscriber as unknown as RawSubscriber),
+      this.transformToSubscriber(rawSubscriber as unknown as DatabaseSubscriber),
     );
 
     return result;
@@ -108,7 +104,7 @@ export class SubscriberModel {
   async update(subscriberId: string, updatedFields: Partial<Subscriber>) {
     const transformedUpdatedFields = this.transformToRawSubscriber(updatedFields);
 
-    const response = await this.databaseService.updateDocument<RawSubscriber>(
+    const response = await this.databaseService.updateDocument<DatabaseSubscriber>(
       this.DATABASE_INDEX,
       subscriberId,
       transformedUpdatedFields,

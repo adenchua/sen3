@@ -3,15 +3,28 @@ import { JSX } from "react";
 
 import Tooltip from "./Tooltip";
 
-interface IProps extends IconButtonProps {
+interface IProps extends Omit<IconButtonProps, "variant"> {
   title: string;
   icon: JSX.Element;
+  variant?: "standard" | "outlined";
 }
 
 export default function IconButton(props: IProps) {
-  const { title, icon, ...rest } = props;
+  const { title, icon, variant = "standard", sx, ...rest } = props;
   return (
-    <MuiIconButton {...rest}>
+    <MuiIconButton
+      sx={
+        variant === "outlined"
+          ? {
+              border: "1px solid",
+              borderRadius: "4px",
+              borderColor: "#D9D9D9",
+              ...sx,
+            }
+          : sx
+      }
+      {...rest}
+    >
       <Tooltip title={title}>{icon}</Tooltip>
     </MuiIconButton>
   );

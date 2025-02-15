@@ -4,10 +4,14 @@ import CardActions from "@mui/material/CardActions";
 import CardContent from "@mui/material/CardContent";
 import Grid from "@mui/material/Grid2";
 import Typography from "@mui/material/Typography";
+import { format } from "date-fns";
 
-import Button from "../../components/Button";
+import DATE_FNS_DATE_FORMAT from "../../constants/dateFormat";
 import RegistrantIcon from "../../icons/RegistrantIcon";
 import SubscriberInterface from "../../interfaces/subscriber";
+import { APP_BACKGROUND_COLOR } from "../../constants/styling";
+import IconButton from "../../components/IconButton";
+import CheckIcon from "../../icons/CheckIcon";
 
 interface IProps {
   registrant: SubscriberInterface;
@@ -16,7 +20,8 @@ interface IProps {
 
 export default function RegistrantCard(props: IProps) {
   const { registrant, onApproveRegistrant } = props;
-  const { firstName, lastName, registeredDate, username, id, isApproved } = registrant;
+  const { firstName, lastName, registeredDate, username, id } = registrant;
+
   return (
     <Card
       sx={{
@@ -44,13 +49,23 @@ export default function RegistrantCard(props: IProps) {
           </Grid>
         </Grid>
         <Typography variant="body2" color="textSecondary">
-          Application date: {registeredDate}
+          Application date: {format(registeredDate, DATE_FNS_DATE_FORMAT)}
         </Typography>
       </CardContent>
-      <CardActions>
-        <Button fullWidth disabled={isApproved} onClick={() => onApproveRegistrant(id)}>
-          {isApproved ? "Approved" : "Approve Registrant"}
-        </Button>
+      <CardActions
+        sx={{
+          borderTop: "2px solid",
+          borderColor: APP_BACKGROUND_COLOR,
+          display: "flex",
+          justifyContent: "flex-end",
+        }}
+      >
+        <IconButton
+          variant="outlined"
+          icon={<CheckIcon />}
+          title="Approve registrant"
+          onClick={() => onApproveRegistrant(id)}
+        />
       </CardActions>
     </Card>
   );

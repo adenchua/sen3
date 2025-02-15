@@ -4,6 +4,7 @@ import { body, ValidationChain } from "express-validator";
 import Chat from "../../interfaces/ChatInterface";
 import { ChatModel } from "../../models/ChatModel";
 import { databaseInstance } from "../../singletons";
+import wrapResponse from "../../utils/responseUtils";
 
 interface RequestBody {
   id: string;
@@ -52,8 +53,8 @@ export default async function createChat(request: Request, response: Response): 
     updatedDate: new Date(),
   };
 
-  const chatModel = new ChatModel(databaseInstance, newChat);
-  await chatModel.save();
+  const chatModel = new ChatModel(databaseInstance);
+  const chatId = await chatModel.save(newChat);
 
-  response.status(201).send();
+  response.status(201).send(wrapResponse(chatId));
 }
