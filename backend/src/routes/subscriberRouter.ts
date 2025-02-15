@@ -6,7 +6,6 @@ import getDecksBySubscriberId, {
   getDecksBySubscriberIdValidationChains,
 } from "../controllers/deck-controllers/getDecksBySubscriberId";
 import updateDeck, { updateDeckValidationChains } from "../controllers/deck-controllers/updateDeck";
-import approveSubscriber from "../controllers/subscriber-controllers/approveSubscriber";
 import createSubscriber, {
   createSubscriberValidationChains,
 } from "../controllers/subscriber-controllers/createSubscriber";
@@ -14,6 +13,9 @@ import getSubscriberById from "../controllers/subscriber-controllers/getSubscrib
 import getSubscribers, {
   getSubscribersValidationChains,
 } from "../controllers/subscriber-controllers/getSubscribers";
+import updateSubscriber, {
+  updateSubscriberValidationChains,
+} from "../controllers/subscriber-controllers/updateSubscriber";
 import validationMiddleware from "../middlewares/validationMiddleware";
 
 const subscriberRouter = Router();
@@ -26,7 +28,12 @@ subscriberRouter.post(
 );
 subscriberRouter.get("/", getSubscribersValidationChains, validationMiddleware, getSubscribers);
 subscriberRouter.get("/:id", getSubscriberById);
-subscriberRouter.post("/:id/approve", approveSubscriber);
+subscriberRouter.patch(
+  "/:id",
+  updateSubscriberValidationChains,
+  validationMiddleware,
+  updateSubscriber,
+);
 
 subscriberRouter.post("/:id/decks", createDeckValidationChains, validationMiddleware, createDeck);
 subscriberRouter.get(

@@ -1,12 +1,12 @@
 import Box from "@mui/material/Box";
 import Grid from "@mui/material/Grid2";
-import TextField from "@mui/material/TextField";
 import Typography from "@mui/material/Typography";
 import { useEffect, useMemo, useState } from "react";
 
 import fetchChats from "../../api/chats/fetchChats";
 import updateChat from "../../api/chats/updateChat";
 import Button from "../../components/Button";
+import InputText from "../../components/InputText";
 import PageLayout from "../../components/PageLayout";
 import AddIcon from "../../icons/AddIcon";
 import ChatInterface from "../../interfaces/chat";
@@ -80,21 +80,11 @@ function ChatsPage() {
     <PageLayout>
       <Grid container alignItems="center" spacing={2} mb={4}>
         <Grid>
-          <TextField
+          <InputText
             type="search"
             id="chat-search"
-            size="small"
-            placeholder="Filter chat"
+            label="Filter chat"
             onChange={(e) => setChatFilter(e.target.value)}
-            slotProps={{
-              input: {
-                sx: {
-                  minWidth: "300px",
-                  borderRadius: 100,
-                  backgroundColor: "#FFF",
-                },
-              },
-            }}
           />
         </Grid>
         <Grid>

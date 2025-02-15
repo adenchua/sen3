@@ -8,18 +8,22 @@ import Button from "../../components/Button";
 import { APP_BACKGROUND_COLOR } from "../../constants/styling";
 import DeckInterface from "../../interfaces/deck";
 import DeckCard from "./DeckCard";
+import fetchDeckById from "../../api/decks/fetchDeckById";
 
 interface IProps {
   decks: DeckInterface[];
   subscriberId: string;
+  onAddDeck: (newDeck: DeckInterface) => void;
 }
 
 export default function DeckList(props: IProps) {
-  const { decks, subscriberId } = props;
+  const { decks, subscriberId, onAddDeck } = props;
 
   async function handleCreateDeck(): Promise<void> {
     const deckTitle = `Untitled Deck ${decks.length + 1}`;
-    await addDeck(subscriberId, deckTitle);
+    const newDeckId = await addDeck(subscriberId, deckTitle);
+    const newDeck = await fetchDeckById(subscriberId, newDeckId);
+    onAddDeck(newDeck);
   }
 
   return (

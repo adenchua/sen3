@@ -16,14 +16,10 @@ interface RawMessage {
 }
 
 export class MessageModel {
-  private message: Message | null = null;
   private databaseService: DatabaseService;
   private DATABASE_INDEX: string = "message";
 
-  constructor(databaseService: DatabaseService, message?: Message) {
-    if (message) {
-      this.message = message;
-    }
+  constructor(databaseService: DatabaseService) {
     this.databaseService = databaseService;
   }
 
@@ -57,12 +53,8 @@ export class MessageModel {
     };
   }
 
-  async save(): Promise<void> {
-    if (this.message == null) {
-      return;
-    }
-
-    const rawMessage = this.transformToRawMessage(this.message);
+  async save(message: Message): Promise<void> {
+    const rawMessage = this.transformToRawMessage(message);
     const { _id: id, ...rest } = rawMessage;
     await this.databaseService.ingestDocument(rest, this.DATABASE_INDEX, id);
   }

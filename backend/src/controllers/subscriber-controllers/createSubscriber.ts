@@ -35,7 +35,7 @@ export default async function createSubscriber(
     allowNotifications: true, // allow notifications by default
     isApproved: false,
   };
-  const subscriberModel = new SubscriberModel(databaseInstance, newSubscriber);
+  const subscriberModel = new SubscriberModel(databaseInstance);
 
   const subscriber = await subscriberModel.fetchOne(userId);
 
@@ -44,7 +44,7 @@ export default async function createSubscriber(
     throw subscriberAlreadyExistsError;
   }
 
-  await subscriberModel.save();
+  await subscriberModel.save(newSubscriber);
 
   response.status(201).send();
 }

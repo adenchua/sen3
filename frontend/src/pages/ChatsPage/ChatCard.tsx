@@ -77,7 +77,7 @@ function ChatCard(props: IProps) {
         >
           {isChannel && (
             <IconButton
-              sx={{ border: "1px solid", borderRadius: "4px", borderColor: "#D9D9D9" }}
+              variant="outlined"
               onClick={() => setIsDialogOpen(true)}
               title="View similar channels"
               icon={<RecommendedChannelsIcon />}

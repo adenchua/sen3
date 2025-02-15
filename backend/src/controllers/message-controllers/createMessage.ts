@@ -52,8 +52,8 @@ export default async function createMessage(request: Request, response: Response
     viewCount,
   };
 
-  const messageModel = new MessageModel(databaseInstance, newMessage);
-  await messageModel.save();
+  const messageModel = new MessageModel(databaseInstance);
+  await messageModel.save(newMessage);
 
   response.status(201).send();
 }
