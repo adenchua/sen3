@@ -14,14 +14,14 @@ import AddChatDialog from "./AddChatDialog";
 import ChatCard from "./ChatCard";
 
 function ChatsPage() {
-  const [chats, setChats] = useState<ChatInterface[] | null>(null);
+  const [chats, setChats] = useState<ChatInterface[]>([]);
   const [isCreateChatDialogOpened, setIsCreateChatDialogOpened] = useState<boolean>(false);
   const [chatFilter, setChatFilter] = useState<string>("");
 
   // return chats with title or username that contains the chat filter
   const filteredChat = useMemo(
     () =>
-      chats?.filter((chat) => {
+      chats.filter((chat) => {
         const lowercaseTitle = chat.title.toLowerCase();
         const lowercaseUsername = chat.username.toLowerCase();
         const lowercaseChatFilter = chatFilter.toLowerCase();
@@ -60,17 +60,20 @@ function ChatsPage() {
     await updateChat(id, !crawlActive);
 
     // update the active status of the updated chat
-    if (chats != null) {
-      setChats((prev) =>
-        prev!.map((prevChat) => {
-          if (prevChat.id === id) {
-            prevChat.crawlActive = !crawlActive;
-          }
+    setChats((prev) =>
+      prev.map((prevChat) => {
+        if (prevChat.id === id) {
+          prevChat.crawlActive = !crawlActive;
+        }
 
-          return prevChat;
-        }),
-      );
-    }
+        return prevChat;
+      }),
+    );
+  }
+
+  async function handleAddChat(newChat: ChatInterface) {
+    // add new chat to the start of the chat list
+    setChats((prev) => [newChat, ...prev]);
   }
 
   return (
@@ -102,7 +105,7 @@ function ChatsPage() {
       </Grid>
       <Box sx={{ height: "calc(100vh - 200px)", overflowY: "auto" }}>
         <Grid container spacing={2}>
-          {chatFilter.length > 0 && filteredChat?.length === 0 && (
+          {chatFilter.length > 0 && filteredChat.length === 0 && (
             <Typography>There are no matching channel/groups with filter "{chatFilter}"</Typography>
           )}
           {filteredChat?.map((chat) => {
@@ -114,7 +117,11 @@ function ChatsPage() {
           })}
         </Grid>
       </Box>
-      <AddChatDialog isOpen={isCreateChatDialogOpened} onClose={handleCloseDialog} />
+      <AddChatDialog
+        isOpen={isCreateChatDialogOpened}
+        onClose={handleCloseDialog}
+        onAddChat={handleAddChat}
+      />
     </PageLayout>
   );
 }

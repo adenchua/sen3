@@ -38,8 +38,8 @@ export default async function createDeck(request: Request, response: Response): 
 
   // TODO: add validation for subscriber ID
 
-  const deckModel = new DeckModel(databaseInstance, newDeck);
-  const documentId = await deckModel.save();
+  const deckModel = new DeckModel(databaseInstance);
+  const documentId = await deckModel.save(newDeck);
 
   response.status(201).send(wrapResponse(documentId));
 }
