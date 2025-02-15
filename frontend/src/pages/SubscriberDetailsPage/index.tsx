@@ -8,7 +8,7 @@ import Typography from "@mui/material/Typography";
 import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router";
 
-import fetchDecksBySubscriber from "../../api/fetchDecksBySubscriber";
+import fetchDecksBySubscriber from "../../api/decks/fetchDecksBySubscriber";
 import fetchSubscriberById from "../../api/fetchSubscriberById";
 import Button from "../../components/Button";
 import PageLayout from "../../components/PageLayout";
