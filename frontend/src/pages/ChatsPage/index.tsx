@@ -1,6 +1,8 @@
+import Box from "@mui/material/Box";
 import Grid from "@mui/material/Grid2";
-import { useEffect, useState, useMemo } from "react";
-import { Box, TextField, Typography } from "@mui/material";
+import TextField from "@mui/material/TextField";
+import Typography from "@mui/material/Typography";
+import { useEffect, useMemo, useState } from "react";
 
 import fetchChats from "../../api/fetchChats";
 import updateChat from "../../api/updateChat";

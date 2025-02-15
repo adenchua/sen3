@@ -1,4 +1,4 @@
-import { Avatar } from "@mui/material";
+import Avatar from "@mui/material/Avatar";
 import Box from "@mui/material/Box";
 import Card from "@mui/material/Card";
 import CardActions from "@mui/material/CardActions";
@@ -9,6 +9,7 @@ import { useState } from "react";
 
 import IconButton from "../../components/IconButton";
 import Switch from "../../components/Switch";
+import Tooltip from "../../components/Tooltip";
 import { APP_BACKGROUND_COLOR } from "../../constants/styling";
 import RecommendedChannelsIcon from "../../icons/RecommendedChannelsIcon";
 import TelegramChannelIcon from "../../icons/TelegramChannelIcon";
@@ -80,7 +81,9 @@ function ChatCard(props: IProps) {
             />
           )}
           <Box flexGrow={1} />
-          <Switch checked={crawlActive} onChange={() => onToggleCrawlStatus(chat)} />
+          <Tooltip title="Toggle to crawl messages">
+            <Switch checked={crawlActive} onChange={() => onToggleCrawlStatus(chat)} />
+          </Tooltip>
         </CardActions>
       </Card>
       {isChannel && (
