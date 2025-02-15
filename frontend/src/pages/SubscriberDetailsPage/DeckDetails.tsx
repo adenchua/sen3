@@ -8,9 +8,9 @@ import Typography from "@mui/material/Typography";
 import { useEffect, useMemo, useRef, useState } from "react";
 
 import { useSearchParams } from "react-router";
-import fetchChats from "../../api/fetchChats";
-import fetchDeckById from "../../api/fetchDeckById";
-import updateDeck from "../../api/updateDeck";
+import fetchChats from "../../api/chats/fetchChats";
+import fetchDeckById from "../../api/decks/fetchDeckById";
+import updateDeck from "../../api/decks/updateDeck";
 import Button from "../../components/Button";
 import Chip from "../../components/Chip";
 import IconButton from "../../components/IconButton";

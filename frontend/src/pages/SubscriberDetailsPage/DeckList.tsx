@@ -3,7 +3,7 @@ import Box from "@mui/material/Box";
 import Stack from "@mui/material/Stack";
 import Typography from "@mui/material/Typography";
 
-import addDeck from "../../api/addDeck";
+import addDeck from "../../api/decks/addDeck";
 import Button from "../../components/Button";
 import { APP_BACKGROUND_COLOR } from "../../constants/styling";
 import DeckInterface from "../../interfaces/deck";

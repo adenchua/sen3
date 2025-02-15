@@ -13,6 +13,7 @@ import APP_ROUTES from "../../constants/routes";
 import { APP_BACKGROUND_COLOR } from "../../constants/styling";
 import RegistrantIcon from "../../icons/RegistrantIcon";
 import SubscriberInterface from "../../interfaces/subscriber";
+import DATE_FNS_DATE_FORMAT from "../../constants/dateFormat";
 
 interface IProps {
   subscriber: SubscriberInterface;
@@ -50,7 +51,7 @@ export default function SubscriberCard(props: IProps) {
           </Grid>
         </Grid>
         <Typography variant="body2" color="textSecondary">
-          Joined {format(registeredDate, "Pp")}
+          Joined {format(registeredDate, DATE_FNS_DATE_FORMAT)}
         </Typography>
       </CardContent>
       <CardActions

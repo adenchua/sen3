@@ -4,7 +4,6 @@ import TextField, { TextFieldProps } from "@mui/material/TextField";
 import Typography from "@mui/material/Typography";
 import { useEffect, useRef, useState } from "react";
 
-import addChat from "../../api/addChat";
 import fetchTelegramChat from "../../api/fetchTelegramChat";
 import InformationDialog from "../../components/dialog/InformationDialog";
 import IconButton from "../../components/IconButton";
@@ -12,6 +11,7 @@ import { APP_BACKGROUND_COLOR } from "../../constants/styling";
 import SearchIcon from "../../icons/SearchIcon";
 import { TelegramChatInterface } from "../../interfaces/chat";
 import AddChatCard from "./AddChatCard";
+import addChat from "../../api/chats/addChat";
 
 interface IProps {
   isOpen: boolean;

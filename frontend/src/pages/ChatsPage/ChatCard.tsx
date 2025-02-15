@@ -16,6 +16,7 @@ import TelegramChannelIcon from "../../icons/TelegramChannelIcon";
 import TelegramChatGroupIcon from "../../icons/TelegramChatGroupIcon";
 import ChatInterface from "../../interfaces/chat";
 import RecommendedChatsDialog from "./RecommendedChatsDialog";
+import DATE_FNS_DATE_FORMAT from "../../constants/dateFormat";
 
 interface IProps {
   chat: ChatInterface;
@@ -26,7 +27,9 @@ function ChatCard(props: IProps) {
   const { chat, onToggleCrawlStatus } = props;
   const { title, about, crawlActive, isChannel, username, lastCrawlDate } = chat;
   const [isDialogOpen, setIsDialogOpen] = useState<boolean>(false);
-  const formattedLastCrawlDate = lastCrawlDate ? `Last crawl: ${format(lastCrawlDate, "Pp")}` : "";
+  const formattedLastCrawlDate = lastCrawlDate
+    ? `Last crawl on ${format(lastCrawlDate, DATE_FNS_DATE_FORMAT)}`
+    : "";
 
   function handleCloseDialog() {
     setIsDialogOpen(false);

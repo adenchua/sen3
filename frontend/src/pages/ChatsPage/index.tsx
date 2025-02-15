@@ -4,8 +4,8 @@ import TextField from "@mui/material/TextField";
 import Typography from "@mui/material/Typography";
 import { useEffect, useMemo, useState } from "react";
 
-import fetchChats from "../../api/fetchChats";
-import updateChat from "../../api/updateChat";
+import fetchChats from "../../api/chats/fetchChats";
+import updateChat from "../../api/chats/updateChat";
 import Button from "../../components/Button";
 import PageLayout from "../../components/PageLayout";
 import AddIcon from "../../icons/AddIcon";
