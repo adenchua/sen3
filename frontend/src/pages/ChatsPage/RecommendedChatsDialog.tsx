@@ -4,7 +4,7 @@ import Paper from "@mui/material/Paper";
 import Typography from "@mui/material/Typography";
 import { useEffect, useState } from "react";
 
-import addChat from "../../api/addChat";
+import addChat from "../../api/chats/addChat";
 import fetchRecommendedChannels from "../../api/fetchRecommendedChannels";
 import Button from "../../components/Button";
 import InformationDialog from "../../components/dialog/InformationDialog";

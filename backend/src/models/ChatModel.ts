@@ -8,7 +8,7 @@ interface ParticipantStat {
 }
 
 /** database chat mapping */
-interface RawChat {
+interface DatabaseChat {
   _id: string;
   about: string;
   crawl_active: boolean;
@@ -25,19 +25,15 @@ interface RawChat {
 }
 
 export class ChatModel {
-  private chat: Chat | null = null;
   private databaseService: DatabaseService;
   private DATABASE_INDEX: string = "chat";
 
-  constructor(databaseService: DatabaseService, chat?: Chat) {
-    if (chat) {
-      this.chat = chat;
-    }
+  constructor(databaseService: DatabaseService) {
     this.databaseService = databaseService;
   }
 
   /** Transforms a raw database chat object to a chat object */
-  private transformToChat(rawChat: RawChat): Chat {
+  private transformToChat(rawChat: DatabaseChat): Chat {
     // convert dates from iso string to date object
     const transformedParticipantStats = rawChat.participant_stats.map((participantStat) => {
       const { count, date } = participantStat;
@@ -62,7 +58,7 @@ export class ChatModel {
   }
 
   /** Transforms a chat object to a raw chat object */
-  private transformToRawChat(chat: Partial<Chat>): Partial<RawChat> {
+  private transformToRawChat(chat: Partial<Chat>): Partial<DatabaseChat> {
     // convert dates from Date object to iso string
     const transformedParticipantStats = chat.participantStats?.map((participantStat) => {
       const { count, date } = participantStat;
@@ -87,14 +83,12 @@ export class ChatModel {
   }
 
   /** Creates a chat in the database */
-  async save(): Promise<void> {
-    if (this.chat == null) {
-      return;
-    }
-
-    const rawChat = this.transformToRawChat(this.chat);
+  async save(chat: Chat): Promise<string> {
+    const rawChat = this.transformToRawChat(chat);
     const { _id: id, ...rest } = rawChat;
-    await this.databaseService.ingestDocument(rest, this.DATABASE_INDEX, id);
+    const response = await this.databaseService.ingestDocument(rest, this.DATABASE_INDEX, id);
+
+    return response;
   }
 
   /** Fetches chats in the database */
@@ -109,14 +103,19 @@ export class ChatModel {
     }
 
     const query = queryBuilder.getQuery();
-    const response = await this.databaseService.fetchDocuments<RawChat>(this.DATABASE_INDEX, query);
+    const response = await this.databaseService.fetchDocuments<DatabaseChat>(
+      this.DATABASE_INDEX,
+      query,
+    );
 
-    const result = response.map((rawChat) => this.transformToChat(rawChat as unknown as RawChat));
+    const result = response.map((rawChat) =>
+      this.transformToChat(rawChat as unknown as DatabaseChat),
+    );
 
     return result;
   }
 
-  async fetchOne(id: string): Promise<Chat> {
+  async fetchOne(id: string): Promise<Chat | null> {
     const queryBuilder = new QueryBuilder();
     queryBuilder.addPagination(0, 1);
     queryBuilder.addTermQuery("_id", id);
@@ -124,7 +123,13 @@ export class ChatModel {
 
     const response = await this.databaseService.fetchDocuments(this.DATABASE_INDEX, query);
 
-    const [result] = response.map((rawChat) => this.transformToChat(rawChat as unknown as RawChat));
+    if (response.length === 0) {
+      return null;
+    }
+
+    const [result] = response.map((rawChat) =>
+      this.transformToChat(rawChat as unknown as DatabaseChat),
+    );
 
     return result;
   }
@@ -133,7 +138,7 @@ export class ChatModel {
     // transform to database mapping
     const transformedUpdatedFields = this.transformToRawChat(updatedFields);
 
-    const response = await this.databaseService.updateDocument<RawChat>(
+    const response = await this.databaseService.updateDocument<DatabaseChat>(
       this.DATABASE_INDEX,
       chatId,
       transformedUpdatedFields,

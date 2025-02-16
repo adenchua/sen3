@@ -3,7 +3,7 @@ import Deck from "../interfaces/DeckInterface";
 import DatabaseService from "../services/DatabaseService";
 
 /** database deck mapping */
-interface RawDeck {
+interface DatabaseDeck {
   _id?: string;
   subscriber_id: string;
   chat_ids: string[];
@@ -15,19 +15,14 @@ interface RawDeck {
 }
 
 export class DeckModel {
-  private deck: Deck | null = null;
   private databaseService: DatabaseService;
   private DATABASE_INDEX: string = "deck";
 
-  constructor(databaseService: DatabaseService, deck?: Deck) {
-    if (deck) {
-      this.deck = deck;
-    }
-
+  constructor(databaseService: DatabaseService) {
     this.databaseService = databaseService;
   }
 
-  transformToRawDeck(deck: Partial<Deck>): Partial<RawDeck> {
+  transformToRawDeck(deck: Partial<Deck>): Partial<DatabaseDeck> {
     return {
       _id: deck.id,
       chat_ids: deck.chatIds,
@@ -42,7 +37,7 @@ export class DeckModel {
     };
   }
 
-  transformToDeck(rawDeck: RawDeck): Deck {
+  transformToDeck(rawDeck: DatabaseDeck): Deck {
     return {
       id: rawDeck._id,
       chatIds: rawDeck.chat_ids,
@@ -56,12 +51,8 @@ export class DeckModel {
   }
 
   /** Creates a deck in the database */
-  async save(): Promise<string> {
-    if (this.deck == null) {
-      throw new Error("No deck instantiated");
-    }
-
-    const rawDeck = this.transformToRawDeck(this.deck);
+  async save(deck: Deck): Promise<string> {
+    const rawDeck = this.transformToRawDeck(deck);
     const documentId = await this.databaseService.ingestDocument(rawDeck, this.DATABASE_INDEX);
     return documentId;
   }
@@ -85,22 +76,36 @@ export class DeckModel {
 
     const query = queryBuilder.getQuery();
 
-    const response = await this.databaseService.fetchDocuments<RawDeck>(this.DATABASE_INDEX, query);
+    const response = await this.databaseService.fetchDocuments<DatabaseDeck>(
+      this.DATABASE_INDEX,
+      query,
+    );
 
-    const result = response.map((rawDeck) => this.transformToDeck(rawDeck as unknown as RawDeck));
+    const result = response.map((rawDeck) =>
+      this.transformToDeck(rawDeck as unknown as DatabaseDeck),
+    );
 
     return result;
   }
 
-  async fetchOne(id: string): Promise<Deck> {
+  async fetchOne(id: string): Promise<Deck | null> {
     const queryBuilder = new QueryBuilder();
     queryBuilder.addPagination(0, 1);
     queryBuilder.addTermQuery("_id", id);
     const query = queryBuilder.getQuery();
 
-    const response = await this.databaseService.fetchDocuments<RawDeck>(this.DATABASE_INDEX, query);
+    const response = await this.databaseService.fetchDocuments<DatabaseDeck>(
+      this.DATABASE_INDEX,
+      query,
+    );
 
-    const [result] = response.map((rawDeck) => this.transformToDeck(rawDeck as unknown as RawDeck));
+    if (response.length === 0) {
+      return null;
+    }
+
+    const [result] = response.map((rawDeck) =>
+      this.transformToDeck(rawDeck as unknown as DatabaseDeck),
+    );
 
     return result;
   }
@@ -108,7 +113,7 @@ export class DeckModel {
   async update(deckId: string, updatedFields: Partial<Deck>) {
     const transformedUpdatedFields = this.transformToRawDeck(updatedFields);
 
-    const response = await this.databaseService.updateDocument<RawDeck>(
+    const response = await this.databaseService.updateDocument<DatabaseDeck>(
       this.DATABASE_INDEX,
       deckId,
       transformedUpdatedFields,

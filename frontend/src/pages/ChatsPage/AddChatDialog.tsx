@@ -4,22 +4,24 @@ import TextField, { TextFieldProps } from "@mui/material/TextField";
 import Typography from "@mui/material/Typography";
 import { useEffect, useRef, useState } from "react";
 
-import addChat from "../../api/addChat";
+import addChat from "../../api/chats/addChat";
+import fetchChatById from "../../api/chats/fetchChatById";
 import fetchTelegramChat from "../../api/fetchTelegramChat";
 import InformationDialog from "../../components/dialog/InformationDialog";
 import IconButton from "../../components/IconButton";
 import { APP_BACKGROUND_COLOR } from "../../constants/styling";
 import SearchIcon from "../../icons/SearchIcon";
-import { TelegramChatInterface } from "../../interfaces/chat";
+import ChatInterface, { TelegramChatInterface } from "../../interfaces/chat";
 import AddChatCard from "./AddChatCard";
 
 interface IProps {
   isOpen: boolean;
-  onClose: () => void;
+  onClose: VoidFunction;
+  onAddChat: (newChat: ChatInterface) => void;
 }
 
 function AddChatDialog(props: IProps) {
-  const { isOpen, onClose } = props;
+  const { isOpen, onClose, onAddChat } = props;
   const [chat, setChat] = useState<TelegramChatInterface | null | undefined>();
   const searchRef = useRef<TextFieldProps>(null);
 
@@ -43,7 +45,9 @@ function AddChatDialog(props: IProps) {
   }
 
   async function handleAddChat(_chat: TelegramChatInterface) {
-    await addChat(_chat);
+    const newChatId = await addChat(_chat);
+    const newChat = await fetchChatById(newChatId);
+    onAddChat(newChat);
     onClose();
   }
 

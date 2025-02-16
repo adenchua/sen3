@@ -1,14 +1,14 @@
-import { useEffect, useState } from "react";
 import Grid from "@mui/material/Grid2";
+import { useEffect, useState } from "react";
 
+import fetchSubscribers from "../../api/subscribers/fetchSubscribers";
+import updateSubscriber from "../../api/subscribers/updateSubscriber";
 import PageLayout from "../../components/PageLayout";
-import fetchSubscribers from "../../api/fetchSubscribers";
 import SubscriberInterface from "../../interfaces/subscriber";
 import RegistrantCard from "./RegistrantCard";
-import approveRegistrant from "../../api/approveRegistrant";
 
 function RegistrantsPage() {
-  const [registrants, setRegistrants] = useState<SubscriberInterface[] | null>(null);
+  const [registrants, setRegistrants] = useState<SubscriberInterface[]>([]);
 
   useEffect(() => {
     async function fetchData() {
@@ -20,26 +20,15 @@ function RegistrantsPage() {
   }, []);
 
   async function handleApproveRegistrant(id: string) {
-    if (registrants == null) {
-      return;
-    }
+    await updateSubscriber(id, { isApproved: true });
 
-    await approveRegistrant(id);
-
-    const updatedRegistrants = registrants.map((registrant) => {
-      if (registrant.id === id) {
-        registrant.isApproved = true;
-      }
-      return registrant;
-    });
-
-    setRegistrants(updatedRegistrants);
+    setRegistrants((prev) => prev.filter((registrant) => registrant.id !== id));
   }
 
   return (
     <PageLayout>
       <Grid container spacing={1}>
-        {registrants?.map((registrant) => (
+        {registrants.map((registrant) => (
           <Grid key={registrant.id}>
             <RegistrantCard registrant={registrant} onApproveRegistrant={handleApproveRegistrant} />
           </Grid>

@@ -6,7 +6,7 @@
   "scripts": {
     "start:dev": "vite",
     "build": "tsc -b && vite build",
-    "lint": "eslint .",
+    "lint": "eslint src/**/* && tsc --noEmit",
     "preview": "vite preview",
     "format": "prettier --write 'src/**/*.{js,ts,json,cjs,md}' --config ./.prettierrc"
   },

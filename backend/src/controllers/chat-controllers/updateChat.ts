@@ -27,13 +27,13 @@ export const updateChatValidationChains: ValidationChain[] = [
 ];
 
 export default async function updateChat(request: Request, response: Response): Promise<void> {
-  const { chatId } = request.params;
+  const { id } = request.params;
   const { participantStat, crawlActive, messageOffsetId, lastCrawlDate, recommendedChannels } =
     request.body as RequestBody;
 
   const chatModel = new ChatModel(databaseInstance);
 
-  const chat = await chatModel.fetchOne(chatId);
+  const chat = await chatModel.fetchOne(id);
 
   if (chat == null) {
     throw invalidTelegramChatIdError;
@@ -47,7 +47,7 @@ export default async function updateChat(request: Request, response: Response): 
     chatParticipantStats.push(temp);
   }
 
-  await chatModel.update(chatId, {
+  await chatModel.update(id, {
     participantStats: chatParticipantStats,
     crawlActive,
     messageOffsetId,

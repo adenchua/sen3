@@ -1,11 +1,11 @@
 import axios from "axios";
 
-import { BACKEND_SERVICE_API_URL } from "../constants/api";
-import ApiResponseWrapper from "../interfaces/api";
-import ChatInterface, { TelegramChatInterface } from "../interfaces/chat";
+import { BACKEND_SERVICE_API_URL } from "../../constants/api";
+import ApiResponseWrapper from "../../interfaces/api";
+import { TelegramChatInterface } from "../../interfaces/chat";
 
-const addChat = async (chat: TelegramChatInterface): Promise<ChatInterface> => {
-  const response = await axios.post<ApiResponseWrapper<ChatInterface>>(
+const addChat = async (chat: TelegramChatInterface): Promise<string> => {
+  const response = await axios.post<ApiResponseWrapper<string>>(
     `${BACKEND_SERVICE_API_URL}/api/v1/chats`,
     {
       about: chat.about,
