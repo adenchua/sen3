@@ -1,47 +1,87 @@
-import KeyboardDoubleArrowRightOutlined from "@mui/icons-material/KeyboardDoubleArrowRightOutlined";
-import Box from "@mui/material/Box";
-import Grid from "@mui/material/Grid2";
-import Paper from "@mui/material/Paper";
+import Avatar from "@mui/material/Avatar";
+import Card from "@mui/material/Card";
+import CardActions from "@mui/material/CardActions";
+import CardContent from "@mui/material/CardContent";
 import Typography from "@mui/material/Typography";
-import { useSearchParams } from "react-router";
 
-import Chip from "../../components/Chip";
+import updateDeck from "../../api/decks/updateDeck";
 import IconButton from "../../components/IconButton";
+import Switch from "../../components/Switch";
+import Tooltip from "../../components/Tooltip";
+import { APP_BACKGROUND_COLOR } from "../../constants/styling";
+import DeckIcon from "../../icons/DeckIcon";
+import SettingsIcon from "../../icons/SettingsIcon";
 import DeckInterface from "../../interfaces/deck";
 
 interface IProps {
   deck: DeckInterface;
+  subscriberId: string;
+  onUpdateDeck: (updatedDeck: DeckInterface) => void;
+  onSelectDeck: (id: string) => void;
+  isSelected: boolean;
 }
 
 export default function DeckCard(props: IProps) {
-  const { deck } = props;
-  const [searchParams, setSearchParams] = useSearchParams();
-  const { title, chatIds, id, isActive } = deck;
+  const { deck, subscriberId, onUpdateDeck, onSelectDeck, isSelected } = props;
+  const { title, id, isActive } = deck;
 
-  const isSelectedDeck = searchParams.get("deckId") === id;
+  async function handleToggleActive(event: React.ChangeEvent<HTMLInputElement>): Promise<void> {
+    const updatedActiveValue = event.target.checked;
+    await updateDeck(deck.id, subscriberId, {
+      isActive: updatedActiveValue,
+    });
+
+    onUpdateDeck({ ...deck, isActive: updatedActiveValue });
+  }
 
   return (
-    <Paper
-      elevation={0}
-      sx={{ p: 2, mb: 1, border: isSelectedDeck ? "1px solid" : "", borderColor: "primary.main" }}
+    <Card
+      sx={{
+        display: "flex",
+        flexDirection: "column",
+        border: isSelected ? "2px solid" : "",
+        borderColor: "primary.main",
+        minWidth: "240px",
+      }}
     >
-      <Grid container justifyContent="space-between" alignItems="center">
-        <Grid>
-          <Typography mb={1}>{title}</Typography>
-          <Box>
-            {isActive && <Chip label="Active" sx={{ mr: 1 }} color="success" />}
-            <Chip label={`${chatIds.length} chats`} />
-          </Box>
-        </Grid>
-        <Grid>
-          <IconButton
-            title="Select deck"
-            color="primary"
-            onClick={() => setSearchParams({ deckId: id })}
-            icon={<KeyboardDoubleArrowRightOutlined />}
-          />
-        </Grid>
-      </Grid>
-    </Paper>
+      <CardContent
+        sx={{
+          cursor: "pointer",
+          display: "flex",
+          alignItems: "center",
+          gap: 1,
+          flexGrow: 1,
+          width: "240px",
+          overflow: "hidden",
+          textOverflow: "ellipsis",
+        }}
+        onClick={() => onSelectDeck(id)}
+      >
+        <Avatar variant="rounded">
+          <DeckIcon />
+        </Avatar>
+        <Typography fontWeight="bold" noWrap>
+          {title}
+        </Typography>
+      </CardContent>
+      <CardActions
+        sx={{
+          borderTop: "2px solid",
+          borderColor: APP_BACKGROUND_COLOR,
+          display: "flex",
+          justifyContent: "space-between",
+        }}
+      >
+        <IconButton
+          icon={<SettingsIcon />}
+          title="Manage deck"
+          variant="outlined"
+          onClick={() => onSelectDeck(id)}
+        />
+        <Tooltip title="Toggle deck to receive notifications">
+          <Switch checked={isActive} onChange={handleToggleActive} />
+        </Tooltip>
+      </CardActions>
+    </Card>
   );
 }

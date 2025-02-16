@@ -7,15 +7,16 @@ import Typography from "@mui/material/Typography";
 import { format } from "date-fns";
 import { useNavigate } from "react-router";
 
-import Button from "../../components/Button";
+import updateSubscriber from "../../api/subscribers/updateSubscriber";
+import IconButton from "../../components/IconButton";
 import Switch from "../../components/Switch";
+import Tooltip from "../../components/Tooltip";
+import DATE_FNS_DATE_FORMAT from "../../constants/dateFormat";
 import APP_ROUTES from "../../constants/routes";
 import { APP_BACKGROUND_COLOR } from "../../constants/styling";
 import RegistrantIcon from "../../icons/RegistrantIcon";
+import SettingsIcon from "../../icons/SettingsIcon";
 import SubscriberInterface from "../../interfaces/subscriber";
-import DATE_FNS_DATE_FORMAT from "../../constants/dateFormat";
-import Tooltip from "../../components/Tooltip";
-import updateSubscriber from "../../api/subscribers/updateSubscriber";
 
 interface IProps {
   subscriber: SubscriberInterface;
@@ -76,12 +77,12 @@ export default function SubscriberCard(props: IProps) {
           justifyContent: "space-between",
         }}
       >
-        <Button
+        <IconButton
+          icon={<SettingsIcon />}
+          title="Manage deck"
+          variant="outlined"
           onClick={() => navigate(`${APP_ROUTES.subscribersPage.path}/${id}`)}
-          color="inherit"
-        >
-          Manage deck
-        </Button>
+        />
         <Tooltip title="Toggle to enable notifications">
           <Switch checked={allowNotifications} onChange={handleToggleNotifications} />
         </Tooltip>

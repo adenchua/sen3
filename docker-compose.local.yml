@@ -9,6 +9,7 @@ services:
       - bootstrap.memory_lock=true
       - "OPENSEARCH_JAVA_OPTS=-Xms512m -Xmx512m" # Set min and max JVM heap sizes to at least 50% of system RAM
       - "OPENSEARCH_INITIAL_ADMIN_PASSWORD=${OPENSEARCH_DATABASE_PASSWORD}" # Sets the demo admin user password when using demo configuration, required for OpenSearch 2.12 and later
+      - _JAVA_OPTIONS=-XX:UseSVE=0
     ulimits:
       memlock:
         soft: -1
@@ -17,7 +18,7 @@ services:
         soft: 65536 # Maximum number of open files for the opensearch user - set to at least 65536
         hard: 65536
     ports:
-      - 9200:9200
+      - ${OPENSEARCH_DATABASE_PORT}:9200
     volumes:
       - ./database/opensearch-data:/usr/share/opensearch/data
     networks:

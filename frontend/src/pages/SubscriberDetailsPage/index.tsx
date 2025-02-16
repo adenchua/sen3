@@ -1,11 +1,7 @@
 import { ArrowBack } from "@mui/icons-material";
-import Avatar from "@mui/material/Avatar";
 import Divider from "@mui/material/Divider";
-import Grid from "@mui/material/Grid2";
-import Paper from "@mui/material/Paper";
-import Stack from "@mui/material/Stack";
 import Typography from "@mui/material/Typography";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useNavigate, useParams } from "react-router";
 
 import fetchSubscriberById from "../../api//subscribers/fetchSubscriberById";
@@ -13,7 +9,6 @@ import fetchDecksBySubscriber from "../../api/decks/fetchDecksBySubscriber";
 import Button from "../../components/Button";
 import PageLayout from "../../components/PageLayout";
 import APP_ROUTES from "../../constants/routes";
-import RegistrantIcon from "../../icons/RegistrantIcon";
 import DeckInterface from "../../interfaces/deck";
 import SubscriberInterface from "../../interfaces/subscriber";
 import DeckDetails from "./DeckDetails";
@@ -22,8 +17,17 @@ import DeckList from "./DeckList";
 export default function SubscriberDetailsPage() {
   const [subscriber, setSubscriber] = useState<SubscriberInterface | null>(null);
   const [decks, setDecks] = useState<DeckInterface[]>([]);
+  const [selectedDeckId, setSelectedDeckId] = useState<string | null>(null);
   const { id } = useParams();
   const navigate = useNavigate();
+
+  const selectedDeck = useMemo(() => {
+    if (selectedDeckId == null) {
+      return null;
+    }
+
+    return decks.find((deck) => deck.id === selectedDeckId);
+  }, [selectedDeckId, decks]);
 
   useEffect(() => {
     let isMounted = true;
@@ -52,47 +56,55 @@ export default function SubscriberDetailsPage() {
     setDecks((prev) => [newDeck, ...prev]);
   }
 
+  function handleUpdateDeck(updatedDeck: DeckInterface) {
+    setDecks((prev) =>
+      prev.map((deck) => {
+        if (deck.id === updatedDeck.id) {
+          return updatedDeck;
+        }
+
+        return deck;
+      }),
+    );
+  }
+
+  function handleSelectDeck(deckId: string) {
+    setSelectedDeckId(deckId);
+  }
+
   return (
     <PageLayout>
-      <Grid container sx={{ height: "calc(100vh - 128px)" }} spacing={2}>
-        <Grid size={3} sx={{ height: "100%" }}>
-          <Stack spacing={2} sx={{ display: "flex", height: "100%" }}>
-            <Button
-              startIcon={<ArrowBack />}
-              onClick={() => navigate(APP_ROUTES.subscribersPage.path)}
-              color="inherit"
-            >
-              Return to subscriber list
-            </Button>
-            {subscriber && (
-              <Paper sx={{ p: 2 }} elevation={0}>
-                <Grid container spacing={2} alignItems="center">
-                  <Grid>
-                    <Avatar>
-                      <RegistrantIcon />
-                    </Avatar>
-                  </Grid>
-                  <Grid>
-                    <Typography>
-                      {subscriber.firstName} {subscriber.lastName}
-                    </Typography>
-                    <Typography variant="body2" color="textSecondary">
-                      @{subscriber.username} ({id})
-                    </Typography>
-                  </Grid>
-                </Grid>
-              </Paper>
-            )}
-            <Divider />
-            {subscriber && (
-              <DeckList decks={decks} subscriberId={subscriber.id} onAddDeck={handleAddDeck} />
-            )}
-          </Stack>
-        </Grid>
-        <Grid size={9} sx={{ height: "100%" }}>
-          {subscriber && <DeckDetails subscriberId={subscriber.id} />}
-        </Grid>
-      </Grid>
+      <>
+        <Button
+          startIcon={<ArrowBack />}
+          onClick={() => navigate(APP_ROUTES.subscribersPage.path)}
+          color="inherit"
+          sx={{ mb: 4 }}
+        >
+          Return to subscriber list
+        </Button>
+        {subscriber && (
+          <>
+            <Typography variant="h5" sx={{ mb: 2 }}>{`${subscriber.firstName}'s decks`}</Typography>
+            <DeckList
+              decks={decks}
+              subscriberId={subscriber.id}
+              onAddDeck={handleAddDeck}
+              onUpdateDeck={handleUpdateDeck}
+              onSelectDeck={handleSelectDeck}
+              selectedDeckId={selectedDeckId}
+            />
+          </>
+        )}
+        <Divider sx={{ my: 3 }} />
+        {subscriber && selectedDeck && (
+          <DeckDetails
+            subscriberId={subscriber.id}
+            onUpdateDeck={handleUpdateDeck}
+            deck={selectedDeck}
+          />
+        )}
+      </>
     </PageLayout>
   );
 }
