@@ -107,7 +107,9 @@ class ChatMessagesBackgroundJob:
 
                 fetch_chats_url = f"{BACKEND_SERVICE_API_URL}/api/v1/chats"
                 # obtain crawl active chats only
-                response = requests.get(fetch_chats_url, {"crawlActive": "1"})
+                response = requests.get(
+                    fetch_chats_url, {"crawlActive": "1", "size": 10000}
+                )
                 response.raise_for_status()
                 response_json: dict = response.json()
                 chats: list[dict] = response_json.get("data", None)
