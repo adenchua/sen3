@@ -37,8 +37,6 @@ services:
       dockerfile: ./telegram-service/Dockerfile
       context: ./
     image: telegram-service:1.0.0
-    ports:
-      - ${TELEGRAM_SERVICE_PORT}
     networks:
       - sen3
 
@@ -47,8 +45,6 @@ services:
       dockerfile: ./backend/Dockerfile
       context: ./
     image: backend-service:1.0.0
-    ports:
-      - ${BACKEND_SERVICE_PORT}
     networks:
       - sen3
     depends_on:
