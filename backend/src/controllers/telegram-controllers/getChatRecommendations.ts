@@ -9,7 +9,7 @@ export default async function getChannelRecommendations(
 ): Promise<void> {
   const { chatUsername } = request.params;
 
-  const channels = await telegramInstance.fetchRecommendedChats(chatUsername);
+  const channels = await telegramInstance.fetchTelegramRecommendedChats(chatUsername);
 
   response.status(200).send(wrapResponse(channels));
 }

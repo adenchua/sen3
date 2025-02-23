@@ -1,7 +1,7 @@
 import { Request, Response } from "express";
 
 import { body, ValidationChain } from "express-validator";
-import { invalidSubscriberError } from "../../errors/subscriberError";
+import InvalidSubscriberError from "../../errors/subscribers/InvalidSubscriberError";
 import { SubscriberModel } from "../../models/SubscriberModel";
 import { databaseInstance } from "../../singletons";
 
@@ -26,7 +26,7 @@ export default async function updateSubscriber(
 
   const subscriber = await subscriberModel.fetchOne(id);
   if (subscriber == null) {
-    throw invalidSubscriberError;
+    throw new InvalidSubscriberError(id);
   }
 
   await subscriberModel.update(id, { isApproved, allowNotifications });

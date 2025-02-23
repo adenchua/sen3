@@ -1,6 +1,8 @@
 import axios, { AxiosResponse } from "axios";
 
-import { ErrorResponse } from "../middlewares/errorHandlerMiddleware";
+import MaxMessageLimitError from "../errors/chats/MaxMessageLimitError";
+import InternalServerError from "../errors/InternalServerError";
+import handleAxiosError from "../utils/axiosErrorHandler";
 
 interface TelegramChat {
   about: string;
@@ -35,7 +37,7 @@ interface TelegramMessage {
   view_count: number;
 }
 
-interface ParsedTelegramMesssage {
+interface ParsedTelegramMessage {
   chatId: number;
   chatUsername: string;
   createdDate: string;
@@ -46,7 +48,7 @@ interface ParsedTelegramMesssage {
   viewCount: number;
 }
 
-class TelegramService {
+export default class TelegramService {
   private telegramAPIUrl: string;
 
   constructor(telegramAPIUrl: string) {
@@ -66,7 +68,7 @@ class TelegramService {
     };
   }
 
-  private parseMessage(message: TelegramMessage): ParsedTelegramMesssage {
+  private parseMessage(message: TelegramMessage): ParsedTelegramMessage {
     return {
       chatId: message.chat_id,
       chatUsername: message.chat_username,
@@ -79,52 +81,64 @@ class TelegramService {
     };
   }
 
-  async fetchChat(chatUsername: string): Promise<ParsedTelegramChat | null> {
+  async fetchTelegramChat(chatUsername: string): Promise<ParsedTelegramChat | null> {
     const apiUrl = `${this.telegramAPIUrl}/api/v1/chats/${chatUsername}`;
-    const response = await axios.get<AxiosResponse<TelegramChat>>(apiUrl);
 
-    let result: ParsedTelegramChat | null = null;
+    try {
+      const response = await axios.get<AxiosResponse<TelegramChat>>(apiUrl);
 
-    if (response.data.data) {
-      result = this.parseChat(response.data.data);
+      let result: ParsedTelegramChat | null = null;
+
+      if (response.data.data) {
+        result = this.parseChat(response.data.data);
+      }
+
+      return result;
+    } catch (error) {
+      handleAxiosError(error);
+      throw new InternalServerError();
     }
-
-    return result;
   }
 
-  async fetchChatMessages(
+  async fetchTelegramChatMessages(
     chatUsername: string,
     limit = 10,
     latest = false,
     offsetId = 0,
-  ): Promise<ParsedTelegramMesssage[]> {
+  ): Promise<ParsedTelegramMessage[]> {
     if (limit && limit > 1000) {
-      throw new ErrorResponse(
-        "Limit exceeded max limit of 1000",
-        "Max_Limit_Telegram_Message",
-        400,
-      );
+      throw new MaxMessageLimitError();
     }
 
     const apiURL = `${this.telegramAPIUrl}/api/v1/chats/${chatUsername}/messages`;
-    const response = await axios.get<AxiosResponse<TelegramMessage[]>>(apiURL, {
-      params: { limit, reverse: !latest, offset_id: offsetId },
-    });
 
-    const result: ParsedTelegramMesssage[] = response.data.data.map((telegramMessage) => {
-      return this.parseMessage(telegramMessage);
-    });
+    try {
+      const response = await axios.get<AxiosResponse<TelegramMessage[]>>(apiURL, {
+        params: { limit, reverse: !latest, offset_id: offsetId },
+      });
 
-    return result;
+      const result: ParsedTelegramMessage[] = response.data.data.map((telegramMessage) => {
+        return this.parseMessage(telegramMessage);
+      });
+
+      return result;
+    } catch (error) {
+      handleAxiosError(error);
+      throw new InternalServerError();
+    }
   }
 
-  async fetchRecommendedChats(chatUsername: string): Promise<ParsedTelegramChat[]> {
+  async fetchTelegramRecommendedChats(chatUsername: string): Promise<ParsedTelegramChat[]> {
     const apiURL = `${this.telegramAPIUrl}/api/v1/chats/${chatUsername}/recommendations`;
-    const response = await axios.get<AxiosResponse<ParsedTelegramChat[]>>(apiURL);
-    const { data: result } = response.data;
 
-    return result;
+    try {
+      const response = await axios.get<AxiosResponse<ParsedTelegramChat[]>>(apiURL);
+      const { data: result } = response.data;
+
+      return result;
+    } catch (error) {
+      handleAxiosError(error);
+      throw new InternalServerError();
+    }
   }
 }
-
-export default TelegramService;

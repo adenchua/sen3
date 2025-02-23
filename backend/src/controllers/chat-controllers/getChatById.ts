@@ -3,7 +3,7 @@ import { Request, Response } from "express";
 import { ChatModel } from "../../models/ChatModel";
 import { databaseInstance } from "../../singletons";
 import wrapResponse from "../../utils/responseUtils";
-import { invalidTelegramChatIdError } from "../../errors/invalidTelegramChatError";
+import InvalidChatError from "../../errors/chats/InvalidChatError";
 
 export default async function getChatById(request: Request, response: Response): Promise<void> {
   const { id } = request.params;
@@ -12,7 +12,7 @@ export default async function getChatById(request: Request, response: Response):
   const result = await chatModel.fetchOne(id);
 
   if (result == null) {
-    throw invalidTelegramChatIdError;
+    throw new InvalidChatError(id);
   }
 
   response.status(200).send(wrapResponse(result));

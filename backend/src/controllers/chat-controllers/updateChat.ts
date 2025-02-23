@@ -1,10 +1,10 @@
 import { Request, Response } from "express";
 import { body, check, ValidationChain } from "express-validator";
 
-import { invalidTelegramChatIdError } from "../../errors/invalidTelegramChatError";
 import { ParticipantStat } from "../../interfaces/ChatInterface";
 import { ChatModel } from "../../models/ChatModel";
 import { databaseInstance } from "../../singletons";
+import InvalidChatError from "../../errors/chats/InvalidChatError";
 
 interface RequestBody {
   id: string;
@@ -36,7 +36,7 @@ export default async function updateChat(request: Request, response: Response): 
   const chat = await chatModel.fetchOne(id);
 
   if (chat == null) {
-    throw invalidTelegramChatIdError;
+    throw new InvalidChatError(id);
   }
 
   const chatParticipantStats = chat.participantStats;

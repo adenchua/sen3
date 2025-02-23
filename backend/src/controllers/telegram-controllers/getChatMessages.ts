@@ -1,9 +1,9 @@
 import { Request, Response } from "express";
 import { query, ValidationChain } from "express-validator";
 
-import { invalidTelegramChatUsernameError } from "../../errors/invalidTelegramChatError";
 import { telegramInstance } from "../../singletons";
 import wrapResponse from "../../utils/responseUtils";
+import InvalidChatError from "../../errors/chats/InvalidChatError";
 
 export const getChatMessagesValidationChains: ValidationChain[] = [
   query("limit").isInt({ min: 1, max: 1000 }).optional(),
@@ -28,14 +28,14 @@ export default async function getChatMessages(request: Request, response: Respon
     tempOffsetId = Number(offsetId);
   }
 
-  const chat = await telegramInstance.fetchChat(chatUsername);
+  const chat = await telegramInstance.fetchTelegramChat(chatUsername);
 
   // chat does not exist, throw error
   if (chat == null) {
-    throw invalidTelegramChatUsernameError;
+    throw new InvalidChatError(chatUsername);
   }
 
-  const messages = await telegramInstance.fetchChatMessages(
+  const messages = await telegramInstance.fetchTelegramChatMessages(
     chatUsername,
     tempLimit,
     tempLatest,

@@ -1,5 +1,12 @@
 import { NextFunction, Request, Response } from "express";
-import { validationResult } from "express-validator";
+import { ValidationError, validationResult } from "express-validator";
+import { ErrorResponse } from "../errors/ErrorResponse";
+
+class CustomValidationError extends ErrorResponse {
+  constructor(errors: ValidationError[]) {
+    super("Validation for some fields failed", "Validation_Error", 400, errors);
+  }
+}
 
 /** Common validation middleware that runs validation chains and output an error */
 const validationMiddleware = async (
@@ -15,7 +22,7 @@ const validationMiddleware = async (
     return;
   }
 
-  response.status(400).send({ errors: result.array() });
+  throw new CustomValidationError(result.array());
 };
 
 export default validationMiddleware;

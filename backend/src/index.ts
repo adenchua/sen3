@@ -3,6 +3,7 @@ import express from "express";
 import helmet from "helmet";
 import morgan from "morgan";
 
+import ENVIRONMENT_CONSTANTS from "./constants/envConstants";
 import errorHandlerMiddleware from "./middlewares/errorHandlerMiddleware";
 import chatRouter from "./routes/chatRouter";
 import messageRouter from "./routes/messageRouter";
@@ -10,7 +11,7 @@ import subscriberRouter from "./routes/subscriberRouter";
 import telegramRouter from "./routes/telegramRouter";
 import { databaseInstance } from "./singletons";
 
-const PORT = process.env.BACKEND_SERVICE_PORT || 5001;
+const PORT = ENVIRONMENT_CONSTANTS.server.port;
 const app = express();
 
 app.use(cors());

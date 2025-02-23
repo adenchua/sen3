@@ -1,38 +1,41 @@
 import { Request, Response, NextFunction } from "express";
 
-export class ErrorResponse extends Error {
-  errorCode: string;
-  statusCode: number;
+import { ErrorResponse } from "../errors/ErrorResponse";
 
-  constructor(message: string, errorCode: string, statusCode: number) {
-    super(message);
-    this.errorCode = errorCode;
-    this.statusCode = statusCode;
-  }
+interface ErrorResponseBody {
+  errorCode: string;
+  message: string;
+  details: unknown;
 }
 
 const errorHandlerMiddleware = (
-  error: ErrorResponse,
+  error: Error | ErrorResponse,
   request: Request,
   response: Response,
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   next: NextFunction,
 ) => {
-  const errorStatusCode = error.statusCode || 500;
-  const errorMessage = errorStatusCode === 500 ? "Internal Server Error" : error.message;
-  const errorCode = errorStatusCode === 500 ? "INTERNAL_SERVER_ERROR" : error.errorCode;
-  const errorResponse = {
-    statusCode: errorStatusCode,
+  // catch all other errors not defined in the code
+  if (!("errorCode" in error)) {
+    console.error(error);
+    response.status(500).send();
+    return;
+  }
+
+  const { errorCode, errorDetails, message, statusCode } = error;
+
+  const errorResponse: ErrorResponseBody = {
     errorCode,
-    message: errorMessage,
+    message,
+    details: errorDetails,
   };
 
-  console.error(error);
-
-  response.status(errorStatusCode).send({
+  response.status(statusCode).send({
     status: "error",
     error: errorResponse,
-    timestamp: new Date().toISOString(),
+    meta: {
+      datetime: new Date().toISOString(),
+    },
   });
 };
 

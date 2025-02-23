@@ -1,9 +1,9 @@
 import { Request, Response } from "express";
 import { body, ValidationChain } from "express-validator";
 
-import { invalidDeckError } from "../../errors/deckError";
 import { DeckModel } from "../../models/DeckModel";
 import { databaseInstance } from "../../singletons";
+import InvalidDeckError from "../../errors/decks/InvalidDeckError";
 
 interface RequestBody {
   chatIds: string[];
@@ -33,7 +33,7 @@ export default async function updateDeck(request: Request, response: Response): 
   const deck = await deckModel.fetchOne(deckId);
 
   if (deck == null) {
-    throw invalidDeckError;
+    throw new InvalidDeckError(deckId);
   }
 
   await deckModel.update(deckId, {

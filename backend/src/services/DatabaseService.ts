@@ -5,6 +5,8 @@ import {
   Update_ResponseBody,
 } from "@opensearch-project/opensearch/api";
 
+import InternalServerError from "../errors/InternalServerError";
+
 interface DatabaseDocumentId {
   _id: string;
 }
@@ -45,14 +47,19 @@ export default class DatabaseService {
   }
 
   async ingestDocument<T>(document: T, indexName: string, documentId?: string): Promise<string> {
-    const response = await this.databaseClient.index({
-      body: document as object,
-      id: documentId,
-      index: indexName,
-      refresh: true,
-    });
+    try {
+      const response = await this.databaseClient.index({
+        body: document as object,
+        id: documentId,
+        index: indexName,
+        refresh: true,
+      });
 
-    return response.body._id;
+      return response.body._id;
+    } catch (error) {
+      console.error(error);
+      throw new InternalServerError();
+    }
   }
 
   /** bulk ingest documents. Each document must contain a unique _id field */
@@ -60,34 +67,44 @@ export default class DatabaseService {
     documents: Array<T>,
     indexName: string,
   ): Promise<number> {
-    const response = await this.databaseClient.helpers.bulk({
-      datasource: documents,
-      refresh: true,
-      onDocument(document) {
-        const { _id, ...rest } = document;
+    try {
+      const response = await this.databaseClient.helpers.bulk({
+        datasource: documents,
+        refresh: true,
+        onDocument(document) {
+          const { _id, ...rest } = document;
 
-        return [
-          {
-            index: { _index: indexName, _id },
-          },
-          rest,
-        ];
-      },
-    });
+          return [
+            {
+              index: { _index: indexName, _id },
+            },
+            rest,
+          ];
+        },
+      });
 
-    return response.successful;
+      return response.successful;
+    } catch (error) {
+      console.error(error);
+      throw new InternalServerError();
+    }
   }
 
   async fetchDocuments<T>(
     indexName: string,
     query: Search_RequestBody,
   ): Promise<Array<DatabaseDocumentId & T>> {
-    const response = await this.databaseClient.search({
-      index: indexName,
-      body: query,
-    });
+    try {
+      const response = await this.databaseClient.search({
+        index: indexName,
+        body: query,
+      });
 
-    return this.processHitsResponse(response.body);
+      return this.processHitsResponse(response.body);
+    } catch (error) {
+      console.error(error);
+      throw new InternalServerError();
+    }
   }
 
   async updateDocument<T>(
@@ -95,15 +112,20 @@ export default class DatabaseService {
     documentId: string,
     updatedFields: Partial<T>,
   ): Promise<Update_ResponseBody> {
-    const response = await this.databaseClient.update({
-      index: indexName,
-      id: documentId,
-      body: {
-        doc: updatedFields,
-      },
-      refresh: true,
-    });
+    try {
+      const response = await this.databaseClient.update({
+        index: indexName,
+        id: documentId,
+        body: {
+          doc: updatedFields,
+        },
+        refresh: true,
+      });
 
-    return response.body;
+      return response.body;
+    } catch (error) {
+      console.error(error);
+      throw new InternalServerError();
+    }
   }
 }

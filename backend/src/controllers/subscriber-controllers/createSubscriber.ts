@@ -1,7 +1,7 @@
 import { Request, Response } from "express";
 import { body, ValidationChain } from "express-validator";
 
-import { subscriberAlreadyExistsError } from "../../errors/subscriberError";
+import SubscriberAlreadyExistsError from "../../errors/subscribers/SubscriberAlreadyExistsError";
 import Subscriber from "../../interfaces/SubscriberInterface";
 import { SubscriberModel } from "../../models/SubscriberModel";
 import { databaseInstance } from "../../singletons";
@@ -41,7 +41,7 @@ export default async function createSubscriber(
 
   // already exist, throw error
   if (subscriber != null) {
-    throw subscriberAlreadyExistsError;
+    throw new SubscriberAlreadyExistsError(userId);
   }
 
   await subscriberModel.save(newSubscriber);

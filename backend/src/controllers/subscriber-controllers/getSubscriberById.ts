@@ -1,6 +1,6 @@
 import { Request, Response } from "express";
 
-import { invalidSubscriberError } from "../../errors/subscriberError";
+import InvalidSubscriberError from "../../errors/subscribers/InvalidSubscriberError";
 import { SubscriberModel } from "../../models/SubscriberModel";
 import { databaseInstance } from "../../singletons";
 import wrapResponse from "../../utils/responseUtils";
@@ -15,7 +15,7 @@ export default async function getSubscriberById(
   const result = await subscriberModel.fetchOne(id);
 
   if (result == null) {
-    throw invalidSubscriberError;
+    throw new InvalidSubscriberError(id);
   }
 
   response.status(200).send(wrapResponse(result));
