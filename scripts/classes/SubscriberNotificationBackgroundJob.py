@@ -50,10 +50,17 @@ class SubscriberNotificationBackgroundJob:
                             await notification_service.send_message(
                                 message_content, subscriber_id
                             )
+                            # create a notification stat for the notification sent
+                            await self.create_notification_stat(
+                                keywords=deck["keywords"],
+                                chat_id=matched_message["chatId"],
+                                message=message_content,
+                                subscriber_id=subscriber_id,
+                            )
                             logging.info(
                                 f"Sent message {matched_message_id} to subscriber {subscriber_id}"
                             )
-                            
+
                         # only update last notified date of deck if there are matched messages
                         if len(matched_messages) > 0:
                             await self.update_deck(subscriber_id, deck_id)
@@ -124,3 +131,21 @@ class SubscriberNotificationBackgroundJob:
         response.raise_for_status()
         response_json: dict = response.json()
         return response_json["data"]
+
+    async def create_notification_stat(
+        self, keywords: list[str], message: str, subscriber_id: str, chat_id: str
+    ):
+        """
+        Creates a notification stat object in the database for analytical purposes
+        """
+        api_url = f"{BACKEND_SERVICE_API_URL}/api/v1/notifications"
+        response = requests.post(
+            api_url,
+            {
+                "keywords": keywords,
+                "message": message,
+                "subscriberId": subscriber_id,
+                "chatId": chat_id,
+            },
+        )
+        response.raise_for_status()
