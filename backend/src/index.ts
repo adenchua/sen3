@@ -7,6 +7,7 @@ import ENVIRONMENT_CONSTANTS from "./constants/envConstants";
 import errorHandlerMiddleware from "./middlewares/errorHandlerMiddleware";
 import chatRouter from "./routes/chatRouter";
 import messageRouter from "./routes/messageRouter";
+import notificationRouter from "./routes/notificationRouter";
 import subscriberRouter from "./routes/subscriberRouter";
 import telegramRouter from "./routes/telegramRouter";
 import { databaseInstance } from "./singletons";
@@ -20,14 +21,11 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(morgan("combined"));
 
-// register chat routes
 app.use("/api/v1/chats", chatRouter);
-// register message routes
 app.use("/api/v1/messages", messageRouter);
-// register telegram routes
 app.use("/api/v1/telegram", telegramRouter);
-// register subscriber routes
 app.use("/api/v1/subscribers", subscriberRouter);
+app.use("/api/v1/notifications", notificationRouter);
 
 // catch async errors
 app.use(errorHandlerMiddleware);

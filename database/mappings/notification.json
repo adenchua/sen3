@@ -1,0 +1,32 @@
+{
+  "settings": {
+    "index": {
+      "number_of_shards": 1,
+      "number_of_replicas": 1
+    }
+  },
+  "mappings": {
+    "dynamic": "strict",
+    "properties": {
+      "chat_id": {
+        "type": "keyword"
+      },
+      "keywords": {
+        "type": "keyword"
+      },
+      "message": {
+        "type": "keyword"
+      },
+      "notification_date": {
+        "type": "date",
+        "format": "strict_date_time"
+      },
+      "subscriber_id": {
+        "type": "keyword"
+      }
+    }
+  },
+  "aliases": {
+    "notification": {}
+  }
+}
