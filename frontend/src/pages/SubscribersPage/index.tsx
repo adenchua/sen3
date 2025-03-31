@@ -1,5 +1,5 @@
 import Grid from "@mui/material/Grid2";
-import { useEffect, useState } from "react";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 
 import fetchSubscribers from "../../api/subscribers/fetchSubscribers";
 import PageLayout from "../../components/PageLayout";
@@ -7,33 +7,47 @@ import SubscriberInterface from "../../interfaces/subscriber";
 import SubscriberCard from "./SubscriberCard";
 
 export default function SubscribersPage() {
-  const [subscribers, setSubscribers] = useState<SubscriberInterface[]>([]);
+  const {
+    data: subscribers,
+    isPending,
+    isError,
+  } = useQuery({
+    queryKey: ["fetchSubscribers"],
+    queryFn: () => fetchSubscribers(true),
+  });
 
-  useEffect(() => {
-    let isMounted = true;
-
-    async function fetchData() {
-      const response = await fetchSubscribers(true);
-      if (isMounted) {
-        setSubscribers(response);
-      }
-    }
-
-    fetchData();
-
-    return () => {
-      isMounted = false;
-    };
-  }, []);
+  const queryClient = useQueryClient();
 
   function handleUpdateSubscriber(updatedSubsciber: SubscriberInterface) {
-    setSubscribers((prev) =>
-      prev.map((subscriber) => {
-        if (subscriber.id === updatedSubsciber.id) {
-          return updatedSubsciber;
+    queryClient.setQueryData(["fetchSubscribers"], (cachedSubscribers: SubscriberInterface[]) => {
+      if (!cachedSubscribers) {
+        return cachedSubscribers;
+      }
+
+      return cachedSubscribers.map((cachedSubscriber) => {
+        if (cachedSubscriber.id === updatedSubsciber.id) {
+          return {
+            ...updatedSubsciber,
+          };
         }
-        return subscriber;
-      }),
+        return cachedSubscriber;
+      });
+    });
+  }
+
+  if (isPending) {
+    return (
+      <PageLayout>
+        <span>Loading...</span>
+      </PageLayout>
+    );
+  }
+
+  if (isError) {
+    return (
+      <PageLayout>
+        <span>An unknown error occured</span>
+      </PageLayout>
     );
   }
 

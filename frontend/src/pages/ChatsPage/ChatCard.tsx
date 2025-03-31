@@ -10,13 +10,14 @@ import { useState } from "react";
 import IconButton from "../../components/IconButton";
 import Switch from "../../components/Switch";
 import Tooltip from "../../components/Tooltip";
+import DATE_FNS_DATE_FORMAT from "../../constants/dateFormat";
 import { APP_BACKGROUND_COLOR } from "../../constants/styling";
+import CloudSyncIcon from "../../icons/CloudSyncIcon";
 import RecommendedChannelsIcon from "../../icons/RecommendedChannelsIcon";
 import TelegramChannelIcon from "../../icons/TelegramChannelIcon";
 import TelegramChatGroupIcon from "../../icons/TelegramChatGroupIcon";
 import ChatInterface from "../../interfaces/chat";
 import RecommendedChatsDialog from "./RecommendedChatsDialog";
-import DATE_FNS_DATE_FORMAT from "../../constants/dateFormat";
 
 interface IProps {
   chat: ChatInterface;
@@ -27,9 +28,7 @@ function ChatCard(props: IProps) {
   const { chat, onToggleCrawlStatus } = props;
   const { title, about, crawlActive, isChannel, username, lastCrawlDate } = chat;
   const [isDialogOpen, setIsDialogOpen] = useState<boolean>(false);
-  const formattedLastCrawlDate = lastCrawlDate
-    ? `Last crawl on ${format(lastCrawlDate, DATE_FNS_DATE_FORMAT)}`
-    : "";
+  const formattedLastCrawlDate = lastCrawlDate ? format(lastCrawlDate, DATE_FNS_DATE_FORMAT) : "";
 
   function handleCloseDialog() {
     setIsDialogOpen(false);
@@ -55,7 +54,7 @@ function ChatCard(props: IProps) {
           }}
         >
           <Box display="flex" gap={1} alignItems="flex-start">
-            <Avatar variant="rounded">
+            <Avatar variant="rounded" sx={{ bgcolor: crawlActive ? "primary.main" : "" }}>
               {isChannel ? <TelegramChannelIcon /> : <TelegramChatGroupIcon />}
             </Avatar>
             <Box mt="-2px">
@@ -65,9 +64,14 @@ function ChatCard(props: IProps) {
               </Typography>
             </Box>
           </Box>
-          <Typography color="textSecondary" variant="body2">
-            {formattedLastCrawlDate}
-          </Typography>
+          {lastCrawlDate && (
+            <Box display="flex" gap={1} alignItems="center">
+              <CloudSyncIcon fontSize="small" color="disabled" />
+              <Typography color="textSecondary" variant="body2">
+                {formattedLastCrawlDate}
+              </Typography>
+            </Box>
+          )}
           <Typography color="textSecondary" variant="body2">
             {about}
           </Typography>

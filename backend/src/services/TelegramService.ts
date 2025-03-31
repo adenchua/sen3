@@ -132,8 +132,13 @@ export default class TelegramService {
     const apiURL = `${this.telegramAPIUrl}/api/v1/chats/${chatUsername}/recommendations`;
 
     try {
-      const response = await axios.get<AxiosResponse<ParsedTelegramChat[]>>(apiURL);
-      const { data: result } = response.data;
+      const response = await axios.get<AxiosResponse<TelegramChat[]>>(apiURL);
+
+      let result: ParsedTelegramChat[] = [];
+
+      if (response.data.data) {
+        result = response.data.data.map((telegramChat) => this.parseChat(telegramChat));
+      }
 
       return result;
     } catch (error) {

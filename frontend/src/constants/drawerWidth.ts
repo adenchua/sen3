@@ -1,3 +1,3 @@
-const DRAWER_WIDTH = "280px";
+const DRAWER_WIDTH = "300px";
 
 export default DRAWER_WIDTH;

@@ -4,7 +4,8 @@ import Paper from "@mui/material/Paper";
 import Stack from "@mui/material/Stack";
 import { TextFieldProps } from "@mui/material/TextField";
 import Typography from "@mui/material/Typography";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useQuery } from "@tanstack/react-query";
+import { useMemo, useRef, useState } from "react";
 
 import fetchChats from "../../api/chats/fetchChats";
 import updateDeck from "../../api/decks/updateDeck";
@@ -16,7 +17,6 @@ import Switch from "../../components/Switch";
 import AddIcon from "../../icons/AddIcon";
 import EditIcon from "../../icons/EditIcon";
 import SaveIcon from "../../icons/SaveIcon";
-import ChatInterface from "../../interfaces/chat";
 import DeckInterface from "../../interfaces/deck";
 import ChatSelectionDialog from "./ChatSelectionDialog";
 
@@ -29,13 +29,21 @@ interface IProps {
 export default function DeckDetails(props: IProps) {
   const { subscriberId, deck, onUpdateDeck } = props;
   const [isDialogOpen, setIsDialogOpen] = useState<boolean>(false);
-  const [availableChats, setAvailableChats] = useState<ChatInterface[] | null>(null);
   const [titleEditState, setTitleEditState] = useState<boolean>(false);
 
   const keywordInputRef = useRef<TextFieldProps>(null);
   const titleInputRef = useRef<TextFieldProps>(null);
 
   const { chatIds, isActive, keywords, title } = deck;
+
+  const {
+    data: availableChats,
+    isPending,
+    isError,
+  } = useQuery({
+    queryKey: ["fetchChats"],
+    queryFn: fetchChats,
+  });
 
   // helper constant for dropdown to map id to chat username
   const chatIdToUsernameMap = useMemo(() => {
@@ -45,15 +53,6 @@ export default function DeckDetails(props: IProps) {
     );
     return result;
   }, [availableChats]);
-
-  useEffect(() => {
-    async function getData() {
-      const response = await fetchChats();
-      setAvailableChats(response);
-    }
-
-    getData();
-  }, []);
 
   async function handleAddKeyword(): Promise<void> {
     if (deck == null || keywordInputRef.current == null || keywordInputRef.current.value === "") {
@@ -121,6 +120,26 @@ export default function DeckDetails(props: IProps) {
 
     onUpdateDeck({ ...deck, title: updatedTitle });
     setTitleEditState(false);
+  }
+
+  if (isPending) {
+    return (
+      <Stack spacing={0.5}>
+        <Paper sx={{ p: 2 }} elevation={0}>
+          <span>Loading...</span>
+        </Paper>
+      </Stack>
+    );
+  }
+
+  if (isError) {
+    return (
+      <Stack spacing={0.5}>
+        <Paper sx={{ p: 2 }} elevation={0}>
+          <span>An unknown error occured</span>
+        </Paper>
+      </Stack>
+    );
   }
 
   return (

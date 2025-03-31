@@ -1,5 +1,5 @@
 import Grid from "@mui/material/Grid2";
-import { useEffect, useState } from "react";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 
 import fetchSubscribers from "../../api/subscribers/fetchSubscribers";
 import updateSubscriber from "../../api/subscribers/updateSubscriber";
@@ -8,21 +8,44 @@ import SubscriberInterface from "../../interfaces/subscriber";
 import RegistrantCard from "./RegistrantCard";
 
 function RegistrantsPage() {
-  const [registrants, setRegistrants] = useState<SubscriberInterface[]>([]);
-
-  useEffect(() => {
-    async function fetchData() {
-      const response = await fetchSubscribers(false);
-      setRegistrants(response);
-    }
-
-    fetchData();
-  }, []);
+  const {
+    data: registrants,
+    isPending,
+    isError,
+  } = useQuery({
+    queryKey: ["fetchSubscribers"],
+    queryFn: () => fetchSubscribers(false),
+  });
+  const queryClient = useQueryClient();
 
   async function handleApproveRegistrant(id: string) {
     await updateSubscriber(id, { isApproved: true });
 
-    setRegistrants((prev) => prev.filter((registrant) => registrant.id !== id));
+    queryClient.setQueryData(["fetchSubscribers"], (cachedRegistrants: SubscriberInterface[]) => {
+      if (!cachedRegistrants) {
+        return cachedRegistrants;
+      }
+
+      return cachedRegistrants.filter((cachedRegistrant) => {
+        return cachedRegistrant.id !== id;
+      });
+    });
+  }
+
+  if (isPending) {
+    return (
+      <PageLayout>
+        <span>Loading...</span>
+      </PageLayout>
+    );
+  }
+
+  if (isError) {
+    return (
+      <PageLayout>
+        <span>An unknown error occured</span>
+      </PageLayout>
+    );
   }
 
   return (
