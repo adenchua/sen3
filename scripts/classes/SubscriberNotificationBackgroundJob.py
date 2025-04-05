@@ -47,15 +47,17 @@ class SubscriberNotificationBackgroundJob:
                         for matched_message in matched_messages:
                             matched_message_id = matched_message["messageId"]
                             message_content = matched_message["text"]
-                            await notification_service.send_message(
-                                message_content, subscriber_id
-                            )
                             # create a notification stat for the notification sent
+                            # to put above before the actual message, in case this function throws
+                            # prevent spamming the client
                             await self.create_notification_stat(
                                 keywords=deck["keywords"],
                                 chat_id=matched_message["chatId"],
                                 message=message_content,
                                 subscriber_id=subscriber_id,
+                            )
+                            await notification_service.send_message(
+                                message_content, subscriber_id
                             )
                             logging.info(
                                 f"Sent message {matched_message_id} to subscriber {subscriber_id}"
@@ -139,13 +141,15 @@ class SubscriberNotificationBackgroundJob:
         Creates a notification stat object in the database for analytical purposes
         """
         api_url = f"{BACKEND_SERVICE_API_URL}/api/v1/notifications"
+        request_body = {
+            "keywords": keywords,
+            "message": message,
+            "subscriberId": subscriber_id,
+            "chatId": chat_id,
+        }
+
         response = requests.post(
             api_url,
-            {
-                "keywords": keywords,
-                "message": message,
-                "subscriberId": subscriber_id,
-                "chatId": chat_id,
-            },
+            json=dict(request_body),
         )
         response.raise_for_status()
