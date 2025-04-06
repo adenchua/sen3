@@ -1,10 +1,10 @@
 import Grid from "@mui/material/Grid2";
-import { useQuery, useQueryClient } from "@tanstack/react-query";
+import Typography from "@mui/material/Typography";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
 import fetchSubscribers from "../../api/subscribers/fetchSubscribers";
 import updateSubscriber from "../../api/subscribers/updateSubscriber";
 import PageLayout from "../../components/PageLayout";
-import SubscriberInterface from "../../interfaces/subscriber";
 import RegistrantCard from "./RegistrantCard";
 
 function RegistrantsPage() {
@@ -18,18 +18,15 @@ function RegistrantsPage() {
   });
   const queryClient = useQueryClient();
 
+  const { mutateAsync: mutateApproveRegistrant } = useMutation({
+    mutationFn: (id: string) => updateSubscriber(id, { isApproved: true }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["fetchSubscribers"] });
+    },
+  });
+
   async function handleApproveRegistrant(id: string) {
-    await updateSubscriber(id, { isApproved: true });
-
-    queryClient.setQueryData(["fetchSubscribers"], (cachedRegistrants: SubscriberInterface[]) => {
-      if (!cachedRegistrants) {
-        return cachedRegistrants;
-      }
-
-      return cachedRegistrants.filter((cachedRegistrant) => {
-        return cachedRegistrant.id !== id;
-      });
-    });
+    await mutateApproveRegistrant(id);
   }
 
   if (isPending) {
@@ -51,6 +48,7 @@ function RegistrantsPage() {
   return (
     <PageLayout>
       <Grid container spacing={1}>
+        {registrants.length === 0 && <Typography>There are no pending registrants</Typography>}
         {registrants.map((registrant) => (
           <Grid key={registrant.id}>
             <RegistrantCard registrant={registrant} onApproveRegistrant={handleApproveRegistrant} />

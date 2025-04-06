@@ -1,7 +1,7 @@
 import Box from "@mui/material/Box";
 import Grid from "@mui/material/Grid2";
 import Typography from "@mui/material/Typography";
-import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useMemo, useState } from "react";
 
 import fetchChats from "../../api/chats/fetchChats";
@@ -22,6 +22,14 @@ export default function ChatsPage() {
   } = useQuery({
     queryKey: ["fetchChats"],
     queryFn: fetchChats,
+  });
+
+  const { mutateAsync: mutateUpdateChat } = useMutation({
+    mutationFn: ({ id, crawlActive }: { id: string; crawlActive: boolean }) =>
+      updateChat(id, crawlActive),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["fetchChats"] });
+    },
   });
 
   const queryClient = useQueryClient();
@@ -51,27 +59,7 @@ export default function ChatsPage() {
 
   async function handleToggleCrawlStatus(chat: ChatInterface) {
     const { crawlActive, id } = chat;
-    await updateChat(id, !crawlActive);
-
-    // update the active status of the updated chat
-    queryClient.setQueryData(["fetchChats"], (cachedChats: ChatInterface[]) => {
-      if (!cachedChats) {
-        return cachedChats;
-      }
-
-      const updatedChats = cachedChats.map((cachedChat) => {
-        if (cachedChat.id === id) {
-          return {
-            ...cachedChat,
-            crawlActive: !crawlActive,
-          };
-        }
-
-        return cachedChat;
-      });
-
-      return updatedChats;
-    });
+    await mutateUpdateChat({ id, crawlActive: !crawlActive });
   }
 
   function handleAddChat(newChat: ChatInterface) {
