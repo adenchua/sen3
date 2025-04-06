@@ -7,6 +7,11 @@ import DeckInterface from "../../interfaces/deck";
 const fetchDecksBySubscriber = async (id: string): Promise<DeckInterface[]> => {
   const response = await axios.get<ApiResponseWrapper<DeckInterface[]>>(
     `${BACKEND_SERVICE_API_URL}/api/v1/subscribers/${id}/decks`,
+    {
+      params: {
+        size: 10_000, // get all decks without pagination
+      },
+    },
   );
 
   return response.data.data;
