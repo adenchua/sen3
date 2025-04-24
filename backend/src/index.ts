@@ -5,6 +5,7 @@ import morgan from "morgan";
 
 import ENVIRONMENT_CONSTANTS from "./constants/envConstants";
 import errorHandlerMiddleware from "./middlewares/errorHandlerMiddleware";
+import analyticsRouter from "./routes/analyticsRouter";
 import chatRouter from "./routes/chatRouter";
 import messageRouter from "./routes/messageRouter";
 import notificationRouter from "./routes/notificationRouter";
@@ -26,6 +27,7 @@ app.use("/api/v1/messages", messageRouter);
 app.use("/api/v1/telegram", telegramRouter);
 app.use("/api/v1/subscribers", subscriberRouter);
 app.use("/api/v1/notifications", notificationRouter);
+app.use("/api/v1/analytics", analyticsRouter);
 
 // catch async errors
 app.use(errorHandlerMiddleware);

@@ -1,7 +1,7 @@
 import axios, { AxiosResponse } from "axios";
 
 import MaxMessageLimitError from "../errors/chats/MaxMessageLimitError";
-import InternalServerError from "../errors/InternalServerError";
+import { ErrorResponse } from "../errors/ErrorResponse";
 import handleAxiosError from "../utils/axiosErrorHandler";
 
 interface TelegramChat {
@@ -96,7 +96,7 @@ export default class TelegramService {
       return result;
     } catch (error) {
       handleAxiosError(error);
-      throw new InternalServerError();
+      throw new ErrorResponse();
     }
   }
 
@@ -124,7 +124,7 @@ export default class TelegramService {
       return result;
     } catch (error) {
       handleAxiosError(error);
-      throw new InternalServerError();
+      throw new ErrorResponse();
     }
   }
 
@@ -143,7 +143,7 @@ export default class TelegramService {
       return result;
     } catch (error) {
       handleAxiosError(error);
-      throw new InternalServerError();
+      throw new ErrorResponse();
     }
   }
 }

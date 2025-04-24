@@ -1,3 +1,5 @@
+import { CalendarInterval } from "@opensearch-project/opensearch/api/_types/_common.aggregations";
+
 import QueryBuilder from "../classes/QueryBuilder";
 import Message from "../interfaces/MessageInterface";
 import DatabaseService from "../services/DatabaseService";
@@ -14,6 +16,8 @@ interface RawMessage {
   updated_date: string;
   view_count: number;
 }
+
+type MessageDateFields = Extract<keyof RawMessage, "created_date" | "edited_date" | "updated_date">;
 
 export class MessageModel {
   private databaseService: DatabaseService;
@@ -97,6 +101,37 @@ export class MessageModel {
 
     const result = response.map((rawChat) =>
       this.transformToMessage(rawChat as unknown as RawMessage),
+    );
+
+    return result;
+  }
+
+  async getCount(
+    field: MessageDateFields,
+    dateFromISOString: string,
+    dateToISOString: string,
+  ): Promise<number> {
+    const query = {
+      query: {
+        range: {
+          [field]: {
+            gte: dateFromISOString,
+            lte: dateToISOString,
+          },
+        },
+      },
+    };
+
+    const result = await this.databaseService.fetchCount(this.DATABASE_INDEX, query);
+
+    return result;
+  }
+
+  async getDateHistogram(field: MessageDateFields, interval: CalendarInterval) {
+    const result = await this.databaseService.fetchDateHistogram(
+      this.DATABASE_INDEX,
+      field,
+      interval,
     );
 
     return result;
