@@ -51,7 +51,8 @@ export default class QueryBuilder {
 
   addSimpleQueryStringQuery(fieldsToQuery: string[], queryStrings: string[]): void {
     // words in each array joined by the OR operator
-    const validQueryString = queryStrings.join(" | ");
+    // for each query string, append double quote for phrase match since it may contain more than 1 word
+    const validQueryString = queryStrings.map((queryString) => `"${queryString}"`).join(" | ");
     const mustQuery: QueryContainer = {
       simple_query_string: {
         fields: fieldsToQuery,
