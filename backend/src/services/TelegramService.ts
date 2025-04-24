@@ -81,6 +81,18 @@ export default class TelegramService {
     };
   }
 
+  async ping(): Promise<boolean> {
+    const apiUrl = `${this.telegramAPIUrl}/healthcheck`;
+
+    try {
+      await axios.get<AxiosResponse<boolean>>(apiUrl);
+      return true;
+    } catch (error) {
+      handleAxiosError(error);
+      throw new ErrorResponse();
+    }
+  }
+
   async fetchTelegramChat(chatUsername: string): Promise<ParsedTelegramChat | null> {
     const apiUrl = `${this.telegramAPIUrl}/api/v1/chats/${chatUsername}`;
 

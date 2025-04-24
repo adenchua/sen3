@@ -12,6 +12,7 @@ import notificationRouter from "./routes/notificationRouter";
 import subscriberRouter from "./routes/subscriberRouter";
 import telegramRouter from "./routes/telegramRouter";
 import { databaseInstance } from "./singletons";
+import healthCheckRouter from "./routes/healthcheckRouter";
 
 const PORT = ENVIRONMENT_CONSTANTS.server.port;
 const app = express();
@@ -28,6 +29,8 @@ app.use("/api/v1/telegram", telegramRouter);
 app.use("/api/v1/subscribers", subscriberRouter);
 app.use("/api/v1/notifications", notificationRouter);
 app.use("/api/v1/analytics", analyticsRouter);
+
+app.use("/healthcheck", healthCheckRouter);
 
 // catch async errors
 app.use(errorHandlerMiddleware);

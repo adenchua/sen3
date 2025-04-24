@@ -1,0 +1,11 @@
+import { Router } from "express";
+
+import databaseHealthCheck from "../controllers/healthcheck-controllers/databaseHealthCheck";
+import telegramServiceHealthCheck from "../controllers/healthcheck-controllers/telegramServiceHealthCheck";
+
+const healthCheckRouter = Router();
+
+healthCheckRouter.get("/telegram-service", telegramServiceHealthCheck);
+healthCheckRouter.get("/database", databaseHealthCheck);
+
+export default healthCheckRouter;
