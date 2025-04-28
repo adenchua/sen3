@@ -4,10 +4,10 @@ import TelegramIcon from "@mui/icons-material/Telegram";
 import Stack from "@mui/material/Stack";
 import { useQueries } from "@tanstack/react-query";
 
-import ChartLayout from "./ChartLayout";
-import ServiceStatusInfo from "./ServiceStatusInfo";
 import getDatabaseHealth from "../../api/healthcheck/getDatabaseHealth";
 import getTelegramServiceHealth from "../../api/healthcheck/getTelegramServiceHealth";
+import TitledPaper from "../../components/TitledPaper";
+import ServiceStatusInfo from "./ServiceStatusInfo";
 
 export default function ServiceStatusChart() {
   const [databaseHealthQuery, telegramServiceHealthQuery] = useQueries({
@@ -28,22 +28,22 @@ export default function ServiceStatusChart() {
 
   if (databaseHealthQuery.isPending || telegramServiceHealthQuery.isPending) {
     return (
-      <ChartLayout title="Metrics (~24hrs)">
+      <TitledPaper title="Metrics (~24hrs)">
         <span>Loading...</span>
-      </ChartLayout>
+      </TitledPaper>
     );
   }
 
   if (databaseHealthQuery.isError || telegramServiceHealthQuery.isError) {
     return (
-      <ChartLayout title="Metrics (~24hrs)">
+      <TitledPaper title="Metrics (~24hrs)">
         <span>An unknown error occured</span>
-      </ChartLayout>
+      </TitledPaper>
     );
   }
 
   return (
-    <ChartLayout title="Service Status">
+    <TitledPaper title="Service Status">
       <Stack gap={2}>
         <ServiceStatusInfo
           icon={<DatabaseIcon />}
@@ -57,6 +57,6 @@ export default function ServiceStatusChart() {
         />
         <ServiceStatusInfo icon={<TelegramBotIcon />} title="Telegram Bot" isAvailable={false} />
       </Stack>
-    </ChartLayout>
+    </TitledPaper>
   );
 }

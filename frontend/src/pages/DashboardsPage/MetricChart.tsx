@@ -6,7 +6,7 @@ import { subHours } from "date-fns";
 
 import fetchMessagesCount from "../../api/analytics/fetchMessagesCount";
 import fetchNotificationsCount from "../../api/analytics/fetchNotificationsCount";
-import ChartLayout from "./ChartLayout";
+import TitledPaper from "../../components/TitledPaper";
 import MetricCard from "./MetricCard";
 
 export default function MetricChart() {
@@ -28,22 +28,22 @@ export default function MetricChart() {
 
   if (messagesCountQuery.isPending || notificationsCountQuery.isPending) {
     return (
-      <ChartLayout title="Metrics (~24hrs)">
+      <TitledPaper title="Metrics (~24hrs)">
         <span>Loading...</span>
-      </ChartLayout>
+      </TitledPaper>
     );
   }
 
   if (messagesCountQuery.isError || notificationsCountQuery.isError) {
     return (
-      <ChartLayout title="Metrics (~24hrs)">
+      <TitledPaper title="Metrics (~24hrs)">
         <span>An unknown error occured</span>
-      </ChartLayout>
+      </TitledPaper>
     );
   }
 
   return (
-    <ChartLayout title="Metrics (~24hrs)">
+    <TitledPaper title="Metrics (~24hrs)">
       <Grid container>
         <Grid size={6}>
           <MetricCard
@@ -60,6 +60,6 @@ export default function MetricChart() {
           />
         </Grid>
       </Grid>
-    </ChartLayout>
+    </TitledPaper>
   );
 }

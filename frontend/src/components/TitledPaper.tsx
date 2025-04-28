@@ -7,7 +7,7 @@ interface IProps {
   children: ReactNode;
 }
 
-export default function ChartLayout(props: IProps) {
+export default function TitledPaper(props: IProps) {
   const { children, title } = props;
   return (
     <Paper sx={{ p: 2, height: "100%" }} elevation={0}>
