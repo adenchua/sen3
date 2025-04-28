@@ -1,11 +1,17 @@
 import { Client } from "@opensearch-project/opensearch";
 import {
+  Count_RequestBody,
   Search_RequestBody,
   Search_ResponseBody,
   Update_ResponseBody,
 } from "@opensearch-project/opensearch/api";
 
-import InternalServerError from "../errors/InternalServerError";
+import {
+  CalendarInterval,
+  DateHistogramBucket,
+} from "@opensearch-project/opensearch/api/_types/_common.aggregations";
+import { ErrorResponse } from "../errors/ErrorResponse";
+import { DateHistogramResponse } from "../interfaces/ResponseInterface";
 
 interface DatabaseDocumentId {
   _id: string;
@@ -58,7 +64,7 @@ export default class DatabaseService {
       return response.body._id;
     } catch (error) {
       console.error(error);
-      throw new InternalServerError();
+      throw new ErrorResponse();
     }
   }
 
@@ -86,7 +92,7 @@ export default class DatabaseService {
       return response.successful;
     } catch (error) {
       console.error(error);
-      throw new InternalServerError();
+      throw new ErrorResponse();
     }
   }
 
@@ -103,7 +109,7 @@ export default class DatabaseService {
       return this.processHitsResponse(response.body);
     } catch (error) {
       console.error(error);
-      throw new InternalServerError();
+      throw new ErrorResponse();
     }
   }
 
@@ -125,7 +131,64 @@ export default class DatabaseService {
       return response.body;
     } catch (error) {
       console.error(error);
-      throw new InternalServerError();
+      throw new ErrorResponse();
+    }
+  }
+
+  async fetchCount(indexName: string, query: Count_RequestBody): Promise<number> {
+    try {
+      const response = await this.databaseClient.count({
+        index: indexName,
+        body: query,
+      });
+
+      return response.body.count;
+    } catch (error) {
+      console.error(error);
+      throw new ErrorResponse();
+    }
+  }
+
+  async fetchDateHistogram(
+    indexName: string,
+    field: string,
+    interval: CalendarInterval,
+  ): Promise<DateHistogramResponse> {
+    try {
+      const response = await this.databaseClient.search({
+        index: indexName,
+        body: {
+          size: 0,
+          aggs: {
+            date_histogram: {
+              date_histogram: {
+                field,
+                interval,
+              },
+            },
+          },
+        },
+      });
+
+      const aggregationResult = response.body.aggregations;
+
+      if (aggregationResult != undefined && "buckets" in aggregationResult.date_histogram) {
+        const dateHistogramBuckets = aggregationResult.date_histogram
+          .buckets as DateHistogramBucket[];
+        const parsedBuckets = dateHistogramBuckets.map((dateHisogramBucket) => {
+          return {
+            dateISOString: dateHisogramBucket.key_as_string!,
+            count: dateHisogramBucket.doc_count,
+          };
+        });
+        return parsedBuckets;
+      }
+
+      // shouldnt reach this block but send an empty array for compilation
+      return [];
+    } catch (error) {
+      console.error(error);
+      throw new ErrorResponse();
     }
   }
 }

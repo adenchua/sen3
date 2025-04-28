@@ -1,29 +1,53 @@
+import Box from "@mui/material/Box";
 import MuiDrawer from "@mui/material/Drawer";
 import MenuList from "@mui/material/MenuList";
-import Toolbar from "@mui/material/Toolbar";
+import Typography from "@mui/material/Typography";
+import { useNavigate } from "react-router";
 
 import DrawerNavigationButton from "../components/DrawerNavigationButton";
 import DRAWER_WIDTH from "../constants/drawerWidth";
 import APP_ROUTES from "../constants/routes";
+import BrandingIcon from "../icons/BrandingIcon";
 import ChatsPageIcon from "../icons/ChatsPageIcon";
 import LandingPageIcon from "../icons/LandingPageIcon";
 import RegistrantsPageIcon from "../icons/RegistrantPageIcon";
 import SubscribersPageIcon from "../icons/SubscribersPageIcon";
 
 function Drawer() {
+  const navigate = useNavigate();
+
   return (
     <MuiDrawer
       variant="permanent"
-      PaperProps={{
-        sx: {
-          width: DRAWER_WIDTH,
-          boxSizing: "border-box",
-          border: "none",
-          p: 1,
+      slotProps={{
+        paper: {
+          sx: {
+            width: DRAWER_WIDTH,
+            boxSizing: "border-box",
+            border: "none",
+            p: 1,
+          },
         },
       }}
     >
-      <Toolbar />
+      <Box
+        component="button"
+        onClick={() => navigate(APP_ROUTES.homepage.path)}
+        sx={{
+          all: "unset",
+          p: 2,
+          display: "flex",
+          alignItems: "center",
+          gap: 1,
+          color: (theme) => theme.palette.primary.main,
+          cursor: "pointer",
+        }}
+      >
+        <BrandingIcon color="inherit" />
+        <Typography variant="h6" fontWeight="bold" color="inherit">
+          Sen3 Admin Portal
+        </Typography>
+      </Box>
       <MenuList>
         <DrawerNavigationButton
           icon={<LandingPageIcon />}

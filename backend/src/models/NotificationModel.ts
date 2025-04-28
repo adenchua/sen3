@@ -1,8 +1,10 @@
+import { CalendarInterval } from "@opensearch-project/opensearch/api/_types/_common.aggregations";
+
 import Notification from "../interfaces/NotificationInterface";
 import DatabaseService from "../services/DatabaseService";
 
 /** database notification mapping */
-interface DatabaseNotification {
+interface RawNotification {
   _id: string;
   chat_id: string;
   keywords: string[];
@@ -10,6 +12,8 @@ interface DatabaseNotification {
   notification_date: string;
   subscriber_id: string;
 }
+
+type NotificationDateFields = Extract<keyof RawNotification, "notification_date">;
 
 export class NotificationModel {
   private databaseService: DatabaseService;
@@ -19,9 +23,7 @@ export class NotificationModel {
     this.databaseService = databaseService;
   }
 
-  transformToDatabaseNotification(
-    notification: Partial<Notification>,
-  ): Partial<DatabaseNotification> {
+  transformToRawNotification(notification: Partial<Notification>): Partial<RawNotification> {
     return {
       chat_id: notification.chatId,
       keywords: notification.keywords,
@@ -33,7 +35,38 @@ export class NotificationModel {
 
   /** Creates a notification document in the database */
   async save(notification: Notification): Promise<void> {
-    const databaseNotification = this.transformToDatabaseNotification(notification);
-    await this.databaseService.ingestDocument(databaseNotification, this.DATABASE_INDEX);
+    const rawNotification = this.transformToRawNotification(notification);
+    await this.databaseService.ingestDocument(rawNotification, this.DATABASE_INDEX);
+  }
+
+  async getCount(
+    field: NotificationDateFields,
+    dateFromISOString: string,
+    dateToISOString: string,
+  ): Promise<number> {
+    const query = {
+      query: {
+        range: {
+          [field]: {
+            gte: dateFromISOString,
+            lte: dateToISOString,
+          },
+        },
+      },
+    };
+
+    const result = await this.databaseService.fetchCount(this.DATABASE_INDEX, query);
+
+    return result;
+  }
+
+  async getDateHistogram(field: NotificationDateFields, interval: CalendarInterval) {
+    const result = await this.databaseService.fetchDateHistogram(
+      this.DATABASE_INDEX,
+      field,
+      interval,
+    );
+
+    return result;
   }
 }

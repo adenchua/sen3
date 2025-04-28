@@ -19,6 +19,10 @@ def create_app():
 
     app.register_error_handler(404, resource_not_found)
 
+    @app.get("/healthcheck")
+    def health_check():
+        return {"status": "OK"}
+
     # chats route
     app.register_blueprint(chat.blueprint, url_prefix="/api/v1/chats")
     return app
