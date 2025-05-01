@@ -136,7 +136,7 @@ export default function DeckDetails(props: IProps) {
     return (
       <Stack spacing={0.5}>
         <Paper sx={{ p: 2 }} elevation={0}>
-          <span>An unknown error occured</span>
+          <span>An unknown error occurred</span>
         </Paper>
       </Stack>
     );

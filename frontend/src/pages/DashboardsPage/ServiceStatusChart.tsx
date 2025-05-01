@@ -28,7 +28,7 @@ export default function ServiceStatusChart() {
 
   if (databaseHealthQuery.isPending || telegramServiceHealthQuery.isPending) {
     return (
-      <TitledPaper title="Metrics (~24hrs)">
+      <TitledPaper title="Service Status">
         <span>Loading...</span>
       </TitledPaper>
     );
@@ -36,8 +36,8 @@ export default function ServiceStatusChart() {
 
   if (databaseHealthQuery.isError || telegramServiceHealthQuery.isError) {
     return (
-      <TitledPaper title="Metrics (~24hrs)">
-        <span>An unknown error occured</span>
+      <TitledPaper title="Service Status">
+        <span>An unknown error occurred</span>
       </TitledPaper>
     );
   }

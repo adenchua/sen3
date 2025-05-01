@@ -59,7 +59,7 @@ function RecommendedChatsDialog(props: IProps) {
         isOpen={isOpen}
         onClose={onClose}
       >
-        <span>An unknown error occured</span>
+        <span>An unknown error occurred</span>
       </InformationDialog>
     );
   }

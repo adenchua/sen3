@@ -15,7 +15,7 @@ export default function NotificationDateHistogramChart() {
   }
 
   if (isError) {
-    return <span>An unknown error occured</span>;
+    return <span>An unknown error occurred</span>;
   }
 
   const keys = ["count"];

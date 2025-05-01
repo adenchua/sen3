@@ -84,7 +84,7 @@ export default function SubscriberDetailsPage() {
   if (subscriberQuery.isError || decksQuery.isError) {
     return (
       <PageLayout>
-        <span>An unknown error occured</span>
+        <span>An unknown error occurred</span>
       </PageLayout>
     );
   }

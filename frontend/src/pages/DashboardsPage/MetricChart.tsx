@@ -37,7 +37,7 @@ export default function MetricChart() {
   if (messagesCountQuery.isError || notificationsCountQuery.isError) {
     return (
       <TitledPaper title="Metrics (~24hrs)">
-        <span>An unknown error occured</span>
+        <span>An unknown error occurred</span>
       </TitledPaper>
     );
   }
