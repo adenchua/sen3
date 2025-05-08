@@ -1,6 +1,6 @@
 const ENVIRONMENT_CONSTANTS = {
   server: {
-    port: process.env.BACKEND_SERVICE_PORT || 5001,
+    port: process.env.BACKEND_SERVICE_PORT || 5098,
   },
   database: {
     url: process.env.OPENSEARCH_DATABASE_URL || "",

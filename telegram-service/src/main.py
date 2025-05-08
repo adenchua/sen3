@@ -6,7 +6,7 @@ from flaskr import chat
 
 # load environment keys
 load_dotenv()
-PORT_NUMBER: int = os.getenv("TELEGRAM_SERVICE_PORT", 5000)
+PORT_NUMBER: int = os.getenv("TELEGRAM_SERVICE_PORT", 5099)
 
 
 def create_app():
