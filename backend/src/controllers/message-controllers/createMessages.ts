@@ -1,6 +1,7 @@
 import { Request, Response } from "express";
 import { body, ValidationChain } from "express-validator";
 
+import ControllerInterface from "../../interfaces/ControllerInterface";
 import Message from "../../interfaces/MessageInterface";
 import { MessageModel } from "../../models/MessageModel";
 import { databaseInstance } from "../../singletons";
@@ -18,7 +19,7 @@ interface RequestBody {
   }>;
 }
 
-export const createMessagesValidationChains: ValidationChain[] = [
+const validationChains: ValidationChain[] = [
   body("messages").isArray({ min: 1 }).exists(),
   body("messages.*.createdDate").isISO8601().exists(),
   body("messages.*.chatUsername").isString().exists(),
@@ -29,7 +30,7 @@ export const createMessagesValidationChains: ValidationChain[] = [
   body("messages.*.viewCount").isInt().optional({ values: "null" }),
 ];
 
-export default async function createMessages(request: Request, response: Response): Promise<void> {
+async function createMessages(request: Request, response: Response): Promise<void> {
   const { messages } = request.body as RequestBody;
 
   const newMessages: Message[] = messages.map((message) => {
@@ -62,3 +63,10 @@ export default async function createMessages(request: Request, response: Respons
 
   response.status(201).send();
 }
+
+const createMessagesController: ControllerInterface = {
+  controller: createMessages,
+  validator: validationChains,
+};
+
+export default createMessagesController;

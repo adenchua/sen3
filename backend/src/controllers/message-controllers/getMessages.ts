@@ -1,6 +1,7 @@
 import { Request, Response } from "express";
 import { ValidationChain, query } from "express-validator";
 
+import ControllerInterface from "../../interfaces/ControllerInterface";
 import { MessageModel } from "../../models/MessageModel";
 import { databaseInstance } from "../../singletons";
 import wrapResponse from "../../utils/responseUtils";
@@ -14,7 +15,7 @@ interface RequestQuery {
   createdDateFrom: string;
 }
 
-export const getMessagesValidationChains: ValidationChain[] = [
+const validationChains: ValidationChain[] = [
   query("from").isInt({ min: 0, max: 10_000 }).optional(),
   query("size").isInt({ min: 0, max: 10_000 }).optional(),
   query("keywords").optional(),
@@ -22,7 +23,7 @@ export const getMessagesValidationChains: ValidationChain[] = [
   query("createdDateFrom").isISO8601().optional(),
 ];
 
-export default async function getMessages(request: Request, response: Response): Promise<void> {
+async function getMessages(request: Request, response: Response): Promise<void> {
   const { from, size, keywords, chatIds, createdDateFrom } =
     request.query as unknown as RequestQuery;
 
@@ -40,3 +41,10 @@ export default async function getMessages(request: Request, response: Response):
 
   response.status(200).send(wrapResponse(result));
 }
+
+const getMessagesController: ControllerInterface = {
+  controller: getMessages,
+  validator: validationChains,
+};
+
+export default getMessagesController;

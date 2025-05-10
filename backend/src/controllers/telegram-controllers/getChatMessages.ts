@@ -4,14 +4,15 @@ import { query, ValidationChain } from "express-validator";
 import { telegramInstance } from "../../singletons";
 import wrapResponse from "../../utils/responseUtils";
 import InvalidChatError from "../../errors/chats/InvalidChatError";
+import ControllerInterface from "../../interfaces/ControllerInterface";
 
-export const getChatMessagesValidationChains: ValidationChain[] = [
+const validationChains: ValidationChain[] = [
   query("limit").isInt({ min: 1, max: 1000 }).optional(),
   query("latest").isIn([0, 1]).optional(),
   query("offsetId").isNumeric().optional(),
 ];
 
-export default async function getChatMessages(request: Request, response: Response): Promise<void> {
+async function getChatMessages(request: Request, response: Response): Promise<void> {
   const { chatUsername } = request.params;
   const { limit, latest, offsetId } = request.query;
 
@@ -44,3 +45,10 @@ export default async function getChatMessages(request: Request, response: Respon
 
   response.status(200).send(wrapResponse(messages));
 }
+
+const getChatMessagesController: ControllerInterface = {
+  controller: getChatMessages,
+  validator: validationChains,
+};
+
+export default getChatMessagesController;

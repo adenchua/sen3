@@ -1,53 +1,55 @@
 import { Router } from "express";
 
-import createDeck, { createDeckValidationChains } from "../controllers/deck-controllers/createDeck";
-import getDeckById from "../controllers/deck-controllers/getDeckById";
-import getDecksBySubscriberId, {
-  getDecksBySubscriberIdValidationChains,
-} from "../controllers/deck-controllers/getDecksBySubscriberId";
-import updateDeck, { updateDeckValidationChains } from "../controllers/deck-controllers/updateDeck";
-import createSubscriber, {
-  createSubscriberValidationChains,
-} from "../controllers/subscriber-controllers/createSubscriber";
-import getSubscriberById from "../controllers/subscriber-controllers/getSubscriberById";
-import getSubscribers, {
-  getSubscribersValidationChains,
-} from "../controllers/subscriber-controllers/getSubscribers";
-import updateSubscriber, {
-  updateSubscriberValidationChains,
-} from "../controllers/subscriber-controllers/updateSubscriber";
+import createDeckController from "../controllers/deck-controllers/createDeck";
+import getDeckByIdController from "../controllers/deck-controllers/getDeckById";
+import getDecksBySubscriberIdController from "../controllers/deck-controllers/getDecksBySubscriberId";
+import updateDeckController from "../controllers/deck-controllers/updateDeck";
+import createSubscriberController from "../controllers/subscriber-controllers/createSubscriber";
+import getSubscriberByIdController from "../controllers/subscriber-controllers/getSubscriberById";
+import getSubscribersController from "../controllers/subscriber-controllers/getSubscribers";
+import updateSubscriberController from "../controllers/subscriber-controllers/updateSubscriber";
 import validationMiddleware from "../middlewares/validationMiddleware";
 
 const subscriberRouter = Router();
 
 subscriberRouter.post(
   "/",
-  createSubscriberValidationChains,
+  createSubscriberController.validator,
   validationMiddleware,
-  createSubscriber,
+  createSubscriberController.controller,
 );
-subscriberRouter.get("/", getSubscribersValidationChains, validationMiddleware, getSubscribers);
-subscriberRouter.get("/:id", getSubscriberById);
+subscriberRouter.get(
+  "/",
+  getSubscribersController.validator,
+  validationMiddleware,
+  getSubscribersController.controller,
+);
+subscriberRouter.get("/:id", getSubscriberByIdController.controller);
 subscriberRouter.patch(
   "/:id",
-  updateSubscriberValidationChains,
+  updateSubscriberController.validator,
   validationMiddleware,
-  updateSubscriber,
+  updateSubscriberController.controller,
 );
 
-subscriberRouter.post("/:id/decks", createDeckValidationChains, validationMiddleware, createDeck);
+subscriberRouter.post(
+  "/:id/decks",
+  createDeckController.validator,
+  validationMiddleware,
+  createDeckController.controller,
+);
 subscriberRouter.get(
   "/:id/decks",
-  getDecksBySubscriberIdValidationChains,
+  getDecksBySubscriberIdController.validator,
   validationMiddleware,
-  getDecksBySubscriberId,
+  getDecksBySubscriberIdController.controller,
 );
 subscriberRouter.patch(
   "/:id/decks/:deckId",
-  updateDeckValidationChains,
+  updateDeckController.validator,
   validationMiddleware,
-  updateDeck,
+  updateDeckController.controller,
 );
-subscriberRouter.get("/:id/decks/:deckId", getDeckById);
+subscriberRouter.get("/:id/decks/:deckId", getDeckByIdController.controller);
 
 export default subscriberRouter;

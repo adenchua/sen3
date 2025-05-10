@@ -1,6 +1,7 @@
 import { Request, Response } from "express";
 import { body, ValidationChain } from "express-validator";
 
+import ControllerInterface from "../../interfaces/ControllerInterface";
 import Deck from "../../interfaces/DeckInterface";
 import { DeckModel } from "../../models/DeckModel";
 import { databaseInstance } from "../../singletons";
@@ -13,7 +14,7 @@ interface RequestBody {
   title: string;
 }
 
-export const createDeckValidationChains: ValidationChain[] = [
+const validationChains: ValidationChain[] = [
   body("chatIds").isArray().exists(),
   body("chatIds.*").isString(),
   body("isActive").isBoolean().exists(),
@@ -22,7 +23,7 @@ export const createDeckValidationChains: ValidationChain[] = [
   body("title").isString().trim().notEmpty(),
 ];
 
-export default async function createDeck(request: Request, response: Response): Promise<void> {
+async function createDeck(request: Request, response: Response): Promise<void> {
   const { chatIds, isActive, keywords, title } = request.body as RequestBody;
   const { id } = request.params;
 
@@ -43,3 +44,10 @@ export default async function createDeck(request: Request, response: Response): 
 
   response.status(201).send(wrapResponse(documentId));
 }
+
+const createDeckController: ControllerInterface = {
+  controller: createDeck,
+  validator: validationChains,
+};
+
+export default createDeckController;

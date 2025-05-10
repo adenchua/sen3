@@ -18,7 +18,7 @@ interface RequestBody {
   username: string;
 }
 
-export const validationChains: ValidationChain[] = [
+const validationChains: ValidationChain[] = [
   body("id").isString().trim().notEmpty(),
   body("about").isString().trim().optional(),
   body("createdDate").trim().isISO8601().exists(),

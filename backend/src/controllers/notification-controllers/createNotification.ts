@@ -1,6 +1,7 @@
 import { Request, Response } from "express";
 import { body, ValidationChain } from "express-validator";
 
+import ControllerInterface from "../../interfaces/ControllerInterface";
 import Notification from "../../interfaces/NotificationInterface";
 import { NotificationModel } from "../../models/NotificationModel";
 import { databaseInstance } from "../../singletons";
@@ -12,7 +13,7 @@ interface RequestBody {
   subscriberId: string;
 }
 
-export const createNotificationValidationChains: ValidationChain[] = [
+const validationChains: ValidationChain[] = [
   body("chatId").isString().exists(),
   body("keywords").isArray().exists(),
   body("keywords.*").isString(),
@@ -20,10 +21,7 @@ export const createNotificationValidationChains: ValidationChain[] = [
   body("subscriberId").isString().exists(),
 ];
 
-export default async function createNotification(
-  request: Request,
-  response: Response,
-): Promise<void> {
+async function createNotification(request: Request, response: Response): Promise<void> {
   const { chatId, keywords, message, subscriberId } = request.body as RequestBody;
 
   const newNotification: Notification = {
@@ -39,3 +37,10 @@ export default async function createNotification(
 
   response.status(201).send();
 }
+
+const createNotificationController: ControllerInterface = {
+  controller: createNotification,
+  validator: validationChains,
+};
+
+export default createNotificationController;
