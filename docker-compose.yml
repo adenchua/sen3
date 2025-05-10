@@ -39,7 +39,8 @@ services:
     networks:
       - sen3
     depends_on:
-      - opensearch-node
+      opensearch-node:
+        condition: service_healthy
     restart: "always"
 
 
@@ -71,8 +72,10 @@ services:
     networks:
       - sen3
     depends_on:
-      - opensearch-node
-      - telegram-service
+      opensearch-node:
+        condition: service_healthy
+      telegram-service:
+        condition: service_healthy
     restart: "always"
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:5098/healthcheck"]
@@ -90,9 +93,12 @@ services:
     networks:
       - sen3
     depends_on:
-      - opensearch-node
-      - backend-service
-      - telegram-service
+      opensearch-node:
+        condition: service_healthy
+      backend-service:
+        condition: service_healthy
+      telegram-service:
+        condition: service_healthy
     restart: "always"
 
 
@@ -104,8 +110,10 @@ services:
     networks:
       - sen3
     depends_on:
-      - opensearch-node
-      - backend-service
+      opensearch-node:
+        condition: service_healthy
+      backend-service:
+        condition: service_healthy
     restart: "always"
 
 
@@ -119,9 +127,12 @@ services:
     networks:
       - sen3
     depends_on:
-      - opensearch-node
-      - backend-service
-      - telegram-service
+      opensearch-node:
+        condition: service_healthy
+      backend-service:
+        condition: service_healthy
+      telegram-service:
+        condition: service_healthy
     restart: "always"
 
 volumes:
