@@ -95,7 +95,7 @@ export default function SubscriberDetailsPage() {
         <Button
           startIcon={<ArrowBack />}
           onClick={() => navigate(APP_ROUTES.subscribersPage.path)}
-          color="inherit"
+          color="secondary"
           sx={{ mb: 4 }}
         >
           Return to subscriber list

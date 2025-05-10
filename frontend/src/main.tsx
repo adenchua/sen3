@@ -5,11 +5,15 @@ import { createRoot } from "react-dom/client";
 
 import App from "./App.tsx";
 import { PRIMARY_COLOR } from "./constants/styling.ts";
+import { grey } from "@mui/material/colors";
 
 const theme = createTheme({
   palette: {
     primary: {
       main: PRIMARY_COLOR,
+    },
+    secondary: {
+      main: grey[200],
     },
     text: {
       primary: PRIMARY_COLOR,

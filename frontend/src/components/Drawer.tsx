@@ -48,7 +48,7 @@ function Drawer() {
       >
         <BrandingIcon color="inherit" fontSize="large" />
         <Typography variant="h6" fontWeight="bold" color="inherit">
-          Sen3
+          Sen3.yl
         </Typography>
       </Box>
       <MenuList>

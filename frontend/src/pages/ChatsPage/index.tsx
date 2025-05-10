@@ -117,19 +117,19 @@ export default function ChatsPage() {
       <Grid container mb={4} spacing={1}>
         <Button
           onClick={() => setChatTypeFilter("ALL")}
-          color={chatTypeFilter === "ALL" ? "primary" : "inherit"}
+          color={chatTypeFilter === "ALL" ? "primary" : "secondary"}
         >
           All ({chats.length})
         </Button>
         <Button
           onClick={() => setChatTypeFilter("CHANNEL")}
-          color={chatTypeFilter === "CHANNEL" ? "primary" : "inherit"}
+          color={chatTypeFilter === "CHANNEL" ? "primary" : "secondary"}
         >
           Channels ({channelsCount})
         </Button>
         <Button
           onClick={() => setChatTypeFilter("GROUP")}
-          color={chatTypeFilter === "GROUP" ? "primary" : "inherit"}
+          color={chatTypeFilter === "GROUP" ? "primary" : "secondary"}
         >
           Groups ({groupsCount})
         </Button>

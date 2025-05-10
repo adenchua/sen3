@@ -55,7 +55,7 @@ export default function ServiceStatusChart() {
           title="Telegram Server"
           isAvailable={!!telegramServiceHealth}
         />
-        <ServiceStatusInfo icon={<TelegramBotIcon />} title="Telegram Bot" isAvailable={false} />
+        <ServiceStatusInfo icon={<TelegramBotIcon />} title="Telegram Bot" isAvailable={true} />
       </Stack>
     </TitledPaper>
   );

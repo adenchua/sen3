@@ -1,15 +1,14 @@
 import Grid from "@mui/material/Grid";
-import InputAdornment from "@mui/material/InputAdornment";
-import TextField, { TextFieldProps } from "@mui/material/TextField";
+import { TextFieldProps } from "@mui/material/TextField";
 import Typography from "@mui/material/Typography";
 import { useEffect, useRef, useState } from "react";
 
 import addChat from "../../api/chats/addChat";
 import fetchChatById from "../../api/chats/fetchChatById";
 import fetchTelegramChat from "../../api/fetchTelegramChat";
+import Button from "../../components/Button";
 import InformationDialog from "../../components/dialog/InformationDialog";
-import IconButton from "../../components/IconButton";
-import { SECONDARY_BACKGROUND_COLOR } from "../../constants/styling";
+import InputText from "../../components/InputText";
 import SearchIcon from "../../icons/SearchIcon";
 import ChatInterface, { TelegramChatInterface } from "../../interfaces/chat";
 import AddChatCard from "./AddChatCard";
@@ -59,35 +58,14 @@ function AddChatDialog(props: IProps) {
       onClose={onClose}
     >
       <>
-        <Grid container alignItems="center" spacing={2}>
+        <Grid container alignItems="center" spacing={1}>
           <Grid flexGrow={1}>
-            <TextField
-              inputRef={searchRef}
-              fullWidth
-              slotProps={{
-                input: {
-                  sx: {
-                    borderRadius: 50,
-                    bgcolor: SECONDARY_BACKGROUND_COLOR,
-                  },
-                  startAdornment: (
-                    <InputAdornment position="start">
-                      <SearchIcon />
-                    </InputAdornment>
-                  ),
-                },
-              }}
-              placeholder="Search for a valid telegram chat/channel..."
-            />
+            <InputText inputRef={searchRef} label="Search by telegram handle" fullWidth />
           </Grid>
           <Grid>
-            <IconButton
-              color="primary"
-              onClick={handleSearch}
-              size="large"
-              icon={<SearchIcon />}
-              title="Search"
-            />
+            <Button onClick={handleSearch}>
+              <SearchIcon />
+            </Button>
           </Grid>
         </Grid>
         {chat && <AddChatCard chat={chat} onAddChat={handleAddChat} />}

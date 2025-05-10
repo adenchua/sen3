@@ -40,7 +40,7 @@ export default function ActionDialog(props: IProps) {
         {children}
       </DialogContent>
       <DialogActions>
-        <Button onClick={onClose} color="inherit">
+        <Button onClick={onClose} color="secondary">
           Cancel
         </Button>
         <Button onClick={onConfirm} color="primary">
