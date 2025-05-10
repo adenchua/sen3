@@ -1,5 +1,5 @@
 import Box from "@mui/material/Box";
-import Grid from "@mui/material/Grid2";
+import Grid from "@mui/material/Grid";
 import Typography from "@mui/material/Typography";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useMemo, useState } from "react";
@@ -71,7 +71,7 @@ export default function ChatsPage() {
 
   if (isPending) {
     return (
-      <PageLayout>
+      <PageLayout title="Channels/Groups">
         <span>Loading...</span>
       </PageLayout>
     );
@@ -79,20 +79,21 @@ export default function ChatsPage() {
 
   if (isError) {
     return (
-      <PageLayout>
+      <PageLayout title="Channels/Groups">
         <span>An unknown error occurred</span>
       </PageLayout>
     );
   }
 
   return (
-    <PageLayout>
+    <PageLayout title="Channels/Groups">
       <Grid container alignItems="center" spacing={2} mb={4}>
-        <Grid>
+        <Grid size="auto">
           <InputText
+            sx={{ width: "480px" }}
             type="search"
             id="chat-search"
-            label="Filter chat"
+            label="Search for channel/group title, handle"
             onChange={(e) => setChatFilter(e.target.value)}
           />
         </Grid>

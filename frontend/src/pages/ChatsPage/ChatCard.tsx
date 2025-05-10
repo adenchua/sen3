@@ -11,7 +11,7 @@ import IconButton from "../../components/IconButton";
 import Switch from "../../components/Switch";
 import Tooltip from "../../components/Tooltip";
 import DATE_FNS_DATE_FORMAT from "../../constants/dateFormat";
-import { APP_BACKGROUND_COLOR } from "../../constants/styling";
+import { SECONDARY_BACKGROUND_COLOR } from "../../constants/styling";
 import CloudSyncIcon from "../../icons/CloudSyncIcon";
 import RecommendedChannelsIcon from "../../icons/RecommendedChannelsIcon";
 import TelegramChannelIcon from "../../icons/TelegramChannelIcon";
@@ -77,7 +77,7 @@ function ChatCard(props: IProps) {
           </Typography>
         </CardContent>
         <CardActions
-          sx={{ borderTop: "2px solid", borderColor: APP_BACKGROUND_COLOR, display: "flex" }}
+          sx={{ borderTop: "2px solid", borderColor: SECONDARY_BACKGROUND_COLOR, display: "flex" }}
         >
           {isChannel && (
             <IconButton

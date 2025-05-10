@@ -1,4 +1,4 @@
-import Grid from "@mui/material/Grid2";
+import Grid from "@mui/material/Grid";
 import InputAdornment from "@mui/material/InputAdornment";
 import TextField, { TextFieldProps } from "@mui/material/TextField";
 import Typography from "@mui/material/Typography";
@@ -9,7 +9,7 @@ import fetchChatById from "../../api/chats/fetchChatById";
 import fetchTelegramChat from "../../api/fetchTelegramChat";
 import InformationDialog from "../../components/dialog/InformationDialog";
 import IconButton from "../../components/IconButton";
-import { APP_BACKGROUND_COLOR } from "../../constants/styling";
+import { SECONDARY_BACKGROUND_COLOR } from "../../constants/styling";
 import SearchIcon from "../../icons/SearchIcon";
 import ChatInterface, { TelegramChatInterface } from "../../interfaces/chat";
 import AddChatCard from "./AddChatCard";
@@ -68,7 +68,7 @@ function AddChatDialog(props: IProps) {
                 input: {
                   sx: {
                     borderRadius: 50,
-                    bgcolor: APP_BACKGROUND_COLOR,
+                    bgcolor: SECONDARY_BACKGROUND_COLOR,
                   },
                   startAdornment: (
                     <InputAdornment position="start">

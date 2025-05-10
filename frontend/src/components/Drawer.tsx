@@ -7,6 +7,7 @@ import { useNavigate } from "react-router";
 import DrawerNavigationButton from "../components/DrawerNavigationButton";
 import DRAWER_WIDTH from "../constants/drawerWidth";
 import APP_ROUTES from "../constants/routes";
+import { SECONDARY_BACKGROUND_COLOR } from "../constants/styling";
 import BrandingIcon from "../icons/BrandingIcon";
 import ChatsPageIcon from "../icons/ChatsPageIcon";
 import LandingPageIcon from "../icons/LandingPageIcon";
@@ -22,6 +23,7 @@ function Drawer() {
       slotProps={{
         paper: {
           sx: {
+            bgcolor: SECONDARY_BACKGROUND_COLOR,
             width: DRAWER_WIDTH,
             boxSizing: "border-box",
             border: "none",
@@ -38,26 +40,27 @@ function Drawer() {
           p: 2,
           display: "flex",
           alignItems: "center",
+          justifyContent: "center",
           gap: 1,
           color: (theme) => theme.palette.primary.main,
           cursor: "pointer",
         }}
       >
-        <BrandingIcon color="inherit" />
+        <BrandingIcon color="inherit" fontSize="large" />
         <Typography variant="h6" fontWeight="bold" color="inherit">
-          Sen3 Admin Portal
+          Sen3
         </Typography>
       </Box>
       <MenuList>
         <DrawerNavigationButton
           icon={<LandingPageIcon />}
-          text="Dashboard"
+          text="Status Dashboard"
           link={APP_ROUTES.homepage.path}
           isDisabled={!APP_ROUTES.homepage.isActive}
         />
         <DrawerNavigationButton
           icon={<ChatsPageIcon />}
-          text="Chats"
+          text="Channels/Groups"
           link={APP_ROUTES.chatsPage.path}
           isDisabled={!APP_ROUTES.chatsPage.isActive}
         />

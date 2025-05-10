@@ -1,4 +1,4 @@
-import Grid from "@mui/material/Grid2";
+import Grid from "@mui/material/Grid";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 
 import fetchSubscribers from "../../api/subscribers/fetchSubscribers";
@@ -37,7 +37,7 @@ export default function SubscribersPage() {
 
   if (isPending) {
     return (
-      <PageLayout>
+      <PageLayout title="Subscribers">
         <span>Loading...</span>
       </PageLayout>
     );
@@ -45,14 +45,14 @@ export default function SubscribersPage() {
 
   if (isError) {
     return (
-      <PageLayout>
+      <PageLayout title="Subscribers">
         <span>An unknown error occurred</span>
       </PageLayout>
     );
   }
 
   return (
-    <PageLayout>
+    <PageLayout title="Subscribers">
       <Grid container spacing={1}>
         {subscribers.map((subscriber) => (
           <Grid key={subscriber.id}>

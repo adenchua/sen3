@@ -1,3 +1,3 @@
-import BrandingIcon from "@mui/icons-material/ShieldMoon";
+import BrandingIcon from "@mui/icons-material/Telegram";
 
 export default BrandingIcon;

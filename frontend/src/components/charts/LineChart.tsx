@@ -3,12 +3,12 @@ import {
   Legend,
   Line,
   LineChart as RechartsLineChart,
+  ResponsiveContainer,
   Tooltip,
   XAxis,
   YAxis,
-  ResponsiveContainer,
 } from "recharts";
-import { orange } from "@mui/material/colors";
+import { PRIMARY_COLOR } from "../../constants/styling";
 
 type DataPoint = {
   name: string;
@@ -37,7 +37,7 @@ export default function LineChart(props: IProps) {
             key={key}
             type="monotone"
             dataKey={key}
-            stroke={orange[800]}
+            stroke={PRIMARY_COLOR}
             strokeWidth={2}
             dot={false}
           />

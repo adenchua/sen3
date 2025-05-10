@@ -8,7 +8,7 @@ import addChat from "../../api/chats/addChat";
 import fetchRecommendedChannels from "../../api/fetchRecommendedChannels";
 import Button from "../../components/Button";
 import InformationDialog from "../../components/dialog/InformationDialog";
-import { APP_BACKGROUND_COLOR } from "../../constants/styling";
+import { SECONDARY_BACKGROUND_COLOR } from "../../constants/styling";
 import ChatInterface, { TelegramChatInterface } from "../../interfaces/chat";
 
 interface IProps {
@@ -88,7 +88,7 @@ function RecommendedChatsDialog(props: IProps) {
                 key={recommendedChannel.id}
                 elevation={0}
                 sx={{
-                  bgcolor: APP_BACKGROUND_COLOR,
+                  bgcolor: SECONDARY_BACKGROUND_COLOR,
                   p: 2,
                   display: "flex",
                   alignItems: "center",

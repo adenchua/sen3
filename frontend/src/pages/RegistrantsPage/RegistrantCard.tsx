@@ -2,14 +2,14 @@ import Avatar from "@mui/material/Avatar";
 import Card from "@mui/material/Card";
 import CardActions from "@mui/material/CardActions";
 import CardContent from "@mui/material/CardContent";
-import Grid from "@mui/material/Grid2";
+import Grid from "@mui/material/Grid";
 import Typography from "@mui/material/Typography";
 import { format } from "date-fns";
 
 import DATE_FNS_DATE_FORMAT from "../../constants/dateFormat";
 import RegistrantIcon from "../../icons/RegistrantIcon";
 import SubscriberInterface from "../../interfaces/subscriber";
-import { APP_BACKGROUND_COLOR } from "../../constants/styling";
+import { SECONDARY_BACKGROUND_COLOR } from "../../constants/styling";
 import IconButton from "../../components/IconButton";
 import CheckIcon from "../../icons/CheckIcon";
 
@@ -55,7 +55,7 @@ export default function RegistrantCard(props: IProps) {
       <CardActions
         sx={{
           borderTop: "2px solid",
-          borderColor: APP_BACKGROUND_COLOR,
+          borderColor: SECONDARY_BACKGROUND_COLOR,
           display: "flex",
           justifyContent: "flex-end",
         }}

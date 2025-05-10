@@ -8,7 +8,7 @@ import updateDeck from "../../api/decks/updateDeck";
 import IconButton from "../../components/IconButton";
 import Switch from "../../components/Switch";
 import Tooltip from "../../components/Tooltip";
-import { APP_BACKGROUND_COLOR } from "../../constants/styling";
+import { SECONDARY_BACKGROUND_COLOR } from "../../constants/styling";
 import DeckIcon from "../../icons/DeckIcon";
 import SettingsIcon from "../../icons/SettingsIcon";
 import DeckInterface from "../../interfaces/deck";
@@ -67,7 +67,7 @@ export default function DeckCard(props: IProps) {
       <CardActions
         sx={{
           borderTop: "2px solid",
-          borderColor: APP_BACKGROUND_COLOR,
+          borderColor: SECONDARY_BACKGROUND_COLOR,
           display: "flex",
           justifyContent: "space-between",
         }}

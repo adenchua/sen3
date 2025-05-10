@@ -3,7 +3,7 @@ import Paper from "@mui/material/Paper";
 import Typography from "@mui/material/Typography";
 
 import Button from "../../components/Button";
-import { APP_BACKGROUND_COLOR } from "../../constants/styling";
+import { SECONDARY_BACKGROUND_COLOR } from "../../constants/styling";
 import { TelegramChatInterface } from "../../interfaces/chat";
 
 interface IProps {
@@ -21,7 +21,7 @@ export default function AddChatCard(props: IProps) {
         mt: 2,
         mb: 1,
         p: 2,
-        bgcolor: APP_BACKGROUND_COLOR,
+        bgcolor: SECONDARY_BACKGROUND_COLOR,
         display: "flex",
         alignItems: "center",
         textAlign: "start",

@@ -1,4 +1,4 @@
-import Grid from "@mui/material/Grid2";
+import Grid from "@mui/material/Grid";
 import Typography from "@mui/material/Typography";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
@@ -31,7 +31,7 @@ function RegistrantsPage() {
 
   if (isPending) {
     return (
-      <PageLayout>
+      <PageLayout title="Registrants">
         <span>Loading...</span>
       </PageLayout>
     );
@@ -39,16 +39,18 @@ function RegistrantsPage() {
 
   if (isError) {
     return (
-      <PageLayout>
+      <PageLayout title="Registrants">
         <span>An unknown error occurred</span>
       </PageLayout>
     );
   }
 
   return (
-    <PageLayout>
+    <PageLayout title="Registrants">
       <Grid container spacing={1}>
-        {registrants.length === 0 && <Typography>There are no pending registrants</Typography>}
+        {registrants.length === 0 && (
+          <Typography color="textSecondary">No pending registrants</Typography>
+        )}
         {registrants.map((registrant) => (
           <Grid key={registrant.id}>
             <RegistrantCard registrant={registrant} onApproveRegistrant={handleApproveRegistrant} />

@@ -75,7 +75,7 @@ export default function SubscriberDetailsPage() {
 
   if (subscriberQuery.isPending || decksQuery.isPending) {
     return (
-      <PageLayout>
+      <PageLayout title="Subscriber Details">
         <span>Loading...</span>
       </PageLayout>
     );
@@ -83,14 +83,14 @@ export default function SubscriberDetailsPage() {
 
   if (subscriberQuery.isError || decksQuery.isError) {
     return (
-      <PageLayout>
+      <PageLayout title="Subscriber Details">
         <span>An unknown error occurred</span>
       </PageLayout>
     );
   }
 
   return (
-    <PageLayout>
+    <PageLayout title="Subscriber Details">
       <>
         <Button
           startIcon={<ArrowBack />}
