@@ -14,6 +14,8 @@ import ChatInterface from "../../interfaces/chat";
 import AddChatDialog from "./AddChatDialog";
 import ChatCard from "./ChatCard";
 
+type CHAT_TYPE = "ALL" | "CHANNEL" | "GROUP";
+
 export default function ChatsPage() {
   const {
     data: chats,
@@ -35,23 +37,46 @@ export default function ChatsPage() {
   const queryClient = useQueryClient();
 
   const [isCreateChatDialogOpened, setIsCreateChatDialogOpened] = useState<boolean>(false);
-  const [chatFilter, setChatFilter] = useState<string>("");
+  const [chatSearchFilter, setChatSearchFilter] = useState<string>("");
+  const [chatTypeFilter, setChatTypeFilter] = useState<CHAT_TYPE>("ALL");
 
-  // return chats with title or username that contains the chat filter
-  const filteredChat = useMemo(
-    () =>
-      chats?.filter((chat) => {
-        const lowercaseTitle = chat.title.toLowerCase();
-        const lowercaseUsername = chat.username.toLowerCase();
-        const lowercaseChatFilter = chatFilter.toLowerCase();
+  // return chats after all the filters applied
+  const filteredChat = useMemo(() => {
+    // filter by search on username/title
+    const searchFilteredChats = chats?.filter((chat) => {
+      const lowercaseTitle = chat.title.toLowerCase();
+      const lowercaseUsername = chat.username.toLowerCase();
+      const lowercaseChatFilter = chatSearchFilter.toLowerCase();
 
-        return (
-          lowercaseTitle.includes(lowercaseChatFilter) ||
-          lowercaseUsername.includes(lowercaseChatFilter)
-        );
-      }),
-    [chats, chatFilter],
-  );
+      return (
+        lowercaseTitle.includes(lowercaseChatFilter) ||
+        lowercaseUsername.includes(lowercaseChatFilter)
+      );
+    });
+
+    // filter by chat type
+    const chatTypeFilteredChats = searchFilteredChats?.filter((chat) => {
+      if (chatTypeFilter === "ALL") {
+        return chat;
+      }
+
+      if (chatTypeFilter === "CHANNEL") {
+        return chat.isChannel;
+      }
+
+      return !chat.isChannel;
+    });
+
+    return chatTypeFilteredChats;
+  }, [chats, chatSearchFilter, chatTypeFilter]);
+
+  const channelsCount = useMemo(() => {
+    return chats?.filter((chat) => chat.isChannel).length;
+  }, [chats]);
+
+  const groupsCount = useMemo(() => {
+    return chats?.filter((chat) => !chat.isChannel).length;
+  }, [chats]);
 
   function handleCloseDialog() {
     setIsCreateChatDialogOpened(false);
@@ -87,6 +112,26 @@ export default function ChatsPage() {
 
   return (
     <PageLayout title="Channels/Groups">
+      <Grid container mb={4} spacing={1}>
+        <Button
+          onClick={() => setChatTypeFilter("ALL")}
+          color={chatTypeFilter === "ALL" ? "primary" : "inherit"}
+        >
+          All ({chats.length})
+        </Button>
+        <Button
+          onClick={() => setChatTypeFilter("CHANNEL")}
+          color={chatTypeFilter === "CHANNEL" ? "primary" : "inherit"}
+        >
+          Channels ({channelsCount})
+        </Button>
+        <Button
+          onClick={() => setChatTypeFilter("GROUP")}
+          color={chatTypeFilter === "GROUP" ? "primary" : "inherit"}
+        >
+          Groups ({groupsCount})
+        </Button>
+      </Grid>
       <Grid container alignItems="center" spacing={2} mb={4}>
         <Grid size="auto">
           <InputText
@@ -94,7 +139,7 @@ export default function ChatsPage() {
             type="search"
             id="chat-search"
             label="Search for channel/group title, handle"
-            onChange={(e) => setChatFilter(e.target.value)}
+            onChange={(e) => setChatSearchFilter(e.target.value)}
           />
         </Grid>
         <Grid>
@@ -103,10 +148,12 @@ export default function ChatsPage() {
           </Button>
         </Grid>
       </Grid>
-      <Box sx={{ height: "calc(100vh - 200px)", overflowY: "auto" }}>
+      <Box sx={{ height: "calc(100vh - 268.5px)", overflowY: "auto" }}>
         <Grid container spacing={2}>
-          {chatFilter.length > 0 && filteredChat && filteredChat.length === 0 && (
-            <Typography>There are no matching channel/groups with filter "{chatFilter}"</Typography>
+          {chatSearchFilter.length > 0 && filteredChat && filteredChat.length === 0 && (
+            <Typography>
+              There are no matching channel/groups with filter "{chatSearchFilter}"
+            </Typography>
           )}
           {filteredChat?.map((chat) => {
             return (
