@@ -67,7 +67,9 @@ export default function ChatsPage() {
       return !chat.isChannel;
     });
 
-    return chatTypeFilteredChats;
+    const sortedChat = chatTypeFilteredChats?.sort((a, b) => a.title.localeCompare(b.title));
+
+    return sortedChat;
   }, [chats, chatSearchFilter, chatTypeFilter]);
 
   const channelsCount = useMemo(() => {

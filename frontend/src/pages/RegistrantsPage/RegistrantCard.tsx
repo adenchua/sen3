@@ -6,12 +6,11 @@ import Grid from "@mui/material/Grid";
 import Typography from "@mui/material/Typography";
 import { format } from "date-fns";
 
+import IconButton from "../../components/IconButton";
 import DATE_FNS_DATE_FORMAT from "../../constants/dateFormat";
+import CheckIcon from "../../icons/CheckIcon";
 import RegistrantIcon from "../../icons/RegistrantIcon";
 import SubscriberInterface from "../../interfaces/subscriber";
-import { SECONDARY_BACKGROUND_COLOR } from "../../constants/styling";
-import IconButton from "../../components/IconButton";
-import CheckIcon from "../../icons/CheckIcon";
 
 interface IProps {
   registrant: SubscriberInterface;
@@ -55,7 +54,7 @@ export default function RegistrantCard(props: IProps) {
       <CardActions
         sx={{
           borderTop: "2px solid",
-          borderColor: SECONDARY_BACKGROUND_COLOR,
+          borderColor: "divider",
           display: "flex",
           justifyContent: "flex-end",
         }}

@@ -13,7 +13,6 @@ import Switch from "../../components/Switch";
 import Tooltip from "../../components/Tooltip";
 import DATE_FNS_DATE_FORMAT from "../../constants/dateFormat";
 import APP_ROUTES from "../../constants/routes";
-import { SECONDARY_BACKGROUND_COLOR } from "../../constants/styling";
 import RegistrantIcon from "../../icons/RegistrantIcon";
 import SettingsIcon from "../../icons/SettingsIcon";
 import SubscriberInterface from "../../interfaces/subscriber";
@@ -71,8 +70,8 @@ export default function SubscriberCard(props: IProps) {
       </CardContent>
       <CardActions
         sx={{
-          borderTop: "2px solid",
-          borderColor: SECONDARY_BACKGROUND_COLOR,
+          borderTop: "1px solid",
+          borderColor: "divider",
           display: "flex",
           justifyContent: "space-between",
         }}
