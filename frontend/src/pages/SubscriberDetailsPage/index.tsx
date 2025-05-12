@@ -1,21 +1,19 @@
 import { ArrowBack } from "@mui/icons-material";
-import Divider from "@mui/material/Divider";
+import Box from "@mui/material/Box";
 import Typography from "@mui/material/Typography";
 import { useQueries, useQueryClient } from "@tanstack/react-query";
-import { useMemo, useState } from "react";
 import { useNavigate, useParams } from "react-router";
 
 import fetchSubscriberById from "../../api//subscribers/fetchSubscriberById";
+import addDeck from "../../api/decks/addDeck";
 import fetchDecksBySubscriber from "../../api/decks/fetchDecksBySubscriber";
 import Button from "../../components/Button";
 import PageLayout from "../../components/PageLayout";
 import APP_ROUTES from "../../constants/routes";
-import DeckInterface from "../../interfaces/deck";
-import DeckDetails from "./DeckDetails";
+import AddIcon from "../../icons/AddIcon";
 import DeckList from "./DeckList";
 
 export default function SubscriberDetailsPage() {
-  const [selectedDeckId, setSelectedDeckId] = useState<string | null>(null);
   const { id } = useParams();
   const navigate = useNavigate();
   const queryClient = useQueryClient();
@@ -38,44 +36,15 @@ export default function SubscriberDetailsPage() {
   const { data: subscriber } = subscriberQuery;
   const { data: decks } = decksQuery;
 
-  const selectedDeck = useMemo(() => {
-    if (selectedDeckId == null) {
-      return null;
-    }
-
-    return decks?.find((deck) => deck.id === selectedDeckId);
-  }, [selectedDeckId, decks]);
-
-  function handleAddDeck(newDeck: DeckInterface) {
-    queryClient.setQueryData(["fetchDecksBySubscriber", id], (cachedDecks: DeckInterface[]) => {
-      return [newDeck, ...cachedDecks];
-    });
-  }
-
-  function handleUpdateDeck(updatedDeck: DeckInterface) {
-    queryClient.setQueryData(["fetchDecksBySubscriber", id], (cachedDecks: DeckInterface[]) => {
-      if (!cachedDecks) {
-        return cachedDecks;
-      }
-
-      return cachedDecks.map((cachedDeck) => {
-        if (cachedDeck.id === updatedDeck.id) {
-          return {
-            ...updatedDeck,
-          };
-        }
-        return cachedDeck;
-      });
-    });
-  }
-
-  function handleSelectDeck(deckId: string) {
-    setSelectedDeckId(deckId);
+  async function handleAddDeck(): Promise<void> {
+    const deckTitle = `Untitled Deck ${(decks?.length ?? 0) + 1}`;
+    await addDeck(subscriber!.id, deckTitle);
+    queryClient.invalidateQueries({ queryKey: ["fetchDecksBySubscriber", id] });
   }
 
   if (subscriberQuery.isPending || decksQuery.isPending) {
     return (
-      <PageLayout title="Subscriber Details">
+      <PageLayout title={`Manage subscriber ${subscriber?.firstName}`}>
         <span>Loading...</span>
       </PageLayout>
     );
@@ -83,43 +52,33 @@ export default function SubscriberDetailsPage() {
 
   if (subscriberQuery.isError || decksQuery.isError) {
     return (
-      <PageLayout title="Subscriber Details">
+      <PageLayout title={`Manage subscriber ${subscriber?.firstName}`}>
         <span>An unknown error occurred</span>
       </PageLayout>
     );
   }
 
   return (
-    <PageLayout title="Subscriber Details">
+    <PageLayout title={`Manage subscriber ${subscriber?.firstName}`}>
       <>
         <Button
           startIcon={<ArrowBack />}
           onClick={() => navigate(APP_ROUTES.subscribersPage.path)}
           color="secondary"
-          sx={{ mb: 4 }}
+          sx={{ mb: 12 }}
         >
-          Return to subscriber list
+          Back
         </Button>
         {subscriber && decks && (
           <>
-            <Typography variant="h5" sx={{ mb: 2 }}>{`${subscriber.firstName}'s decks`}</Typography>
-            <DeckList
-              decks={decks}
-              subscriberId={subscriber.id}
-              onAddDeck={handleAddDeck}
-              onUpdateDeck={handleUpdateDeck}
-              onSelectDeck={handleSelectDeck}
-              selectedDeckId={selectedDeckId}
-            />
+            <Box display="flex" gap={2} mb={4}>
+              <Typography variant="h5">Decks</Typography>
+              <Button startIcon={<AddIcon />} onClick={handleAddDeck}>
+                New Deck
+              </Button>
+            </Box>
+            <DeckList decks={decks} subscriberId={subscriber.id} />
           </>
-        )}
-        <Divider sx={{ my: 3 }} />
-        {subscriber && selectedDeck && (
-          <DeckDetails
-            subscriberId={subscriber.id}
-            onUpdateDeck={handleUpdateDeck}
-            deck={selectedDeck}
-          />
         )}
       </>
     </PageLayout>

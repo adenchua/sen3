@@ -11,7 +11,7 @@ export default function TitledPaper(props: IProps) {
   const { children, title } = props;
   return (
     <Paper sx={{ p: 2, height: "100%" }}>
-      <Typography variant="h6" mb={3} color="primary">
+      <Typography variant="h6" mb={3}>
         {title}
       </Typography>
       {children}

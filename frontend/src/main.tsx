@@ -16,7 +16,7 @@ const theme = createTheme({
       main: grey[200],
     },
     text: {
-      primary: PRIMARY_COLOR,
+      primary: grey[800],
     },
   },
   components: {

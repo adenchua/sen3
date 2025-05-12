@@ -8,7 +8,7 @@ interface IProps extends Omit<TextFieldProps<"standard">, "label"> {
 }
 
 export default function InputText(props: IProps) {
-  const { endAdornment, label, ...rest } = props;
+  const { endAdornment, label, sx, ...rest } = props;
 
   return (
     <MuiTextField
@@ -23,6 +23,14 @@ export default function InputText(props: IProps) {
           },
           endAdornment,
         },
+      }}
+      sx={{
+        "& .MuiOutlinedInput-root": {
+          "& fieldset": {
+            borderColor: "divider", // default border color
+          },
+        },
+        ...sx,
       }}
       {...rest}
     />

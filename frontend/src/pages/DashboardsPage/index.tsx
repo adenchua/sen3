@@ -14,7 +14,7 @@ function DashboardsPage() {
         <Grid size={4}>
           <MetricChart />
         </Grid>
-        <Grid size={4}>
+        <Grid size={5}>
           <ServiceStatusChart />
         </Grid>
         <Grid size={6}>
