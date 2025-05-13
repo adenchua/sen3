@@ -5,6 +5,9 @@ WORKDIR /app
 COPY ./telegram-service/requirements.txt ./telegram-service/requirements.txt
 
 WORKDIR /app/telegram-service
+
+# need curl command for healthcheck
+RUN apk add --no-cache curl
 RUN pip3 install -r requirements.txt
 
 COPY ./telegram-service .

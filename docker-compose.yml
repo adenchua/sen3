@@ -24,7 +24,7 @@ services:
       - sen3
     restart: "always"
     healthcheck:
-      test: ["CMD-SHELL", "curl --silent --fail http://localhost:9200/_cluster/health || exit 1"]
+      test: ["CMD-SHELL", "curl -k -u admin:${OPENSEARCH_DATABASE_PASSWORD} --silent --fail https://localhost:9200/_cluster/health || exit 1"]
       interval: 30s
       timeout: 30s
       retries: 3
@@ -59,7 +59,6 @@ services:
       interval: 30s
       timeout: 10s
       retries: 3
-      start_period: 40s
 
 
   backend-service:
@@ -82,7 +81,6 @@ services:
       interval: 30s
       timeout: 10s
       retries: 3
-      start_period: 40s
 
 
   scripts:

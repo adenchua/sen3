@@ -7,6 +7,9 @@ COPY ./.env ./
 COPY ./backend/package.json ./backend/package-lock.json backend/
 
 WORKDIR /app/backend
+
+# need curl command for healthcheck
+RUN apk add --no-cache curl
 RUN npm install
 
 
