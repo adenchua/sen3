@@ -8,6 +8,8 @@ import fetchSubscriberById from "../../api//subscribers/fetchSubscriberById";
 import addDeck from "../../api/decks/addDeck";
 import fetchDecksBySubscriber from "../../api/decks/fetchDecksBySubscriber";
 import Button from "../../components/Button";
+import ErrorMessage from "../../components/ErrorMessage";
+import Loading from "../../components/Loading";
 import PageLayout from "../../components/PageLayout";
 import APP_ROUTES from "../../constants/routes";
 import AddIcon from "../../icons/AddIcon";
@@ -35,6 +37,7 @@ export default function SubscriberDetailsPage() {
 
   const { data: subscriber } = subscriberQuery;
   const { data: decks } = decksQuery;
+  const PAGE_TITLE = `Manage subscriber ${subscriber?.firstName}`;
 
   async function handleAddDeck(): Promise<void> {
     const deckTitle = `Untitled Deck ${(decks?.length ?? 0) + 1}`;
@@ -44,22 +47,22 @@ export default function SubscriberDetailsPage() {
 
   if (subscriberQuery.isPending || decksQuery.isPending) {
     return (
-      <PageLayout title={`Manage subscriber ${subscriber?.firstName}`}>
-        <span>Loading...</span>
+      <PageLayout title={PAGE_TITLE}>
+        <Loading />
       </PageLayout>
     );
   }
 
   if (subscriberQuery.isError || decksQuery.isError) {
     return (
-      <PageLayout title={`Manage subscriber ${subscriber?.firstName}`}>
-        <span>An unknown error occurred</span>
+      <PageLayout title={PAGE_TITLE}>
+        <ErrorMessage />
       </PageLayout>
     );
   }
 
   return (
-    <PageLayout title={`Manage subscriber ${subscriber?.firstName}`}>
+    <PageLayout title={PAGE_TITLE}>
       <>
         <Button
           startIcon={<ArrowBack />}
@@ -74,10 +77,12 @@ export default function SubscriberDetailsPage() {
             <Box display="flex" gap={2} mb={4}>
               <Typography variant="h5">Decks</Typography>
               <Button startIcon={<AddIcon />} onClick={handleAddDeck}>
-                New Deck
+                Add deck
               </Button>
             </Box>
-            <DeckList decks={decks} subscriberId={subscriber.id} />
+            <Box sx={{ height: "calc(100vh - 330px)", overflowY: "auto" }}>
+              <DeckList decks={decks} subscriberId={subscriber.id} />
+            </Box>
           </>
         )}
       </>

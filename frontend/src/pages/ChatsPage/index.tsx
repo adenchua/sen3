@@ -7,7 +7,9 @@ import { useMemo, useState } from "react";
 import fetchChats from "../../api/chats/fetchChats";
 import updateChat from "../../api/chats/updateChat";
 import Button from "../../components/Button";
+import ErrorMessage from "../../components/ErrorMessage";
 import InputText from "../../components/InputText";
+import Loading from "../../components/Loading";
 import PageLayout from "../../components/PageLayout";
 import AddIcon from "../../icons/AddIcon";
 import ChatInterface from "../../interfaces/chat";
@@ -39,6 +41,8 @@ export default function ChatsPage() {
   const [isCreateChatDialogOpened, setIsCreateChatDialogOpened] = useState<boolean>(false);
   const [chatSearchFilter, setChatSearchFilter] = useState<string>("");
   const [chatTypeFilter, setChatTypeFilter] = useState<CHAT_TYPE>("ALL");
+
+  const PAGE_TITLE = "Channels/Groups";
 
   // return chats after all the filters applied
   const filteredChat = useMemo(() => {
@@ -98,22 +102,22 @@ export default function ChatsPage() {
 
   if (isPending) {
     return (
-      <PageLayout title="Channels/Groups">
-        <span>Loading...</span>
+      <PageLayout title={PAGE_TITLE}>
+        <Loading />
       </PageLayout>
     );
   }
 
   if (isError) {
     return (
-      <PageLayout title="Channels/Groups">
-        <span>An unknown error occurred</span>
+      <PageLayout title={PAGE_TITLE}>
+        <ErrorMessage />
       </PageLayout>
     );
   }
 
   return (
-    <PageLayout title="Channels/Groups">
+    <PageLayout title={PAGE_TITLE}>
       <Grid container mb={4} spacing={1}>
         <Button
           onClick={() => setChatTypeFilter("ALL")}

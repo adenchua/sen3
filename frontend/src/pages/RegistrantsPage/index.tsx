@@ -4,6 +4,8 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
 import fetchSubscribers from "../../api/subscribers/fetchSubscribers";
 import updateSubscriber from "../../api/subscribers/updateSubscriber";
+import ErrorMessage from "../../components/ErrorMessage";
+import Loading from "../../components/Loading";
 import PageLayout from "../../components/PageLayout";
 import RegistrantCard from "./RegistrantCard";
 
@@ -17,6 +19,7 @@ function RegistrantsPage() {
     queryFn: () => fetchSubscribers(false),
   });
   const queryClient = useQueryClient();
+  const PAGE_TITLE = "Registrants";
 
   const { mutateAsync: mutateApproveRegistrant } = useMutation({
     mutationFn: (id: string) => updateSubscriber(id, { isApproved: true }),
@@ -31,22 +34,22 @@ function RegistrantsPage() {
 
   if (isPending) {
     return (
-      <PageLayout title="Registrants">
-        <span>Loading...</span>
+      <PageLayout title={PAGE_TITLE}>
+        <Loading />
       </PageLayout>
     );
   }
 
   if (isError) {
     return (
-      <PageLayout title="Registrants">
-        <span>An unknown error occurred</span>
+      <PageLayout title={PAGE_TITLE}>
+        <ErrorMessage />
       </PageLayout>
     );
   }
 
   return (
-    <PageLayout title="Registrants">
+    <PageLayout title={PAGE_TITLE}>
       <Grid container spacing={1}>
         {registrants.length === 0 && (
           <Typography color="textSecondary">No pending registrants</Typography>

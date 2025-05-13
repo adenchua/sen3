@@ -7,7 +7,7 @@ import { databaseInstance } from "../../singletons";
 import wrapResponse from "../../utils/responseUtils";
 
 const validationChains: ValidationChain[] = [
-  body("ids").isArray({ min: 1, max: 10_000 }).exists(),
+  body("ids").isArray({ min: 0, max: 10_000 }).exists(),
   body("ids.*").isString(),
 ];
 

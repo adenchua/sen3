@@ -35,7 +35,14 @@ export default function ActionDialog(props: IProps) {
     <Dialog
       fullWidth
       open={isOpen}
-      onClose={onClose}
+      onClose={(_, reason) => {
+        if (reason === "backdropClick") {
+          // prevent closing on backdrop click, since action dialogs often contain
+          // long input forms
+          return;
+        }
+        onClose();
+      }}
       slotProps={{
         paper: {
           elevation: 0,

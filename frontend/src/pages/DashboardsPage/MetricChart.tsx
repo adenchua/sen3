@@ -6,6 +6,8 @@ import { subHours } from "date-fns";
 
 import fetchMessagesCount from "../../api/analytics/fetchMessagesCount";
 import fetchNotificationsCount from "../../api/analytics/fetchNotificationsCount";
+import ErrorMessage from "../../components/ErrorMessage";
+import Loading from "../../components/Loading";
 import TitledPaper from "../../components/TitledPaper";
 import MetricCard from "./MetricCard";
 
@@ -29,7 +31,7 @@ export default function MetricChart() {
   if (messagesCountQuery.isPending || notificationsCountQuery.isPending) {
     return (
       <TitledPaper title="Metrics (~24hrs)">
-        <span>Loading...</span>
+        <Loading />
       </TitledPaper>
     );
   }
@@ -37,7 +39,7 @@ export default function MetricChart() {
   if (messagesCountQuery.isError || notificationsCountQuery.isError) {
     return (
       <TitledPaper title="Metrics (~24hrs)">
-        <span>An unknown error occurred</span>
+        <ErrorMessage />
       </TitledPaper>
     );
   }

@@ -6,6 +6,8 @@ import { useQueries } from "@tanstack/react-query";
 
 import getDatabaseHealth from "../../api/healthcheck/getDatabaseHealth";
 import getTelegramServiceHealth from "../../api/healthcheck/getTelegramServiceHealth";
+import ErrorMessage from "../../components/ErrorMessage";
+import Loading from "../../components/Loading";
 import TitledPaper from "../../components/TitledPaper";
 import ServiceStatusInfo from "./ServiceStatusInfo";
 
@@ -29,7 +31,7 @@ export default function ServiceStatusChart() {
   if (databaseHealthQuery.isPending || telegramServiceHealthQuery.isPending) {
     return (
       <TitledPaper title="Service Status">
-        <span>Loading...</span>
+        <Loading />
       </TitledPaper>
     );
   }
@@ -37,7 +39,7 @@ export default function ServiceStatusChart() {
   if (databaseHealthQuery.isError || telegramServiceHealthQuery.isError) {
     return (
       <TitledPaper title="Service Status">
-        <span>An unknown error occurred</span>
+        <ErrorMessage />
       </TitledPaper>
     );
   }

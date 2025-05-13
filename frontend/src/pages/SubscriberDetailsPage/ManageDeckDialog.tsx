@@ -8,7 +8,7 @@ import Select, { SelectChangeEvent } from "@mui/material/Select";
 import { TextFieldProps } from "@mui/material/TextField";
 import Typography from "@mui/material/Typography";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 
 import fetchChats from "../../api/chats/fetchChats";
 import updateDeck from "../../api/decks/updateDeck";
@@ -31,6 +31,13 @@ export default function ManageDeckDialog(props: IProps) {
   const [editableDeck, setEditableDeck] = useState<DeckInterface>(deck);
   const keywordInputRef = useRef<TextFieldProps>(null);
   const queryClient = useQueryClient();
+
+  useEffect(() => {
+    // when dialog is open, reset form
+    if (isOpen) {
+      setEditableDeck(deck);
+    }
+  }, [isOpen, deck]);
 
   const { data: availableChats } = useQuery({
     queryKey: ["fetchChats"],
@@ -114,6 +121,7 @@ export default function ManageDeckDialog(props: IProps) {
       heading="Manage Deck"
       subheading="Select channels/groups, update keywords to monitor"
       onConfirmText="Save Changes"
+      onCloseText="Close"
     >
       <div>
         <Box mb={4}>
@@ -149,6 +157,12 @@ export default function ManageDeckDialog(props: IProps) {
                 sx={{
                   backgroundColor: SECONDARY_BACKGROUND_COLOR, // background of the displayed value box
                   borderRadius: "8px",
+                  "& .MuiOutlinedInput-notchedOutline": {
+                    borderColor: "divider",
+                  },
+                  "& .MuiSvgIcon-root": {
+                    fill: "transparent", // arrow icon color
+                  },
                 }}
                 multiple
                 fullWidth
@@ -187,12 +201,18 @@ export default function ManageDeckDialog(props: IProps) {
         </Box>
         <Typography mb={1.5}>Keywords to monitor</Typography>
         <InputText
+          onKeyDown={(e) => {
+            // if enter key is pressed, add keyword
+            if (e.key === "Enter") {
+              handleAddKeyword();
+            }
+          }}
           id="keyword-input"
           inputRef={keywordInputRef}
           fullWidth
           endAdornment={
             <IconButton
-              icon={<AddIcon />}
+              icon={<AddIcon color="primary" />}
               title="Add keyword"
               color="default"
               onClick={handleAddKeyword}

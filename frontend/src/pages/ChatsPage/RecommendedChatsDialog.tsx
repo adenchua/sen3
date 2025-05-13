@@ -9,6 +9,8 @@ import addChat from "../../api/chats/addChat";
 import fetchChatsByIds from "../../api/chats/fetchChatsByIds";
 import fetchRecommendedChannels from "../../api/fetchRecommendedChannels";
 import InformationDialog from "../../components/dialog/InformationDialog";
+import ErrorMessage from "../../components/ErrorMessage";
+import Loading from "../../components/Loading";
 import { SECONDARY_BACKGROUND_COLOR } from "../../constants/styling";
 import ChatInterface, { TelegramChatInterface } from "../../interfaces/chat";
 import AddRecommendedChannelButton from "./AddRecommendedChannelButton";
@@ -70,7 +72,7 @@ function RecommendedChatsDialog(props: IProps) {
         isOpen={isOpen}
         onClose={onClose}
       >
-        <span>Loading...</span>
+        <Loading />
       </InformationDialog>
     );
   }
@@ -83,7 +85,7 @@ function RecommendedChatsDialog(props: IProps) {
         isOpen={isOpen}
         onClose={onClose}
       >
-        <span>An unknown error occurred</span>
+        <ErrorMessage />
       </InformationDialog>
     );
   }

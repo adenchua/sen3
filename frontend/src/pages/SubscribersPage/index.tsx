@@ -2,6 +2,8 @@ import Grid from "@mui/material/Grid";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 
 import fetchSubscribers from "../../api/subscribers/fetchSubscribers";
+import ErrorMessage from "../../components/ErrorMessage";
+import Loading from "../../components/Loading";
 import PageLayout from "../../components/PageLayout";
 import SubscriberInterface from "../../interfaces/subscriber";
 import SubscriberCard from "./SubscriberCard";
@@ -17,6 +19,7 @@ export default function SubscribersPage() {
   });
 
   const queryClient = useQueryClient();
+  const PAGE_TITLE = "Subscribers";
 
   function handleUpdateSubscriber(updatedSubsciber: SubscriberInterface) {
     queryClient.setQueryData(["fetchSubscribers"], (cachedSubscribers: SubscriberInterface[]) => {
@@ -37,22 +40,22 @@ export default function SubscribersPage() {
 
   if (isPending) {
     return (
-      <PageLayout title="Subscribers">
-        <span>Loading...</span>
+      <PageLayout title={PAGE_TITLE}>
+        <Loading />
       </PageLayout>
     );
   }
 
   if (isError) {
     return (
-      <PageLayout title="Subscribers">
-        <span>An unknown error occurred</span>
+      <PageLayout title={PAGE_TITLE}>
+        <ErrorMessage />
       </PageLayout>
     );
   }
 
   return (
-    <PageLayout title="Subscribers">
+    <PageLayout title={PAGE_TITLE}>
       <Grid container spacing={1}>
         {subscribers.map((subscriber) => (
           <Grid key={subscriber.id}>
