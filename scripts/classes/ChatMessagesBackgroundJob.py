@@ -31,25 +31,29 @@ class ChatMessagesBackgroundJob:
         response.raise_for_status()
         logging.info(f"Updated {chat_id} offset_id...")
 
-    def ingest_message(self, message: dict) -> None:
+    def ingest_messages(self, messages: list[dict]) -> None:
         """
-        Ingest a message in to the databse
+        Ingest messages to the databse
         """
-        message_id = str(message.get("id", None))
-        URL = f"{BACKEND_SERVICE_API_URL}/api/v1/messages"
-        request_body = {
-            "chatId": str(message.get("chat_id", None)),
-            "createdDate": convert_to_iso(message.get("created_date", None)),
-            "editedDate": convert_to_iso(message.get("edited_date", None)),
-            "chatUsername": message.get("chat_username", None),
-            "forwardCount": message.get("forward_count", None),
-            "messageId": message_id,
-            "text": message.get("text", None),
-            "viewCount": message.get("view_count", None),
-        }
+        URL = f"{BACKEND_SERVICE_API_URL}/api/v1/messages/bulk"
+        transformed_messages = []
+        for message in messages:
+            transformed_message = {
+                "chatId": str(message.get("chat_id", None)),
+                "createdDate": convert_to_iso(message.get("created_date", None)),
+                "editedDate": convert_to_iso(message.get("edited_date", None)),
+                "chatUsername": message.get("chat_username", None),
+                "forwardCount": message.get("forward_count", None),
+                "messageId": str(message.get("id", None)),
+                "text": message.get("text", None),
+                "viewCount": message.get("view_count", None),
+            }
+            transformed_messages.append(transformed_message)
+
+        request_body = {"messages": transformed_messages}
         response = requests.post(URL, json=dict(request_body))
         response.raise_for_status()
-        logging.info(f"Ingested message {message_id}...")
+        logging.info(f"Ingested {len(messages)} messages...")
 
     def fetch_chat_messages(self, chat: dict, latest_max_limit=10) -> None:
         """
@@ -90,7 +94,10 @@ class ChatMessagesBackgroundJob:
             curr_offset_id = int(message.get("id"))
             if curr_offset_id > max_offset_id:
                 max_offset_id = curr_offset_id
-            self.ingest_message(message)
+
+        if len(messages) > 0:
+            # bulk ingests all messages
+            self.ingest_messages(messages)
 
         # update chat offset_id and last crawl date
         if max_offset_id != -1:
