@@ -1,11 +1,12 @@
 import { Request, Response } from "express";
 import { param, query, ValidationChain } from "express-validator";
 
+import ControllerInterface from "../../interfaces/ControllerInterface";
+import { DateHistogramResponse } from "../../interfaces/ResponseInterface";
 import { MessageModel } from "../../models/MessageModel";
 import { NotificationModel } from "../../models/NotificationModel";
 import { databaseInstance } from "../../singletons";
 import wrapResponse from "../../utils/responseUtils";
-import { DateHistogramResponse } from "../../interfaces/ResponseInterface";
 
 const ALLOWED_ENTITIES = ["message", "notification"] as const;
 type Entity = (typeof ALLOWED_ENTITIES)[number];
@@ -21,15 +22,12 @@ interface RequestQuery {
   interval: CalendarIntervals;
 }
 
-export const getDateHistogramValidationChain: ValidationChain[] = [
+const validationChains: ValidationChain[] = [
   param("entity").isIn(ALLOWED_ENTITIES),
   query("interval").isIn(ALLOWED_CALENDAR_INTERVALS),
 ];
 
-export default async function getDateHistogram(
-  request: Request,
-  response: Response,
-): Promise<void> {
+async function getDateHistogram(request: Request, response: Response): Promise<void> {
   const { entity } = request.params as unknown as RequestParams;
   const { interval } = request.query as unknown as RequestQuery;
 
@@ -48,3 +46,10 @@ export default async function getDateHistogram(
 
   response.send(wrapResponse(result));
 }
+
+const getDateHistogramController: ControllerInterface = {
+  controller: getDateHistogram,
+  validator: validationChains,
+};
+
+export default getDateHistogramController;

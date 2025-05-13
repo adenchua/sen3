@@ -1,6 +1,7 @@
 import { Request, Response } from "express";
 import { param, query, ValidationChain } from "express-validator";
 
+import ControllerInterface from "../../interfaces/ControllerInterface";
 import { MessageModel } from "../../models/MessageModel";
 import { NotificationModel } from "../../models/NotificationModel";
 import { databaseInstance } from "../../singletons";
@@ -18,13 +19,13 @@ interface RequestQuery {
   dateTo: string;
 }
 
-export const getCountValidationChain: ValidationChain[] = [
+const validationChains: ValidationChain[] = [
   param("entity").isIn(ALLOWED_ENTITIES),
   query("dateFrom").isISO8601().exists(),
   query("dateTo").isISO8601().exists(),
 ];
 
-export default async function getCount(request: Request, response: Response): Promise<void> {
+async function getCount(request: Request, response: Response): Promise<void> {
   const { entity } = request.params as unknown as RequestParams;
   const { dateFrom, dateTo } = request.query as unknown as RequestQuery;
 
@@ -43,3 +44,10 @@ export default async function getCount(request: Request, response: Response): Pr
 
   response.send(wrapResponse(result));
 }
+
+const getCountController: ControllerInterface = {
+  controller: getCount,
+  validator: validationChains,
+};
+
+export default getCountController;

@@ -92,14 +92,22 @@ export class ChatModel {
   }
 
   /** Fetches chats in the database */
-  async fetch(fields: { crawlActive?: boolean }, from = 0, size = 10): Promise<Chat[]> {
-    const { crawlActive } = fields;
+  async fetch(
+    fields: { crawlActive?: boolean; ids?: string[] },
+    from = 0,
+    size = 10,
+  ): Promise<Chat[]> {
+    const { crawlActive, ids } = fields;
 
     const queryBuilder = new QueryBuilder();
     queryBuilder.addPagination(from, size);
 
     if (crawlActive != undefined) {
       queryBuilder.addTermQuery("crawl_active", crawlActive);
+    }
+
+    if (ids != undefined) {
+      queryBuilder.addTermsQuery("_id", ids);
     }
 
     const query = queryBuilder.getQuery();

@@ -1,6 +1,7 @@
 import { Request, Response } from "express";
 import { body, ValidationChain } from "express-validator";
 
+import ControllerInterface from "../../interfaces/ControllerInterface";
 import Message from "../../interfaces/MessageInterface";
 import { MessageModel } from "../../models/MessageModel";
 import { databaseInstance } from "../../singletons";
@@ -16,7 +17,7 @@ interface RequestBody {
   viewCount: number;
 }
 
-export const createMessageValidationChains: ValidationChain[] = [
+const validationChains: ValidationChain[] = [
   body("chatId").isString().exists(),
   body("createdDate").isISO8601().exists(),
   body("chatUsername").isString().exists(),
@@ -27,7 +28,7 @@ export const createMessageValidationChains: ValidationChain[] = [
   body("viewCount").isInt().optional({ values: "null" }),
 ];
 
-export default async function createMessage(request: Request, response: Response): Promise<void> {
+async function createMessage(request: Request, response: Response): Promise<void> {
   const {
     chatId,
     createdDate,
@@ -57,3 +58,10 @@ export default async function createMessage(request: Request, response: Response
 
   response.status(201).send();
 }
+
+const createMessageController: ControllerInterface = {
+  controller: createMessage,
+  validator: validationChains,
+};
+
+export default createMessageController;

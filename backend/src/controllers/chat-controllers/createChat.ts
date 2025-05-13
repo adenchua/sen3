@@ -2,6 +2,7 @@ import { Request, Response } from "express";
 import { body, ValidationChain } from "express-validator";
 
 import Chat from "../../interfaces/ChatInterface";
+import ControllerInterface from "../../interfaces/ControllerInterface";
 import { ChatModel } from "../../models/ChatModel";
 import { databaseInstance } from "../../singletons";
 import wrapResponse from "../../utils/responseUtils";
@@ -17,7 +18,7 @@ interface RequestBody {
   username: string;
 }
 
-export const createChatValidationChains: ValidationChain[] = [
+const validationChains: ValidationChain[] = [
   body("id").isString().trim().notEmpty(),
   body("about").isString().trim().optional(),
   body("createdDate").trim().isISO8601().exists(),
@@ -28,7 +29,7 @@ export const createChatValidationChains: ValidationChain[] = [
   body("username").isString().trim().notEmpty(),
 ];
 
-export default async function createChat(request: Request, response: Response): Promise<void> {
+async function createChat(request: Request, response: Response): Promise<void> {
   const { id, about, createdDate, isChannel, isVerified, participantCount, title, username } =
     request.body as RequestBody;
 
@@ -58,3 +59,10 @@ export default async function createChat(request: Request, response: Response): 
 
   response.status(201).send(wrapResponse(chatId));
 }
+
+const createChatController: ControllerInterface = {
+  controller: createChat,
+  validator: validationChains,
+};
+
+export default createChatController;

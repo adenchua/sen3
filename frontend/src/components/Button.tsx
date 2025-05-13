@@ -10,7 +10,7 @@ function Button(props: ButtonProps) {
       disableFocusRipple
       disableRipple
       disableTouchRipple
-      sx={{ textTransform: "none", borderRadius: 50, ...sx }}
+      sx={{ textTransform: "none", borderRadius: "8px", ...sx }}
       {...rest}
     />
   );

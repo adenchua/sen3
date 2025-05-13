@@ -1,6 +1,7 @@
 import { Request, Response } from "express";
 import { ValidationChain, query } from "express-validator";
 
+import ControllerInterface from "../../interfaces/ControllerInterface";
 import { DeckModel } from "../../models/DeckModel";
 import { databaseInstance } from "../../singletons";
 import wrapResponse from "../../utils/responseUtils";
@@ -12,16 +13,13 @@ interface RequestQuery {
   isActive: string;
 }
 
-export const getDecksBySubscriberIdValidationChains: ValidationChain[] = [
+const validationChains: ValidationChain[] = [
   query("from").isInt({ min: 0, max: 10_000 }).optional(),
   query("size").isInt({ min: 0, max: 10_000 }).optional(),
   query("isActive").isIn([0, 1]).optional(),
 ];
 
-export default async function getDecksBySubscriberId(
-  request: Request,
-  response: Response,
-): Promise<void> {
+async function getDecksBySubscriberId(request: Request, response: Response): Promise<void> {
   const { from, size, isActive } = request.query as unknown as RequestQuery;
   const { id } = request.params;
 
@@ -34,3 +32,10 @@ export default async function getDecksBySubscriberId(
 
   response.status(200).send(wrapResponse(result));
 }
+
+const getDecksBySubscriberIdController: ControllerInterface = {
+  controller: getDecksBySubscriberId,
+  validator: validationChains,
+};
+
+export default getDecksBySubscriberIdController;

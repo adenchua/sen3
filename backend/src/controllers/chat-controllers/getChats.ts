@@ -1,6 +1,7 @@
 import { Request, Response } from "express";
 import { ValidationChain, query } from "express-validator";
 
+import ControllerInterface from "../../interfaces/ControllerInterface";
 import { ChatModel } from "../../models/ChatModel";
 import { databaseInstance } from "../../singletons";
 import wrapResponse from "../../utils/responseUtils";
@@ -12,13 +13,13 @@ interface RequestQuery {
   crawlActive: string;
 }
 
-export const getChatsValidationChains: ValidationChain[] = [
+const validationChains: ValidationChain[] = [
   query("crawlActive").isIn([0, 1]).optional(),
   query("from").isInt({ min: 0, max: 10_000 }).optional(),
   query("size").isInt({ min: 0, max: 10_000 }).optional(),
 ];
 
-export default async function getChats(request: Request, response: Response): Promise<void> {
+async function getChats(request: Request, response: Response): Promise<void> {
   const { from, size, crawlActive } = request.query as unknown as RequestQuery;
 
   const _from = transformQueryParam<number>(from, Number);
@@ -30,3 +31,10 @@ export default async function getChats(request: Request, response: Response): Pr
 
   response.status(200).send(wrapResponse(result));
 }
+
+const getChatsController: ControllerInterface = {
+  controller: getChats,
+  validator: validationChains,
+};
+
+export default getChatsController;

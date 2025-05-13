@@ -11,7 +11,6 @@ import IconButton from "../../components/IconButton";
 import Switch from "../../components/Switch";
 import Tooltip from "../../components/Tooltip";
 import DATE_FNS_DATE_FORMAT from "../../constants/dateFormat";
-import { APP_BACKGROUND_COLOR } from "../../constants/styling";
 import CloudSyncIcon from "../../icons/CloudSyncIcon";
 import RecommendedChannelsIcon from "../../icons/RecommendedChannelsIcon";
 import TelegramChannelIcon from "../../icons/TelegramChannelIcon";
@@ -58,7 +57,9 @@ function ChatCard(props: IProps) {
               {isChannel ? <TelegramChannelIcon /> : <TelegramChatGroupIcon />}
             </Avatar>
             <Box mt="-2px">
-              <Typography fontWeight="bold">{title}</Typography>
+              <Typography fontWeight="bold" color={crawlActive ? "textPrimary" : "textSecondary"}>
+                {title}
+              </Typography>
               <Typography variant="body2" color="textSecondary">
                 @{username}
               </Typography>
@@ -76,9 +77,7 @@ function ChatCard(props: IProps) {
             {about}
           </Typography>
         </CardContent>
-        <CardActions
-          sx={{ borderTop: "2px solid", borderColor: APP_BACKGROUND_COLOR, display: "flex" }}
-        >
+        <CardActions sx={{ borderTop: "1px solid", borderColor: "divider", display: "flex" }}>
           {isChannel && (
             <IconButton
               variant="outlined"

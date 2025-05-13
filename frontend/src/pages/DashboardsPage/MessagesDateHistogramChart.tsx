@@ -3,6 +3,8 @@ import { format } from "date-fns";
 
 import fetchMessagesHistogram from "../../api/analytics/fetchMessagesHistogram";
 import LineChart from "../../components/charts/LineChart";
+import ErrorMessage from "../../components/ErrorMessage";
+import Loading from "../../components/Loading";
 
 export default function MessagesDateHistogramChart() {
   const { data, isPending, isError } = useQuery({
@@ -11,11 +13,11 @@ export default function MessagesDateHistogramChart() {
   });
 
   if (isPending) {
-    return <span>Loading...</span>;
+    return <Loading />;
   }
 
   if (isError) {
-    return <span>An unknown error occurred</span>;
+    return <ErrorMessage />;
   }
 
   const keys = ["count"];

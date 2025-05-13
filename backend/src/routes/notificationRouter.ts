@@ -1,17 +1,15 @@
 import { Router } from "express";
 
-import createNotification, {
-  createNotificationValidationChains,
-} from "../controllers/notification-controllers/createNotification";
+import createNotificationController from "../controllers/notification-controllers/createNotification";
 import validationMiddleware from "../middlewares/validationMiddleware";
 
 const notificationRouter = Router();
 
 notificationRouter.post(
   "/",
-  createNotificationValidationChains,
+  createNotificationController.validator,
   validationMiddleware,
-  createNotification,
+  createNotificationController.controller,
 );
 
 export default notificationRouter;

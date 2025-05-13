@@ -1,5 +1,5 @@
 import Box from "@mui/material/Box";
-import Grid from "@mui/material/Grid2";
+import Grid from "@mui/material/Grid";
 import Typography from "@mui/material/Typography";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useMemo, useState } from "react";
@@ -7,12 +7,16 @@ import { useMemo, useState } from "react";
 import fetchChats from "../../api/chats/fetchChats";
 import updateChat from "../../api/chats/updateChat";
 import Button from "../../components/Button";
+import ErrorMessage from "../../components/ErrorMessage";
 import InputText from "../../components/InputText";
+import Loading from "../../components/Loading";
 import PageLayout from "../../components/PageLayout";
 import AddIcon from "../../icons/AddIcon";
 import ChatInterface from "../../interfaces/chat";
 import AddChatDialog from "./AddChatDialog";
 import ChatCard from "./ChatCard";
+
+type CHAT_TYPE = "ALL" | "CHANNEL" | "GROUP";
 
 export default function ChatsPage() {
   const {
@@ -35,23 +39,50 @@ export default function ChatsPage() {
   const queryClient = useQueryClient();
 
   const [isCreateChatDialogOpened, setIsCreateChatDialogOpened] = useState<boolean>(false);
-  const [chatFilter, setChatFilter] = useState<string>("");
+  const [chatSearchFilter, setChatSearchFilter] = useState<string>("");
+  const [chatTypeFilter, setChatTypeFilter] = useState<CHAT_TYPE>("ALL");
 
-  // return chats with title or username that contains the chat filter
-  const filteredChat = useMemo(
-    () =>
-      chats?.filter((chat) => {
-        const lowercaseTitle = chat.title.toLowerCase();
-        const lowercaseUsername = chat.username.toLowerCase();
-        const lowercaseChatFilter = chatFilter.toLowerCase();
+  const PAGE_TITLE = "Channels/Groups";
 
-        return (
-          lowercaseTitle.includes(lowercaseChatFilter) ||
-          lowercaseUsername.includes(lowercaseChatFilter)
-        );
-      }),
-    [chats, chatFilter],
-  );
+  // return chats after all the filters applied
+  const filteredChat = useMemo(() => {
+    // filter by search on username/title
+    const searchFilteredChats = chats?.filter((chat) => {
+      const lowercaseTitle = chat.title.toLowerCase();
+      const lowercaseUsername = chat.username.toLowerCase();
+      const lowercaseChatFilter = chatSearchFilter.toLowerCase();
+
+      return (
+        lowercaseTitle.includes(lowercaseChatFilter) ||
+        lowercaseUsername.includes(lowercaseChatFilter)
+      );
+    });
+
+    // filter by chat type
+    const chatTypeFilteredChats = searchFilteredChats?.filter((chat) => {
+      if (chatTypeFilter === "ALL") {
+        return chat;
+      }
+
+      if (chatTypeFilter === "CHANNEL") {
+        return chat.isChannel;
+      }
+
+      return !chat.isChannel;
+    });
+
+    const sortedChat = chatTypeFilteredChats?.sort((a, b) => a.title.localeCompare(b.title));
+
+    return sortedChat;
+  }, [chats, chatSearchFilter, chatTypeFilter]);
+
+  const channelsCount = useMemo(() => {
+    return chats?.filter((chat) => chat.isChannel).length;
+  }, [chats]);
+
+  const groupsCount = useMemo(() => {
+    return chats?.filter((chat) => !chat.isChannel).length;
+  }, [chats]);
 
   function handleCloseDialog() {
     setIsCreateChatDialogOpened(false);
@@ -71,29 +102,50 @@ export default function ChatsPage() {
 
   if (isPending) {
     return (
-      <PageLayout>
-        <span>Loading...</span>
+      <PageLayout title={PAGE_TITLE}>
+        <Loading />
       </PageLayout>
     );
   }
 
   if (isError) {
     return (
-      <PageLayout>
-        <span>An unknown error occurred</span>
+      <PageLayout title={PAGE_TITLE}>
+        <ErrorMessage />
       </PageLayout>
     );
   }
 
   return (
-    <PageLayout>
+    <PageLayout title={PAGE_TITLE}>
+      <Grid container mb={4} spacing={1}>
+        <Button
+          onClick={() => setChatTypeFilter("ALL")}
+          color={chatTypeFilter === "ALL" ? "primary" : "secondary"}
+        >
+          All ({chats.length})
+        </Button>
+        <Button
+          onClick={() => setChatTypeFilter("CHANNEL")}
+          color={chatTypeFilter === "CHANNEL" ? "primary" : "secondary"}
+        >
+          Channels ({channelsCount})
+        </Button>
+        <Button
+          onClick={() => setChatTypeFilter("GROUP")}
+          color={chatTypeFilter === "GROUP" ? "primary" : "secondary"}
+        >
+          Groups ({groupsCount})
+        </Button>
+      </Grid>
       <Grid container alignItems="center" spacing={2} mb={4}>
-        <Grid>
+        <Grid size="auto">
           <InputText
+            sx={{ width: "480px" }}
             type="search"
             id="chat-search"
-            label="Filter chat"
-            onChange={(e) => setChatFilter(e.target.value)}
+            label="Search for channel/group title, handle"
+            onChange={(e) => setChatSearchFilter(e.target.value)}
           />
         </Grid>
         <Grid>
@@ -102,10 +154,12 @@ export default function ChatsPage() {
           </Button>
         </Grid>
       </Grid>
-      <Box sx={{ height: "calc(100vh - 200px)", overflowY: "auto" }}>
+      <Box sx={{ height: "calc(100vh - 268.5px)", overflowY: "auto" }}>
         <Grid container spacing={2}>
-          {chatFilter.length > 0 && filteredChat && filteredChat.length === 0 && (
-            <Typography>There are no matching channel/groups with filter "{chatFilter}"</Typography>
+          {chatSearchFilter.length > 0 && filteredChat && filteredChat.length === 0 && (
+            <Typography>
+              There are no matching channel/groups with filter "{chatSearchFilter}"
+            </Typography>
           )}
           {filteredChat?.map((chat) => {
             return (

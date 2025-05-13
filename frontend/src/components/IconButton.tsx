@@ -18,7 +18,7 @@ export default function IconButton(props: IProps) {
           ? {
               border: "1px solid",
               borderRadius: "4px",
-              borderColor: "#D9D9D9",
+              borderColor: "divider",
               ...sx,
             }
           : sx

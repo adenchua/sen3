@@ -1,19 +1,35 @@
 import CssBaseline from "@mui/material/CssBaseline";
-import { orange } from "@mui/material/colors";
 import { ThemeProvider, createTheme } from "@mui/material/styles";
 import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
 
 import App from "./App.tsx";
-import { APP_BACKGROUND_COLOR } from "./constants/styling.ts";
+import { PRIMARY_COLOR } from "./constants/styling.ts";
+import { grey } from "@mui/material/colors";
 
 const theme = createTheme({
   palette: {
     primary: {
-      main: orange[800],
+      main: PRIMARY_COLOR,
     },
-    background: {
-      default: APP_BACKGROUND_COLOR,
+    secondary: {
+      main: grey[200],
+    },
+    text: {
+      primary: grey[800],
+    },
+  },
+  components: {
+    MuiPaper: {
+      defaultProps: {
+        variant: "outlined",
+        elevation: 0,
+      },
+      styleOverrides: {
+        root: {
+          borderRadius: "8px",
+        },
+      },
     },
   },
 });
@@ -24,5 +40,5 @@ createRoot(document.getElementById("root")!).render(
       <CssBaseline />
       <App />
     </ThemeProvider>
-  </StrictMode>
+  </StrictMode>,
 );

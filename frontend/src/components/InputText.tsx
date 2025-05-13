@@ -1,5 +1,5 @@
 import MuiTextField, { TextFieldProps } from "@mui/material/TextField";
-import { APP_BACKGROUND_COLOR } from "../constants/styling";
+import { SECONDARY_BACKGROUND_COLOR } from "../constants/styling";
 import { JSX } from "react";
 
 interface IProps extends Omit<TextFieldProps<"standard">, "label"> {
@@ -8,7 +8,7 @@ interface IProps extends Omit<TextFieldProps<"standard">, "label"> {
 }
 
 export default function InputText(props: IProps) {
-  const { endAdornment, label, ...rest } = props;
+  const { endAdornment, label, sx, ...rest } = props;
 
   return (
     <MuiTextField
@@ -17,12 +17,20 @@ export default function InputText(props: IProps) {
       slotProps={{
         input: {
           sx: {
-            borderRadius: 50,
-            bgcolor: APP_BACKGROUND_COLOR,
+            borderRadius: "8px",
+            bgcolor: SECONDARY_BACKGROUND_COLOR,
             minWidth: "240px",
           },
           endAdornment,
         },
+      }}
+      sx={{
+        "& .MuiOutlinedInput-root": {
+          "& fieldset": {
+            borderColor: "divider", // default border color
+          },
+        },
+        ...sx,
       }}
       {...rest}
     />

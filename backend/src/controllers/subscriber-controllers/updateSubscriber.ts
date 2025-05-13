@@ -2,6 +2,7 @@ import { Request, Response } from "express";
 
 import { body, ValidationChain } from "express-validator";
 import InvalidSubscriberError from "../../errors/subscribers/InvalidSubscriberError";
+import ControllerInterface from "../../interfaces/ControllerInterface";
 import { SubscriberModel } from "../../models/SubscriberModel";
 import { databaseInstance } from "../../singletons";
 
@@ -10,15 +11,12 @@ interface RequestBody {
   allowNotifications: boolean;
 }
 
-export const updateSubscriberValidationChains: ValidationChain[] = [
+const validationChains: ValidationChain[] = [
   body("isApproved").isBoolean().optional(),
   body("allowNotifications").isBoolean().optional(),
 ];
 
-export default async function updateSubscriber(
-  request: Request,
-  response: Response,
-): Promise<void> {
+async function updateSubscriber(request: Request, response: Response): Promise<void> {
   const { id } = request.params;
   const { allowNotifications, isApproved } = <RequestBody>request.body;
 
@@ -33,3 +31,10 @@ export default async function updateSubscriber(
 
   response.status(204).send();
 }
+
+const updateSubscriberController: ControllerInterface = {
+  controller: updateSubscriber,
+  validator: validationChains,
+};
+
+export default updateSubscriberController;

@@ -1,9 +1,10 @@
 import { Request, Response } from "express";
 import { body, ValidationChain } from "express-validator";
 
+import InvalidDeckError from "../../errors/decks/InvalidDeckError";
+import ControllerInterface from "../../interfaces/ControllerInterface";
 import { DeckModel } from "../../models/DeckModel";
 import { databaseInstance } from "../../singletons";
-import InvalidDeckError from "../../errors/decks/InvalidDeckError";
 
 interface RequestBody {
   chatIds: string[];
@@ -13,7 +14,7 @@ interface RequestBody {
   lastNotificationDate: string;
 }
 
-export const updateDeckValidationChains: ValidationChain[] = [
+const validationChains: ValidationChain[] = [
   body("chatIds").isArray().optional(),
   body("chatIds.*").isString(),
   body("isActive").isBoolean().optional(),
@@ -23,7 +24,7 @@ export const updateDeckValidationChains: ValidationChain[] = [
   body("lastNotificationDate").isISO8601().optional(),
 ];
 
-export default async function updateDeck(request: Request, response: Response): Promise<void> {
+async function updateDeck(request: Request, response: Response): Promise<void> {
   const { chatIds, isActive, keywords, title, lastNotificationDate } = request.body as RequestBody;
   const { deckId } = request.params;
 
@@ -46,3 +47,10 @@ export default async function updateDeck(request: Request, response: Response): 
 
   response.sendStatus(204);
 }
+
+const updateDeckController: ControllerInterface = {
+  controller: updateDeck,
+  validator: validationChains,
+};
+
+export default updateDeckController;

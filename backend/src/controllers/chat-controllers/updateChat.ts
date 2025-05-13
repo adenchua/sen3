@@ -1,10 +1,11 @@
 import { Request, Response } from "express";
 import { body, check, ValidationChain } from "express-validator";
 
+import InvalidChatError from "../../errors/chats/InvalidChatError";
 import { ParticipantStat } from "../../interfaces/ChatInterface";
+import ControllerInterface from "../../interfaces/ControllerInterface";
 import { ChatModel } from "../../models/ChatModel";
 import { databaseInstance } from "../../singletons";
-import InvalidChatError from "../../errors/chats/InvalidChatError";
 
 interface RequestBody {
   id: string;
@@ -15,7 +16,7 @@ interface RequestBody {
   recommendedChannels?: string[];
 }
 
-export const updateChatValidationChains: ValidationChain[] = [
+const validationChains: ValidationChain[] = [
   body("participantStat").isObject().optional(),
   check("participantStat.count").isInt({ min: 0 }).optional(),
   check("participantStat.date").isISO8601().optional(),
@@ -26,7 +27,7 @@ export const updateChatValidationChains: ValidationChain[] = [
   body("recommendedChannels.*").isString().trim(),
 ];
 
-export default async function updateChat(request: Request, response: Response): Promise<void> {
+async function updateChat(request: Request, response: Response): Promise<void> {
   const { id } = request.params;
   const { participantStat, crawlActive, messageOffsetId, lastCrawlDate, recommendedChannels } =
     request.body as RequestBody;
@@ -58,3 +59,10 @@ export default async function updateChat(request: Request, response: Response): 
 
   response.sendStatus(204);
 }
+
+const getChatsByIdsController: ControllerInterface = {
+  controller: updateChat,
+  validator: validationChains,
+};
+
+export default getChatsByIdsController;

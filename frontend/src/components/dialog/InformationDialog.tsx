@@ -39,7 +39,9 @@ function InformationDialog(props: IProps) {
         {children}
       </DialogContent>
       <DialogActions>
-        <Button onClick={onClose}>Cancel</Button>
+        <Button onClick={onClose} color="secondary">
+          Cancel
+        </Button>
       </DialogActions>
     </Dialog>
   );

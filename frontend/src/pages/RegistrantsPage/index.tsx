@@ -1,9 +1,11 @@
-import Grid from "@mui/material/Grid2";
+import Grid from "@mui/material/Grid";
 import Typography from "@mui/material/Typography";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
 import fetchSubscribers from "../../api/subscribers/fetchSubscribers";
 import updateSubscriber from "../../api/subscribers/updateSubscriber";
+import ErrorMessage from "../../components/ErrorMessage";
+import Loading from "../../components/Loading";
 import PageLayout from "../../components/PageLayout";
 import RegistrantCard from "./RegistrantCard";
 
@@ -17,6 +19,7 @@ function RegistrantsPage() {
     queryFn: () => fetchSubscribers(false),
   });
   const queryClient = useQueryClient();
+  const PAGE_TITLE = "Registrants";
 
   const { mutateAsync: mutateApproveRegistrant } = useMutation({
     mutationFn: (id: string) => updateSubscriber(id, { isApproved: true }),
@@ -31,24 +34,26 @@ function RegistrantsPage() {
 
   if (isPending) {
     return (
-      <PageLayout>
-        <span>Loading...</span>
+      <PageLayout title={PAGE_TITLE}>
+        <Loading />
       </PageLayout>
     );
   }
 
   if (isError) {
     return (
-      <PageLayout>
-        <span>An unknown error occurred</span>
+      <PageLayout title={PAGE_TITLE}>
+        <ErrorMessage />
       </PageLayout>
     );
   }
 
   return (
-    <PageLayout>
+    <PageLayout title={PAGE_TITLE}>
       <Grid container spacing={1}>
-        {registrants.length === 0 && <Typography>There are no pending registrants</Typography>}
+        {registrants.length === 0 && (
+          <Typography color="textSecondary">No pending registrants</Typography>
+        )}
         {registrants.map((registrant) => (
           <Grid key={registrant.id}>
             <RegistrantCard registrant={registrant} onApproveRegistrant={handleApproveRegistrant} />
