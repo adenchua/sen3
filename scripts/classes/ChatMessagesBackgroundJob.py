@@ -97,7 +97,11 @@ class ChatMessagesBackgroundJob:
 
         if len(messages) > 0:
             # bulk ingests all messages
-            self.ingest_messages(messages)
+            # need to chunk the array, if not will throw payload entity too large error
+            CHUNK_SIZE = 50
+            message_chunks = [messages[i:i + CHUNK_SIZE] for i in range(0, len(messages), CHUNK_SIZE)]
+            for message_chunk in message_chunks:
+                self.ingest_messages(message_chunk)
 
         # update chat offset_id and last crawl date
         if max_offset_id != -1:
