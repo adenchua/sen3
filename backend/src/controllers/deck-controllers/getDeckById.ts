@@ -7,13 +7,13 @@ import { databaseInstance } from "../../singletons";
 import wrapResponse from "../../utils/responseUtils";
 
 async function getDeckById(request: Request, response: Response): Promise<void> {
-  const { deckId } = request.params;
+  const { id } = request.params;
 
   const deckModel = new DeckModel(databaseInstance);
-  const result = await deckModel.fetchOne(deckId);
+  const result = await deckModel.fetchOne(id);
 
   if (result == null) {
-    throw new InvalidDeckError(deckId);
+    throw new InvalidDeckError(id);
   }
 
   response.status(200).send(wrapResponse(result));

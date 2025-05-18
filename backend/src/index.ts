@@ -7,12 +7,13 @@ import ENVIRONMENT_CONSTANTS from "./constants/envConstants";
 import errorHandlerMiddleware from "./middlewares/errorHandlerMiddleware";
 import analyticsRouter from "./routes/analyticsRouter";
 import chatRouter from "./routes/chatRouter";
+import deckRouter from "./routes/deckRouter";
+import healthCheckRouter from "./routes/healthcheckRouter";
 import messageRouter from "./routes/messageRouter";
 import notificationRouter from "./routes/notificationRouter";
 import subscriberRouter from "./routes/subscriberRouter";
 import telegramRouter from "./routes/telegramRouter";
 import { databaseInstance } from "./singletons";
-import healthCheckRouter from "./routes/healthcheckRouter";
 
 const PORT = ENVIRONMENT_CONSTANTS.server.port;
 const app = express();
@@ -29,6 +30,7 @@ app.use("/api/v1/telegram", telegramRouter);
 app.use("/api/v1/subscribers", subscriberRouter);
 app.use("/api/v1/notifications", notificationRouter);
 app.use("/api/v1/analytics", analyticsRouter);
+app.use("/api/v1/decks", deckRouter);
 
 app.use("/healthcheck", healthCheckRouter);
 

@@ -100,7 +100,7 @@ export default function ManageDeckDialog(props: IProps) {
 
   async function handleUpdate(): Promise<void> {
     const { chatIds, keywords, title } = editableDeck;
-    await updateDeck(deck.id, deck.subscriberId, {
+    await updateDeck(deck.id, {
       keywords,
       title,
       chatIds,

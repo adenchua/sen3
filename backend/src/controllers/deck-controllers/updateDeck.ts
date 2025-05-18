@@ -26,18 +26,18 @@ const validationChains: ValidationChain[] = [
 
 async function updateDeck(request: Request, response: Response): Promise<void> {
   const { chatIds, isActive, keywords, title, lastNotificationDate } = request.body as RequestBody;
-  const { deckId } = request.params;
+  const { id } = request.params;
 
   const _lastNotificationDate = lastNotificationDate ? new Date(lastNotificationDate) : undefined;
 
   const deckModel = new DeckModel(databaseInstance);
-  const deck = await deckModel.fetchOne(deckId);
+  const deck = await deckModel.fetchOne(id);
 
   if (deck == null) {
-    throw new InvalidDeckError(deckId);
+    throw new InvalidDeckError(id);
   }
 
-  await deckModel.update(deckId, {
+  await deckModel.update(id, {
     chatIds,
     isActive,
     keywords,

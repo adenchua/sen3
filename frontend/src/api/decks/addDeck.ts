@@ -5,8 +5,9 @@ import ApiResponseWrapper from "../../interfaces/api";
 
 const addDeck = async (subscriberId: string, title: string): Promise<string> => {
   const response = await axios.post<ApiResponseWrapper<string>>(
-    `${BACKEND_SERVICE_API_URL}/api/v1/subscribers/${subscriberId}/decks`,
+    `${BACKEND_SERVICE_API_URL}/api/v1/decks`,
     {
+      subscriberId,
       chatIds: [],
       title,
       isActive: false,

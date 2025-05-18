@@ -1,13 +1,16 @@
 import { Request, Response } from "express";
 import { body, ValidationChain } from "express-validator";
 
+import InvalidSubscriberError from "../../errors/subscribers/InvalidSubscriberError";
 import ControllerInterface from "../../interfaces/ControllerInterface";
 import Deck from "../../interfaces/DeckInterface";
 import { DeckModel } from "../../models/DeckModel";
+import { SubscriberModel } from "../../models/SubscriberModel";
 import { databaseInstance } from "../../singletons";
 import wrapResponse from "../../utils/responseUtils";
 
 interface RequestBody {
+  subscriberId: string;
   chatIds: string[];
   isActive: boolean;
   keywords: string[];
@@ -15,6 +18,7 @@ interface RequestBody {
 }
 
 const validationChains: ValidationChain[] = [
+  body("subscriberId").isString().notEmpty(),
   body("chatIds").isArray().exists(),
   body("chatIds.*").isString(),
   body("isActive").isBoolean().exists(),
@@ -24,8 +28,14 @@ const validationChains: ValidationChain[] = [
 ];
 
 async function createDeck(request: Request, response: Response): Promise<void> {
-  const { chatIds, isActive, keywords, title } = request.body as RequestBody;
-  const { id } = request.params;
+  const { subscriberId, chatIds, isActive, keywords, title } = request.body as RequestBody;
+
+  const subscriberModel = new SubscriberModel(databaseInstance);
+  const subscriber = await subscriberModel.fetchOne(subscriberId);
+
+  if (subscriber == null) {
+    throw new InvalidSubscriberError(subscriberId);
+  }
 
   const newDeck: Deck = {
     title,
@@ -34,10 +44,8 @@ async function createDeck(request: Request, response: Response): Promise<void> {
     isActive,
     keywords,
     lastNotificationDate: new Date(),
-    subscriberId: id,
+    subscriberId: subscriberId,
   };
-
-  // TODO: add validation for subscriber ID
 
   const deckModel = new DeckModel(databaseInstance);
   const documentId = await deckModel.save(newDeck);

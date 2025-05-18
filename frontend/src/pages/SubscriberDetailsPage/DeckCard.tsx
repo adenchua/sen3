@@ -18,18 +18,17 @@ import ManageDeckDialog from "./ManageDeckDialog";
 
 interface IProps {
   deck: DeckInterface;
-  subscriberId: string;
 }
 
 export default function DeckCard(props: IProps) {
-  const { deck, subscriberId } = props;
+  const { deck } = props;
   const { title, isActive } = deck;
   const [isDialogOpen, setIsDialogOpen] = useState<boolean>(false);
   const queryClient = useQueryClient();
 
   async function handleToggleActive(event: React.ChangeEvent<HTMLInputElement>): Promise<void> {
     const updatedActiveValue = event.target.checked;
-    await updateDeck(deck.id, subscriberId, {
+    await updateDeck(deck.id, {
       isActive: updatedActiveValue,
     });
 

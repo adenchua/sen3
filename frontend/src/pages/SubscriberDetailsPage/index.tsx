@@ -72,7 +72,7 @@ export default function SubscriberDetailsPage() {
         >
           Back
         </Button>
-        {subscriber && decks && (
+        {decks && (
           <>
             <Box display="flex" gap={2} mb={4}>
               <Typography variant="h5">Decks</Typography>
@@ -81,7 +81,7 @@ export default function SubscriberDetailsPage() {
               </Button>
             </Box>
             <Box sx={{ height: "calc(100vh - 330px)", overflowY: "auto" }}>
-              <DeckList decks={decks} subscriberId={subscriber.id} />
+              <DeckList decks={decks} />
             </Box>
           </>
         )}
