@@ -8,7 +8,6 @@ WORKDIR /app/telegram-bot-runner
 RUN pip3 install -r requirements.txt
 
 COPY ./telegram-bot-runner .
-COPY ./.env .
 
 ENV PYTHONUNBUFFERED=1
 

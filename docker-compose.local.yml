@@ -1,6 +1,8 @@
 services:
   opensearch-node: 
     image: opensearchproject/opensearch:${OPENSEARCH_VERSION}
+    env_file:
+      - ./.env.development
     environment:
       - cluster.name=opensearch-cluster
       - node.name=opensearch-node
@@ -25,6 +27,8 @@ services:
 
   opensearch-dashboards:
     image: opensearchproject/opensearch-dashboards:${OPENSEARCH_VERSION}
+    env_file:
+      - ./.env.development
     ports:
       - ${OPENSEARCH_DASHBOARDS_PORT}:5601
     environment:
@@ -36,6 +40,8 @@ services:
     build:
       dockerfile: ./telegram-service/Dockerfile
       context: ./
+    env_file:
+      - ./.env.development
     image: telegram-service:1.0.0
     ports:
       - ${TELEGRAM_SERVICE_PORT}:${TELEGRAM_SERVICE_PORT}

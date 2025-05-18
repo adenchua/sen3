@@ -11,7 +11,6 @@ RUN apk add --no-cache curl
 RUN pip3 install -r requirements.txt
 
 COPY ./telegram-service .
-COPY ./.env .
 
 ENV PYTHONUNBUFFERED=1
 

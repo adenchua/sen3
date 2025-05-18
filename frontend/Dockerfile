@@ -2,8 +2,6 @@ FROM node:22.15-alpine AS builder
 
 WORKDIR /app
 
-COPY ./.env ./
-
 COPY ./frontend/package.json ./frontend/package-lock.json frontend/
 
 WORKDIR /app/frontend

@@ -5,8 +5,8 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "build": "tsc",
-    "start:dev": "node --env-file=../.env --import=tsx --watch ./src/index.ts",
-    "start:prod": "set NODE_ENV=production&& node --env-file=../.env ./dist/index.js",
+    "start:dev": "node --env-file=../.env.development --import=tsx --watch ./src/index.ts",
+    "start:prod": "set NODE_ENV=production&& node ./dist/index.js",
     "lint": "eslint src/**/* && tsc --noEmit",
     "format": "prettier --write '**/**/*.{js,ts,json,cjs,md}' --config ./.prettierrc"
   },

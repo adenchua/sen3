@@ -48,6 +48,8 @@ services:
     build:
       dockerfile: ./telegram-service/Dockerfile
       context: ./
+    env_file:
+      - ./.env
     image: telegram-service:1.0.0
     expose:
       - 5099
@@ -65,6 +67,8 @@ services:
     build:
       dockerfile: ./backend/Dockerfile
       context: ./
+    env_file:
+      - ./.env
     expose:
       - 5098
     image: backend-service:1.0.0
@@ -87,6 +91,8 @@ services:
     build:
       dockerfile: ./scripts/Dockerfile
       context: ./
+    env_file:
+      - ./.env
     image: background-script:1.0.0
     networks:
       - sen3
@@ -104,6 +110,8 @@ services:
     build:
       dockerfile: ./telegram-bot-runner/Dockerfile
       context: ./
+    env_file:
+      - ./.env
     image: telegram-bot-runner:1.0.0
     networks:
       - sen3
@@ -119,6 +127,8 @@ services:
     build:
       dockerfile: ./frontend/Dockerfile
       context: ./
+    env_file:
+      - ./.env
     image: frontend:1.0.0
     ports:
      - 3400:80
