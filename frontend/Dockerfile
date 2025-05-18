@@ -1,16 +1,14 @@
 FROM node:22.15-alpine AS builder
 
-WORKDIR /app
-
-COPY ./frontend/package.json ./frontend/package-lock.json frontend/
-
 WORKDIR /app/frontend
+
+COPY ./frontend/package.json ./frontend/package-lock.json ./
+
 RUN npm install
 
 COPY ./frontend .
 
 RUN npm run build
-
 
 FROM nginx:1.28
 

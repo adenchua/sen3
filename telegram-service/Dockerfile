@@ -1,17 +1,18 @@
 FROM python:3.13.3-alpine
 
-WORKDIR /app
-
-COPY ./telegram-service/requirements.txt ./telegram-service/requirements.txt
-
 WORKDIR /app/telegram-service
 
 # need curl command for healthcheck
 RUN apk add --no-cache curl
-RUN pip3 install -r requirements.txt
+
+COPY ./telegram-service/requirements.txt .
+
+RUN pip3 install --upgrade pip && \
+    pip3 install --no-cache-dir -r requirements.txt
 
 COPY ./telegram-service .
 
 ENV PYTHONUNBUFFERED=1
+ENV PYTHONPATH=/app/telegram-service/src
 
-CMD [ "python3", "./src/main.py"]
+CMD ["gunicorn", "--bind", "0.0.0.0:5099", "src.main:create_app()"]

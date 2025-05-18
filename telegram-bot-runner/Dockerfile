@@ -1,11 +1,11 @@
 FROM python:3.13.3-alpine
 
-WORKDIR /app
-
-COPY ./telegram-bot-runner/requirements.txt ./telegram-bot-runner/requirements.txt
-
 WORKDIR /app/telegram-bot-runner
-RUN pip3 install -r requirements.txt
+
+COPY ./telegram-bot-runner/requirements.txt .
+
+RUN pip3 install --upgrade pip && \
+    pip3 install --no-cache-dir -r requirements.txt
 
 COPY ./telegram-bot-runner .
 

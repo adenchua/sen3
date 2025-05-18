@@ -1,6 +1,7 @@
 from flask import Flask, jsonify
 from dotenv import load_dotenv
 import os
+import logging
 
 from flaskr import chat
 
@@ -12,6 +13,11 @@ PORT_NUMBER: int = os.getenv("TELEGRAM_SERVICE_PORT", 5099)
 def create_app():
     # create and configure the app
     app = Flask(__name__)
+
+    # add logging to gunicorn
+    gunicorn_logger = logging.getLogger("gunicorn.error")
+    app.logger.handlers = gunicorn_logger.handlers
+    app.logger.setLevel(gunicorn_logger.level)
 
     @app.errorhandler(404)
     def resource_not_found(e):
