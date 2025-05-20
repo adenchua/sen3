@@ -65,7 +65,7 @@ class SubscriberNotificationBackgroundJob:
 
                         # only update last notified date of deck if there are matched messages
                         if len(matched_messages) > 0:
-                            await self.update_deck(subscriber_id, deck_id)
+                            await self.update_deck(deck_id)
             except HTTPError as http_error:
                 logging.exception(http_error)
             except Exception as error:
@@ -97,11 +97,11 @@ class SubscriberNotificationBackgroundJob:
         response_json: dict = response.json()
         return response_json["data"]
 
-    async def update_deck(self, subscriber_id: str, deck_id: str):
+    async def update_deck(self, deck_id: str):
         """
         Updates a subscriber deck lastNotificationDate with the current timestamp
         """
-        api_url = f"{BACKEND_SERVICE_API_URL}/api/v1/subscribers/{subscriber_id}/decks/{deck_id}"
+        api_url = f"{BACKEND_SERVICE_API_URL}/api/v1/decks/{deck_id}"
         response = requests.patch(
             api_url, {"lastNotificationDate": get_current_datetime_iso()}
         )
