@@ -1,5 +1,4 @@
-import requests
-from requests.exceptions import HTTPError
+import httpx
 from telegram import Update
 from telegram.ext import ContextTypes
 
@@ -15,24 +14,25 @@ async def unsubscribe(update: Update, context: ContextTypes.DEFAULT_TYPE) -> Non
     URL = f"{BACKEND_SERVICE_API_URL}/api/v1/subscribers/{user_id}"
     request_body = {"allowNotifications": False}
 
-    try:
-        get_subscriber_response = requests.get(URL)
-        get_subscriber_response.raise_for_status()
-        get_subscriber_response_json: dict = get_subscriber_response.json()
-        subscriber: dict = get_subscriber_response_json.get("data", None)
+    async with httpx.AsyncClient() as client:
+        try:
+            get_subscriber_response = await client.get(URL)
+            get_subscriber_response.raise_for_status()
+            get_subscriber_response_json: dict = get_subscriber_response.json()
+            subscriber: dict = get_subscriber_response_json.get("data", None)
 
-        # subscriber not approved, do not send reply
-        if subscriber.get("isApproved", False) == False:
-            return
+            # subscriber not approved, do not send reply
+            if subscriber.get("isApproved", False) == False:
+                return
 
-        # if subscriber notifications turned on, turn it off
-        # save a call to the API if its already False
-        if subscriber.get("allowNotifications") == True:
-            response = requests.patch(URL, json=dict(request_body))
-            response.raise_for_status()
+            # if subscriber notifications turned on, turn it off
+            # save a call to the API if its already False
+            if subscriber.get("allowNotifications") == True:
+                response = await client.patch(URL, json=dict(request_body))
+                response.raise_for_status()
 
-        await update.message.reply_text(reply_message)
-    except HTTPError as http_error:
-        logger.error(f"http error: {http_error}")
-    except Exception as error:
-        logger.error(error)
+            await update.message.reply_text(reply_message)
+        except httpx.HTTPStatusError as http_error:
+            logger.error(f"http error: {http_error}")
+        except Exception as error:
+            logger.error(error)

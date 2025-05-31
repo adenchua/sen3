@@ -1,7 +1,6 @@
 import inspect
 
-import requests
-from requests.exceptions import HTTPError
+import httpx
 from telegram import Update
 from telegram.ext import ContextTypes
 
@@ -29,12 +28,12 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
         "lastName": last_name,
         "userId": user_id,
     }
-
-    try:
-        response = requests.post(URL, json=dict(request_body))
-        response.raise_for_status()
-        await update.message.reply_text(reply_message)
-    except HTTPError as http_error:
-        logger.error(f"http error: {http_error}")
-    except Exception as error:
-        logger.error(error)
+    async with httpx.AsyncClient() as client:
+        try:
+            response = await client.post(URL, json=dict(request_body))
+            response.raise_for_status()
+            await update.message.reply_text(reply_message)
+        except httpx.HTTPStatusError as http_error:
+            logger.error(f"http error: {http_error}")
+        except Exception as error:
+            logger.error(error)
