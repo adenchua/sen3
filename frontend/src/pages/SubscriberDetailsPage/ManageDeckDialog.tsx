@@ -1,16 +1,10 @@
-import CheckedIcon from "@mui/icons-material/CheckBox";
-import UncheckedIcon from "@mui/icons-material/CheckBoxOutlineBlank";
 import Box from "@mui/material/Box";
-import FormControl from "@mui/material/FormControl";
 import Grid from "@mui/material/Grid";
-import MenuItem from "@mui/material/MenuItem";
-import Select, { SelectChangeEvent } from "@mui/material/Select";
 import { TextFieldProps } from "@mui/material/TextField";
 import Typography from "@mui/material/Typography";
-import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useQueryClient } from "@tanstack/react-query";
+import { useEffect, useRef, useState } from "react";
 
-import fetchChats from "../../api/chats/fetchChats";
 import updateDeck from "../../api/decks/updateDeck";
 import Chip from "../../components/Chip";
 import ActionDialog from "../../components/dialog/ActionDialog";
@@ -19,6 +13,7 @@ import InputText from "../../components/InputText";
 import { SECONDARY_BACKGROUND_COLOR } from "../../constants/styling";
 import AddIcon from "../../icons/AddIcon";
 import DeckInterface from "../../interfaces/deck";
+import ChatSelectDropdown from "../../components/ChatSelectDropdown";
 
 interface IProps {
   deck: DeckInterface;
@@ -39,25 +34,7 @@ export default function ManageDeckDialog(props: IProps) {
     }
   }, [isOpen, deck]);
 
-  const { data: availableChats } = useQuery({
-    queryKey: ["fetchChats"],
-    queryFn: fetchChats,
-  });
-
-  // helper constant for dropdown to map id to chat username
-  const chatIdToUsernameMap = useMemo(() => {
-    const result: Record<string, string> = {};
-    availableChats?.forEach(
-      (availableChat) => (result[availableChat.id] = `@${availableChat.username}`),
-    );
-    return result;
-  }, [availableChats]);
-
-  function handleSelectChat(event: SelectChangeEvent<typeof editableDeck.chatIds>) {
-    const {
-      target: { value },
-    } = event;
-    const selectedChatIds = typeof value === "string" ? value.split(",") : value;
+  function handleSelectChat(selectedChatIds: string[]): void {
     setEditableDeck((prev) => {
       const clonedDeck = { ...prev };
       clonedDeck.chatIds = selectedChatIds;
@@ -142,62 +119,10 @@ export default function ManageDeckDialog(props: IProps) {
         </Box>
         <Box mb={4}>
           <Typography mb={1}>Channels/Groups</Typography>
-          {availableChats && (
-            <FormControl fullWidth>
-              <Select
-                MenuProps={{
-                  slotProps: {
-                    paper: {
-                      sx: {
-                        maxHeight: "200px",
-                      },
-                    },
-                  },
-                }}
-                sx={{
-                  backgroundColor: SECONDARY_BACKGROUND_COLOR, // background of the displayed value box
-                  borderRadius: "8px",
-                  "& .MuiOutlinedInput-notchedOutline": {
-                    borderColor: "divider",
-                  },
-                  "& .MuiSvgIcon-root": {
-                    fill: "transparent", // arrow icon color
-                  },
-                }}
-                multiple
-                fullWidth
-                size="small"
-                value={editableDeck.chatIds}
-                renderValue={(selected) => (
-                  <Box sx={{ display: "flex", flexWrap: "wrap", gap: 0.5 }}>
-                    {selected.map((value) => (
-                      <Chip key={value} label={chatIdToUsernameMap[value]} />
-                    ))}
-                  </Box>
-                )}
-                onChange={handleSelectChat}
-              >
-                {availableChats
-                  .sort((a, b) => a.username.localeCompare(b.username))
-                  .map((availableChat) => {
-                    const isSelected = editableDeck.chatIds.includes(availableChat.id);
-                    return (
-                      <MenuItem
-                        key={availableChat.id}
-                        value={availableChat.id}
-                        sx={{
-                          color: isSelected ? "primary" : "#707070",
-                        }}
-                      >
-                        {isSelected && <CheckedIcon sx={{ mr: 1 }} color="primary" />}
-                        {!isSelected && <UncheckedIcon sx={{ mr: 1 }} />}
-                        {availableChat.username}
-                      </MenuItem>
-                    );
-                  })}
-              </Select>
-            </FormControl>
-          )}
+          <ChatSelectDropdown
+            defaultSelectedChatIds={editableDeck.chatIds}
+            onUpdate={handleSelectChat}
+          />
         </Box>
         <Typography mb={1.5}>Keywords to monitor</Typography>
         <InputText

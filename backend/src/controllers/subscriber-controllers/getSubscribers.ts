@@ -8,10 +8,10 @@ import wrapResponse from "../../utils/responseUtils";
 import transformQueryParam from "../utils/queryParamTransformer";
 
 interface RequestQuery {
-  from: string;
-  size: string;
-  isApproved: string;
-  allowNotifications: string;
+  from?: string;
+  size?: string;
+  isApproved?: string;
+  allowNotifications?: string;
 }
 
 const validationChains: ValidationChain[] = [
@@ -22,7 +22,7 @@ const validationChains: ValidationChain[] = [
 ];
 
 async function getSubscribers(request: Request, response: Response): Promise<void> {
-  const { from, size, isApproved, allowNotifications } = request.query as unknown as RequestQuery;
+  const { from, size, isApproved, allowNotifications } = request.query as RequestQuery;
 
   const _from = transformQueryParam<number>(from, Number);
   const _size = transformQueryParam<number>(size, Number);

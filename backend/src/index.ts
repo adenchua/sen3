@@ -8,6 +8,7 @@ import errorHandlerMiddleware from "./middlewares/errorHandlerMiddleware";
 import analyticsRouter from "./routes/analyticsRouter";
 import chatRouter from "./routes/chatRouter";
 import deckRouter from "./routes/deckRouter";
+import deckTemplateRouter from "./routes/deckTemplateRouter";
 import healthCheckRouter from "./routes/healthcheckRouter";
 import messageRouter from "./routes/messageRouter";
 import notificationRouter from "./routes/notificationRouter";
@@ -31,6 +32,7 @@ app.use("/api/v1/subscribers", subscriberRouter);
 app.use("/api/v1/notifications", notificationRouter);
 app.use("/api/v1/analytics", analyticsRouter);
 app.use("/api/v1/decks", deckRouter);
+app.use("/api/v1/deck-templates", deckTemplateRouter);
 
 app.use("/healthcheck", healthCheckRouter);
 

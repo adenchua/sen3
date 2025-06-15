@@ -73,11 +73,11 @@ export class SubscriberModel {
   }
 
   async fetch(
-    fields: { isApproved?: boolean; allowNotifications?: boolean },
+    filters: { isApproved?: boolean; allowNotifications?: boolean },
     from = 0,
     size = 10,
   ): Promise<Subscriber[]> {
-    const { isApproved, allowNotifications } = fields;
+    const { isApproved, allowNotifications } = filters;
 
     const queryBuilder = new QueryBuilder();
     queryBuilder.addPagination(from, size);
@@ -94,9 +94,7 @@ export class SubscriberModel {
       query,
     );
 
-    const result = response.map((rawSubscriber) =>
-      this.transformToSubscriber(rawSubscriber as unknown as DatabaseSubscriber),
-    );
+    const result = response.map((rawSubscriber) => this.transformToSubscriber(rawSubscriber));
 
     return result;
   }

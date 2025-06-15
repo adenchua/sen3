@@ -58,11 +58,11 @@ export class DeckModel {
   }
 
   async fetch(
-    fields: { subscriberId?: string; isActive?: boolean },
+    filters: { subscriberId?: string; isActive?: boolean },
     from = 0,
     size = 10,
   ): Promise<Deck[]> {
-    const { subscriberId, isActive } = fields;
+    const { subscriberId, isActive } = filters;
 
     const queryBuilder = new QueryBuilder();
     queryBuilder.addPagination(from, size);
@@ -81,9 +81,7 @@ export class DeckModel {
       query,
     );
 
-    const result = response.map((rawDeck) =>
-      this.transformToDeck(rawDeck as unknown as DatabaseDeck),
-    );
+    const result = response.map((rawDeck) => this.transformToDeck(rawDeck as DatabaseDeck));
 
     return result;
   }
@@ -103,9 +101,7 @@ export class DeckModel {
       return null;
     }
 
-    const [result] = response.map((rawDeck) =>
-      this.transformToDeck(rawDeck as unknown as DatabaseDeck),
-    );
+    const [result] = response.map((rawDeck) => this.transformToDeck(rawDeck));
 
     return result;
   }

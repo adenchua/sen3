@@ -93,11 +93,11 @@ export class ChatModel {
 
   /** Fetches chats in the database */
   async fetch(
-    fields: { crawlActive?: boolean; ids?: string[] },
+    filters: { crawlActive?: boolean; ids?: string[] },
     from = 0,
     size = 10,
   ): Promise<Chat[]> {
-    const { crawlActive, ids } = fields;
+    const { crawlActive, ids } = filters;
 
     const queryBuilder = new QueryBuilder();
     queryBuilder.addPagination(from, size);
