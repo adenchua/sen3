@@ -2,6 +2,7 @@ import Box from "@mui/material/Box";
 import Grid from "@mui/material/Grid";
 import Typography from "@mui/material/Typography";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { compareDesc } from "date-fns";
 import { useMemo, useState } from "react";
 
 import fetchChats from "../../api/chats/fetchChats";
@@ -71,7 +72,9 @@ export default function ChatsPage() {
       return !chat.isChannel;
     });
 
-    const sortedChat = chatTypeFilteredChats?.sort((a, b) => a.title.localeCompare(b.title));
+    const sortedChat = chatTypeFilteredChats?.sort((a, b) =>
+      compareDesc(a.updatedDate, b.updatedDate),
+    );
 
     return sortedChat;
   }, [chats, chatSearchFilter, chatTypeFilter]);

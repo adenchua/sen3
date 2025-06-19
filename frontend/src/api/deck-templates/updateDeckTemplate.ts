@@ -7,13 +7,10 @@ const updateDeckTemplate = async (
   deckTemplateId: string,
   updatedFields: Partial<DeckTemplateInterface>,
 ): Promise<void> => {
-  const { title, chatIds, isDefault } = updatedFields;
-
-  await axios.patch(`${BACKEND_SERVICE_API_URL}/api/v1/deck-templates/${deckTemplateId}`, {
-    title,
-    isDefault,
-    chatIds,
-  });
+  await axios.patch(
+    `${BACKEND_SERVICE_API_URL}/api/v1/deck-templates/${deckTemplateId}`,
+    updatedFields,
+  );
 };
 
 export default updateDeckTemplate;

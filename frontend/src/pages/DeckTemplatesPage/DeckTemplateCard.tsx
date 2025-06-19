@@ -20,7 +20,7 @@ interface IProps {
 
 export default function DeckTemplateCard(props: IProps) {
   const { deckTemplate } = props;
-  const { id, title, chatIds, isDefault } = deckTemplate;
+  const { id, title, chatIds, isDefault, isDeleted } = deckTemplate;
 
   const [isDialogOpen, setIsDialogOpen] = useState<boolean>(false);
 
@@ -49,9 +49,10 @@ export default function DeckTemplateCard(props: IProps) {
         maxWidth: "600px",
       }}
     >
-      <CardContent sx={{ display: "flex", gap: 2, alignItems: "center" }}>
+      <CardContent sx={{ display: "flex", gap: 1, alignItems: "center" }}>
         <Typography color="primary">{title}</Typography>
         <Chip label={`${chatIds.length} Chats`} />
+        {isDeleted && <Chip label={`Hidden`} color="error" />}
       </CardContent>
       <CardActions
         sx={{

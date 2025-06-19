@@ -83,8 +83,8 @@ export class ChatModel {
   }
 
   /** Creates a chat in the database */
-  async save(chat: Chat): Promise<string> {
-    const rawChat = this.transformToRawChat(chat);
+  async save(chat: Omit<Chat, "updatedDate">): Promise<string> {
+    const rawChat = this.transformToRawChat({ ...chat, updatedDate: new Date() });
     const { _id: id, ...rest } = rawChat;
     const response = await this.databaseService.ingestDocument(rest, this.DATABASE_INDEX, id);
 
@@ -144,7 +144,10 @@ export class ChatModel {
 
   async update(chatId: string, updatedFields: Partial<Chat>) {
     // transform to database mapping
-    const transformedUpdatedFields = this.transformToRawChat(updatedFields);
+    const transformedUpdatedFields = this.transformToRawChat({
+      ...updatedFields,
+      updatedDate: new Date(),
+    });
 
     const response = await this.databaseService.updateDocument<DatabaseChat>(
       this.DATABASE_INDEX,

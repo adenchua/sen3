@@ -18,10 +18,12 @@ interface IProps {
 
 export default function ManageDeckTemplateDialog(props: IProps) {
   const { deckTemplate, isOpen, onClose } = props;
-  const { id, chatIds, isDefault, title } = deckTemplate;
+  const { id, chatIds, isDefault, isDeleted, title } = deckTemplate;
 
   const [selectedChatIds, setSelectedChatIds] = useState<string[]>(chatIds);
   const [isDefaultInput, setIsDefaultInput] = useState<boolean>(isDefault);
+  const [isDeletedInput, setIsDeletedInput] = useState<boolean>(isDeleted);
+
   const [titleInput, setTitleInput] = useState<string>(title);
 
   const queryClient = useQueryClient();
@@ -31,9 +33,10 @@ export default function ManageDeckTemplateDialog(props: IProps) {
     if (isOpen) {
       setSelectedChatIds(chatIds);
       setIsDefaultInput(isDefault);
+      setIsDeletedInput(isDeleted);
       setTitleInput(title);
     }
-  }, [isOpen, chatIds, isDefault, title]);
+  }, [isOpen, chatIds, isDefault, title, isDeleted]);
 
   async function handleUpdate() {
     if (titleInput === "" || selectedChatIds.length === 0) {
@@ -43,6 +46,7 @@ export default function ManageDeckTemplateDialog(props: IProps) {
     await updateDeckTemplate(id, {
       title: titleInput,
       isDefault: isDefaultInput,
+      isDeleted: isDeletedInput,
       chatIds: selectedChatIds,
     });
     queryClient.invalidateQueries({ queryKey: ["fetchDeckTemplates"] });
@@ -80,11 +84,20 @@ export default function ManageDeckTemplateDialog(props: IProps) {
         <Box mb={5} display="flex" justifyContent="space-between">
           <div>
             <Typography gutterBottom>Set as default deck</Typography>
-            <Typography variant="body2" mb={2} maxWidth="80%">
+            <Typography variant="body2" maxWidth="80%">
               Default decks are automatically added to new subscriber decks when they join
             </Typography>
           </div>
-          <Switch value={isDefault} onChange={(e) => setIsDefaultInput(e.target.checked)} />
+          <Switch checked={isDefaultInput} onChange={(e) => setIsDefaultInput(e.target.checked)} />
+        </Box>
+        <Box mb={5} display="flex" justifyContent="space-between">
+          <div>
+            <Typography gutterBottom>Hide deck template</Typography>
+            <Typography variant="body2" maxWidth="80%">
+              Hidden decks are not shown to subscribers
+            </Typography>
+          </div>
+          <Switch checked={isDeletedInput} onChange={(e) => setIsDeletedInput(e.target.checked)} />
         </Box>
       </div>
     </ActionDialog>

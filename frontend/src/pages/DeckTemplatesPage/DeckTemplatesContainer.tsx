@@ -1,5 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 import Stack from "@mui/material/Stack";
+import { compareDesc } from "date-fns";
 import Box from "@mui/material/Box";
 
 import fetchDeckTemplates from "../../api/deck-templates/fetchDeckTemplates";
@@ -25,8 +26,8 @@ export default function DeckTemplatesContainer() {
     return <ErrorMessage />;
   }
 
-  const sortedDeckTemplates = deckTemplates.sort(
-    (a, b) => new Date(b.createdDate).getTime() - new Date(a.createdDate).getTime(),
+  const sortedDeckTemplates = deckTemplates.sort((a, b) =>
+    compareDesc(a.updatedDate, b.updatedDate),
   );
 
   return (

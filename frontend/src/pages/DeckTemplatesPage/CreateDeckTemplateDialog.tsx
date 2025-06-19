@@ -74,7 +74,7 @@ export default function CreateDeckTemplateDialog(props: IProps) {
               Default decks are automatically added to new subscriber decks when they join
             </Typography>
           </div>
-          <Switch value={isDefault} onChange={(e) => setIsDefault(e.target.checked)} />
+          <Switch checked={isDefault} onChange={(e) => setIsDefault(e.target.checked)} />
         </Box>
       </div>
     </ActionDialog>

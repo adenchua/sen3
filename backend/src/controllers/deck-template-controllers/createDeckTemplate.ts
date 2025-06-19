@@ -23,10 +23,10 @@ const validationChains: ValidationChain[] = [
 async function createDeckTemplate(request: Request, response: Response): Promise<void> {
   const { chatIds, isDefault, title } = request.body as RequestBody;
 
-  const newDeckTemplate: Omit<DeckTemplate, "id"> = {
+  const newDeckTemplate: Omit<DeckTemplate, "id" | "createdDate" | "updatedDate"> = {
     chatIds,
-    createdDate: new Date(),
     isDefault: isDefault === undefined ? false : isDefault,
+    isDeleted: false,
     title,
   };
 

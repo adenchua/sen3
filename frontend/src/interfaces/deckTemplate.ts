@@ -3,5 +3,7 @@ export default interface DeckTemplateInterface {
   chatIds: string[];
   createdDate: string;
   isDefault: boolean;
+  isDeleted: boolean;
   title: string;
+  updatedDate: string;
 }

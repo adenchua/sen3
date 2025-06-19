@@ -54,7 +54,6 @@ async function updateChat(request: Request, response: Response): Promise<void> {
     messageOffsetId,
     lastCrawlDate: lastCrawlDate == undefined ? undefined : new Date(lastCrawlDate),
     recommendedChannels,
-    updatedDate: new Date(),
   });
 
   response.sendStatus(204);

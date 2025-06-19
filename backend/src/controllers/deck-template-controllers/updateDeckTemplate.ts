@@ -9,6 +9,7 @@ import { databaseInstance } from "../../singletons";
 interface RequestBody {
   chatIds: string[];
   isDefault: boolean;
+  isDeleted: boolean;
   title: string;
 }
 
@@ -16,11 +17,12 @@ const validationChains: ValidationChain[] = [
   body("chatIds").isArray().optional(),
   body("chatIds.*").isString(),
   body("isDefault").isBoolean().optional(),
+  body("isDeleted").isBoolean().optional(),
   body("title").isString().trim().optional(),
 ];
 
 async function updateDeckTemplate(request: Request, response: Response): Promise<void> {
-  const { chatIds, isDefault, title } = request.body as RequestBody;
+  const { chatIds, isDefault, isDeleted, title } = request.body as RequestBody;
   const { id } = request.params;
 
   const deckTemplateModel = new DeckTemplateModel(databaseInstance);
@@ -33,6 +35,7 @@ async function updateDeckTemplate(request: Request, response: Response): Promise
   await deckTemplateModel.update(id, {
     chatIds,
     isDefault,
+    isDeleted,
     title,
   });
 

@@ -6,8 +6,10 @@ interface RawDeckTemplate {
   _id: string;
   chat_ids: string[];
   created_date: string;
+  is_deleted: boolean;
   is_default: boolean;
   title: string;
+  updated_date: string;
 }
 
 export class DeckTemplateModel {
@@ -25,7 +27,9 @@ export class DeckTemplateModel {
       chat_ids: deckTemplate.chatIds,
       created_date: deckTemplate.createdDate?.toISOString(),
       is_default: deckTemplate.isDefault,
+      is_deleted: deckTemplate.isDeleted,
       title: deckTemplate.title,
+      updated_date: deckTemplate.updatedDate?.toISOString(),
     };
   }
 
@@ -34,24 +38,40 @@ export class DeckTemplateModel {
       id: rawDeckTemplate._id,
       chatIds: rawDeckTemplate.chat_ids,
       createdDate: new Date(rawDeckTemplate.created_date),
+      isDeleted: rawDeckTemplate.is_deleted,
       isDefault: rawDeckTemplate.is_default,
       title: rawDeckTemplate.title,
+      updatedDate: new Date(rawDeckTemplate.updated_date),
     };
   }
 
-  async save(deckTemplate: Omit<DeckTemplate, "id">): Promise<void> {
-    const rawDeckTemplate = this.transformToRawDeckTemplate(deckTemplate);
+  async save(
+    deckTemplate: Omit<DeckTemplate, "id" | "createdDate" | "updatedDate">,
+  ): Promise<void> {
+    const rawDeckTemplate = this.transformToRawDeckTemplate({
+      ...deckTemplate,
+      createdDate: new Date(),
+      updatedDate: new Date(),
+    });
     await this.databaseService.ingestDocument(rawDeckTemplate, this.DATABASE_INDEX);
   }
 
-  async fetch(filters: { isDefault?: boolean }, from = 0, size = 10): Promise<DeckTemplate[]> {
-    const { isDefault } = filters;
+  async fetch(
+    filters: { isDefault?: boolean; isDeleted?: boolean },
+    from = 0,
+    size = 10,
+  ): Promise<DeckTemplate[]> {
+    const { isDefault, isDeleted } = filters;
 
     const queryBuilder = new QueryBuilder();
     queryBuilder.addPagination(from, size);
 
     if (isDefault != undefined) {
       queryBuilder.addTermQuery("is_default", isDefault);
+    }
+
+    if (isDeleted != undefined) {
+      queryBuilder.addTermQuery("is_deleted", isDeleted);
     }
 
     const query = queryBuilder.getQuery();
@@ -88,7 +108,10 @@ export class DeckTemplateModel {
   }
 
   async update(deckTemplateId: string, updatedFields: Partial<DeckTemplate>) {
-    const transformedUpdatedFields = this.transformToRawDeckTemplate(updatedFields);
+    const transformedUpdatedFields = this.transformToRawDeckTemplate({
+      ...updatedFields,
+      updatedDate: new Date(),
+    });
 
     const response = await this.databaseService.updateDocument<DeckTemplate>(
       this.DATABASE_INDEX,
