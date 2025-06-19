@@ -64,4 +64,38 @@ export class DeckTemplateModel {
 
     return result;
   }
+
+  async fetchOne(id: string): Promise<DeckTemplate | null> {
+    const queryBuilder = new QueryBuilder();
+    queryBuilder.addPagination(0, 1);
+    queryBuilder.addTermQuery("_id", id);
+    const query = queryBuilder.getQuery();
+
+    const response = await this.databaseService.fetchDocuments<RawDeckTemplate>(
+      this.DATABASE_INDEX,
+      query,
+    );
+
+    if (response.length === 0) {
+      return null;
+    }
+
+    const [result] = response.map((rawDeckTemplate) =>
+      this.transformToDeckTemplate(rawDeckTemplate),
+    );
+
+    return result;
+  }
+
+  async update(deckTemplateId: string, updatedFields: Partial<DeckTemplate>) {
+    const transformedUpdatedFields = this.transformToRawDeckTemplate(updatedFields);
+
+    const response = await this.databaseService.updateDocument<DeckTemplate>(
+      this.DATABASE_INDEX,
+      deckTemplateId,
+      transformedUpdatedFields,
+    );
+
+    return response;
+  }
 }

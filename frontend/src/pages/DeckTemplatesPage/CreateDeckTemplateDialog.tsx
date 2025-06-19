@@ -1,6 +1,7 @@
 import Box from "@mui/material/Box";
 import { TextFieldProps } from "@mui/material/TextField";
 import Typography from "@mui/material/Typography";
+import { useQueryClient } from "@tanstack/react-query";
 import { useEffect, useRef, useState } from "react";
 
 import addDeckTemplate from "../../api/deck-templates/addDeckTemplate";
@@ -22,6 +23,8 @@ export default function CreateDeckTemplateDialog(props: IProps) {
 
   const titleInputRef = useRef<TextFieldProps>(null);
 
+  const queryClient = useQueryClient();
+
   useEffect(() => {
     // when dialog is open, reset form
     if (isOpen) {
@@ -42,6 +45,7 @@ export default function CreateDeckTemplateDialog(props: IProps) {
     const title = titleInputRef.current.value as string;
 
     await addDeckTemplate(title, selectedChatIds, isDefault);
+    queryClient.invalidateQueries({ queryKey: ["fetchDeckTemplates"] });
     onClose();
   }
 
