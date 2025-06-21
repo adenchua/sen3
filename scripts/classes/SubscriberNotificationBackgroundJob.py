@@ -61,9 +61,7 @@ class SubscriberNotificationBackgroundJob:
                             )
 
                             # add source information to message
-                            message_to_send = (
-                                f"source: @{message_origin}\n\n {message_content}"
-                            )
+                            message_to_send = f"@{message_origin}\n\n {message_content}"
                             await notification_service.send_message(
                                 message_to_send, subscriber_id
                             )
