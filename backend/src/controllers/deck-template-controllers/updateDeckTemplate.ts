@@ -5,6 +5,7 @@ import InvalidDeckError from "../../errors/decks/InvalidDeckError";
 import ControllerInterface from "../../interfaces/ControllerInterface";
 import { DeckTemplateModel } from "../../models/DeckTemplateModel";
 import { databaseInstance } from "../../singletons";
+import { DeckModel } from "../../models/DeckModel";
 
 interface RequestBody {
   chatIds: string[];
@@ -26,6 +27,7 @@ async function updateDeckTemplate(request: Request, response: Response): Promise
   const { id } = request.params;
 
   const deckTemplateModel = new DeckTemplateModel(databaseInstance);
+  const deckModel = new DeckModel(databaseInstance);
   const deckTemplate = await deckTemplateModel.fetchOne(id);
 
   if (deckTemplate == null) {
@@ -38,6 +40,11 @@ async function updateDeckTemplate(request: Request, response: Response): Promise
     isDeleted,
     title,
   });
+
+  // update chat IDs for all decks that inherited from this template
+  if (chatIds && chatIds.length > 0) {
+    await deckModel.syncDecksWithTemplate(id, { chatIds });
+  }
 
   response.sendStatus(204);
 }

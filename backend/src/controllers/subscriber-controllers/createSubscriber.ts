@@ -51,13 +51,14 @@ async function createSubscriber(request: Request, response: Response): Promise<v
 
   // add decks from deck templates to this subscriber
   for (const defaultDeckTemplate of defaultDeckTemplates) {
-    const { chatIds, title } = defaultDeckTemplate;
+    const { chatIds, title, id } = defaultDeckTemplate;
     await deckModel.save({
       chatIds,
-      title,
+      deckTemplateId: id,
       isActive: true,
       keywords: [],
       subscriberId: newSubscriberId,
+      title,
     });
   }
 

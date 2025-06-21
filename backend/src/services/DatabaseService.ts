@@ -12,6 +12,8 @@ import {
 } from "@opensearch-project/opensearch/api/_types/_common.aggregations";
 import { ErrorResponse } from "../errors/ErrorResponse";
 import { DateHistogramResponse } from "../interfaces/ResponseInterface";
+import { QueryContainer } from "@opensearch-project/opensearch/api/_types/_common.query_dsl";
+import { Script } from "@opensearch-project/opensearch/api/_types/_common";
 
 interface DatabaseDocumentId {
   _id: string;
@@ -129,6 +131,27 @@ export default class DatabaseService {
       });
 
       return response.body;
+    } catch (error) {
+      console.error(error);
+      throw new ErrorResponse();
+    }
+  }
+
+  async scriptUpdateDocuments(
+    indexName: string,
+    query: QueryContainer,
+    script: Script,
+  ): Promise<void> {
+    try {
+      await this.databaseClient.updateByQuery({
+        index: indexName,
+        body: {
+          query,
+          script,
+        },
+        refresh: true,
+        conflicts: "proceed",
+      });
     } catch (error) {
       console.error(error);
       throw new ErrorResponse();
