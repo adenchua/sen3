@@ -21,4 +21,7 @@ class NotificationService:
         sends a message to the client through the Telegram bot
         """
         formatted_message = self.__format_telegram_string(message)
-        await self.bot.send_message(chat_id=receiver_chat_id, text=formatted_message)
+        await self.bot.send_message(
+            chat_id=receiver_chat_id,
+            text=formatted_message,
+        )
