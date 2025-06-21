@@ -46,10 +46,11 @@ export class SubscriberModel {
   }
 
   /** Creates a subscriber in the database */
-  async save(subscriber: Subscriber): Promise<void> {
+  async save(subscriber: Subscriber): Promise<string> {
     const rawSubscriber = this.transformToRawSubscriber(subscriber);
     const { _id: id, ...rest } = rawSubscriber;
-    await this.databaseService.ingestDocument(rest, this.DATABASE_INDEX, id);
+    const response = await this.databaseService.ingestDocument(rest, this.DATABASE_INDEX, id);
+    return response;
   }
 
   /** Fetches a subscriber by ID */

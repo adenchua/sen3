@@ -37,12 +37,11 @@ async function createDeck(request: Request, response: Response): Promise<void> {
     throw new InvalidSubscriberError(subscriberId);
   }
 
-  const newDeck: Omit<Deck, "id" | "updatedDate" | "createdDate"> = {
+  const newDeck: Omit<Deck, "id" | "updatedDate" | "createdDate" | "lastNotificationDate"> = {
     title,
     chatIds,
     isActive,
     keywords,
-    lastNotificationDate: new Date(),
     subscriberId: subscriberId,
   };
 

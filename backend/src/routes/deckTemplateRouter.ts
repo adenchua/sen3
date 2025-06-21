@@ -4,6 +4,7 @@ import createDeckTemplateController from "../controllers/deck-template-controlle
 import getDeckTemplatesController from "../controllers/deck-template-controllers/getDeckTemplates";
 import updateDeckTemplateController from "../controllers/deck-template-controllers/updateDeckTemplate";
 import validationMiddleware from "../middlewares/validationMiddleware";
+import getDeckTemplateByIdController from "../controllers/deck-template-controllers/getDeckTemplateById";
 
 const deckTemplateRouter = Router();
 
@@ -12,6 +13,13 @@ deckTemplateRouter.get(
   getDeckTemplatesController.validator,
   validationMiddleware,
   getDeckTemplatesController.controller,
+);
+
+deckTemplateRouter.get(
+  "/:id",
+  getDeckTemplateByIdController.validator,
+  validationMiddleware,
+  getDeckTemplateByIdController.controller,
 );
 
 deckTemplateRouter.post(

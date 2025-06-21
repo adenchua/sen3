@@ -11,23 +11,30 @@ interface QueryParams {
   size?: string;
   from?: string;
   isDefault?: string;
+  isDeleted?: string;
 }
 
 const validationChains: ValidationChain[] = [
   query("from").isString().isInt({ min: 0, max: 10_000 }).optional(),
   query("size").isString().isInt({ min: 0, max: 10_000 }).optional(),
   query("isDefault").isString().isBoolean().optional(),
+  query("isDeleted").isString().isBoolean().optional(),
 ];
 
 async function getDeckTemplates(request: Request, response: Response): Promise<void> {
-  const { size, from, isDefault } = request.query as QueryParams;
+  const { size, from, isDefault, isDeleted } = request.query as QueryParams;
 
   const _from = transformQueryParam<number>(from, Number);
   const _size = transformQueryParam<number>(size, Number);
   const _isDefault = transformQueryParam<boolean>(isDefault, Boolean);
+  const _isDeleted = transformQueryParam<boolean>(isDeleted, Boolean);
 
   const deckTemplateModel = new DeckTemplateModel(databaseInstance);
-  const documents = await deckTemplateModel.fetch({ isDefault: _isDefault }, _from, _size);
+  const documents = await deckTemplateModel.fetch(
+    { isDefault: _isDefault, isDeleted: _isDeleted },
+    _from,
+    _size,
+  );
 
   response.status(200).send(wrapResponse(documents));
 }

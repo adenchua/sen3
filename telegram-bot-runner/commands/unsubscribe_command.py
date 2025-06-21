@@ -4,6 +4,7 @@ from telegram.ext import ContextTypes
 
 from logging_helper import logger
 from constants import BACKEND_SERVICE_API_URL
+from utils.subscriberHelper import is_subscriber_approved
 
 
 async def unsubscribe(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
@@ -22,7 +23,7 @@ async def unsubscribe(update: Update, context: ContextTypes.DEFAULT_TYPE) -> Non
             subscriber: dict = get_subscriber_response_json.get("data", None)
 
             # subscriber not approved, do not send reply
-            if subscriber.get("isApproved", False) == False:
+            if not is_subscriber_approved(subscriber):
                 return
 
             # if subscriber notifications turned on, turn it off

@@ -23,6 +23,7 @@ from utils.validationHelper import (
     format_keywords,
     clean_and_join,
 )
+from utils.subscriberHelper import is_subscriber_approved
 
 
 KEYWORD_INPUT, CONFIRMATION, END = range(3)
@@ -44,13 +45,20 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
             subscriber: dict = get_subscriber_response_json.get("data", None)
 
             # subscriber not approved, do not send reply
-            if not subscriber or not subscriber.get("isApproved", False):
+            if not is_subscriber_approved(subscriber):
                 return
 
             decks_response = await client.get(GET_DECKS_URL)
             decks_response.raise_for_status()
             decks_response_json: dict = decks_response.json()
             decks: list[dict] = decks_response_json.get("data", None)
+
+            if len(decks) == 0:
+                await update.message.reply_text(
+                    "There are no decks to modify", reply_markup=ReplyKeyboardRemove()
+                )
+                context.user_data.clear()
+                return ConversationHandler.END
 
             for index, deck in enumerate(decks):
                 keyboard.append(

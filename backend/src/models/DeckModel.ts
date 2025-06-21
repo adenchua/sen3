@@ -52,11 +52,14 @@ export class DeckModel {
   }
 
   /** Creates a deck in the database */
-  async save(deck: Omit<Deck, "id" | "updatedDate" | "createdDate">): Promise<string> {
+  async save(
+    deck: Omit<Deck, "id" | "updatedDate" | "createdDate" | "lastNotificationDate">,
+  ): Promise<string> {
     const rawDeck = this.transformToRawDeck({
       ...deck,
       updatedDate: new Date(),
       createdDate: new Date(),
+      lastNotificationDate: new Date(),
     });
     const documentId = await this.databaseService.ingestDocument(rawDeck, this.DATABASE_INDEX);
     return documentId;

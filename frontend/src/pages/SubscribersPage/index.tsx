@@ -1,6 +1,7 @@
 import Grid from "@mui/material/Grid";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 
+import Typography from "@mui/material/Typography";
 import fetchSubscribers from "../../api/subscribers/fetchSubscribers";
 import ErrorMessage from "../../components/ErrorMessage";
 import Loading from "../../components/Loading";
@@ -57,6 +58,7 @@ export default function SubscribersPage() {
   return (
     <PageLayout title={PAGE_TITLE}>
       <Grid container spacing={1}>
+        {subscribers.length === 0 && <Typography color="textSecondary">No subscribers</Typography>}
         {subscribers.map((subscriber) => (
           <Grid key={subscriber.id}>
             <SubscriberCard
