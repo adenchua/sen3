@@ -15,6 +15,9 @@
         "type": "date",
         "format": "strict_date_time"
       },
+      "deck_template_id": {
+        "type": "keyword"
+      },
       "is_active": {
         "type": "boolean"
       },

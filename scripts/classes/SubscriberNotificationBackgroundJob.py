@@ -38,15 +38,18 @@ class SubscriberNotificationBackgroundJob:
                     # for each active deck, check if any messages matched
                     for deck in active_decks:
                         deck_id = deck["id"]
-                        matched_messages = await self.get_matched_messages(
+                        matched_messages: list[dict] = await self.get_matched_messages(
                             deck["chatIds"],
                             deck["keywords"],
                             deck["lastNotificationDate"],
                         )
                         # for each matched text, send to subscriber
                         for matched_message in matched_messages:
-                            matched_message_id = matched_message["messageId"]
-                            message_content = matched_message["text"]
+                            matched_message_id: str = matched_message["messageId"]
+                            message_content: str = matched_message["text"]
+                            message_origin: str = matched_message.get(
+                                "chatUsername", "unknown"
+                            )
                             # create a notification stat for the notification sent
                             # to put above before the actual message, in case this function throws
                             # prevent spamming the client
@@ -56,8 +59,13 @@ class SubscriberNotificationBackgroundJob:
                                 message=message_content,
                                 subscriber_id=subscriber_id,
                             )
+
+                            # add source information to message
+                            message_to_send = (
+                                f"source: @{message_origin}\n\n {message_content}"
+                            )
                             await notification_service.send_message(
-                                message_content, subscriber_id
+                                message_to_send, subscriber_id
                             )
                             logging.info(
                                 f"Sent message {matched_message_id} to subscriber {subscriber_id}"

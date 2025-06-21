@@ -112,6 +112,9 @@ async def deck_template_input(
             CREATE_DECK_URL = f"{BACKEND_SERVICE_API_URL}/api/v1/decks"
             request_body = {
                 "chatIds": deck_template.get("chatIds", []),
+                # new decks will inherit the deck template id for
+                # future channel ID sync
+                "deckTemplateId": deck_template.get("id"),
                 "isActive": True,
                 "keywords": [],
                 "subscriberId": user_id,

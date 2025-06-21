@@ -27,10 +27,11 @@ export default function MetricChart() {
 
   const { data: messagesCount } = messagesCountQuery;
   const { data: notificationsCount } = notificationsCountQuery;
+  const PAGE_TITLE = "Metrics (~24hrs)";
 
   if (messagesCountQuery.isPending || notificationsCountQuery.isPending) {
     return (
-      <TitledPaper title="Metrics (~24hrs)">
+      <TitledPaper title={PAGE_TITLE}>
         <Loading />
       </TitledPaper>
     );
@@ -38,14 +39,14 @@ export default function MetricChart() {
 
   if (messagesCountQuery.isError || notificationsCountQuery.isError) {
     return (
-      <TitledPaper title="Metrics (~24hrs)">
+      <TitledPaper title={PAGE_TITLE}>
         <ErrorMessage />
       </TitledPaper>
     );
   }
 
   return (
-    <TitledPaper title="Metrics (~24hrs)">
+    <TitledPaper title={PAGE_TITLE}>
       <Grid container mt={5}>
         <Grid size={6}>
           <MetricCard

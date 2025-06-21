@@ -5,12 +5,13 @@ import DatabaseService from "../services/DatabaseService";
 /** database deck mapping */
 interface DatabaseDeck {
   _id: string;
-  subscriber_id: string;
   chat_ids: string[];
   created_date: string;
+  deck_template_id?: string;
   is_active: boolean;
   keywords: string[];
   last_notification_date: string;
+  subscriber_id: string;
   title: string;
   updated_date: string;
 }
@@ -28,6 +29,7 @@ export class DeckModel {
       _id: deck.id,
       chat_ids: deck.chatIds,
       created_date: deck.createdDate?.toISOString(),
+      deck_template_id: deck.deckTemplateId,
       is_active: deck.isActive,
       keywords: deck.keywords,
       last_notification_date: deck.lastNotificationDate?.toISOString(),
@@ -39,9 +41,10 @@ export class DeckModel {
 
   transformToDeck(rawDeck: DatabaseDeck): Deck {
     return {
-      id: rawDeck._id,
       chatIds: rawDeck.chat_ids,
       createdDate: new Date(rawDeck.created_date),
+      deckTemplateId: rawDeck.deck_template_id,
+      id: rawDeck._id,
       isActive: rawDeck.is_active,
       keywords: rawDeck.keywords,
       lastNotificationDate: new Date(rawDeck.last_notification_date),
@@ -127,6 +130,27 @@ export class DeckModel {
     );
 
     return response;
+  }
+
+  async syncDecksWithTemplate(deckTemplateId: string, deckFields: Partial<Deck>) {
+    // only sync chat ids for now
+    const { chatIds } = deckFields;
+
+    await this.databaseService.scriptUpdateDocuments(
+      this.DATABASE_INDEX,
+      {
+        term: {
+          deck_template_id: { value: deckTemplateId },
+        },
+      },
+      {
+        source: "ctx._source.chat_ids = params.value",
+        lang: "painless",
+        params: {
+          value: chatIds,
+        },
+      },
+    );
   }
 
   async delete(deckId: string) {

@@ -6,11 +6,15 @@ import MessagesDateHistogramChart from "./MessagesDateHistogramChart";
 import MetricChart from "./MetricChart";
 import NotificationDateHistogramChart from "./NotificationDateHistogramChart";
 import ServiceStatusChart from "./ServiceStatusChart";
+import TotalNotificationsChart from "./TotalNotificationsChart";
 
 function DashboardsPage() {
   return (
     <PageLayout title="Status Dashboard">
       <Grid container spacing={2}>
+        <Grid size={3}>
+          <TotalNotificationsChart />
+        </Grid>
         <Grid size={4}>
           <MetricChart />
         </Grid>

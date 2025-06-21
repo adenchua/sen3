@@ -9,16 +9,18 @@ import { format } from "date-fns";
 import IconButton from "../../components/IconButton";
 import DATE_FNS_DATE_FORMAT from "../../constants/dateFormat";
 import CheckIcon from "../../icons/CheckIcon";
+import DeleteIcon from "../../icons/DeleteIcon";
 import RegistrantIcon from "../../icons/RegistrantIcon";
 import SubscriberInterface from "../../interfaces/subscriber";
 
 interface IProps {
   registrant: SubscriberInterface;
   onApproveRegistrant: (id: string) => Promise<void>;
+  onDeleteRegistrant: (id: string) => Promise<void>;
 }
 
 export default function RegistrantCard(props: IProps) {
-  const { registrant, onApproveRegistrant } = props;
+  const { registrant, onApproveRegistrant, onDeleteRegistrant } = props;
   const { firstName, lastName, registeredDate, username, id } = registrant;
 
   return (
@@ -59,6 +61,12 @@ export default function RegistrantCard(props: IProps) {
           justifyContent: "flex-end",
         }}
       >
+        <IconButton
+          variant="outlined"
+          icon={<DeleteIcon />}
+          title="Delete registrant"
+          onClick={() => onDeleteRegistrant(id)}
+        />
         <IconButton
           variant="outlined"
           icon={<CheckIcon />}

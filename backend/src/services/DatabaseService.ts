@@ -12,6 +12,8 @@ import {
 } from "@opensearch-project/opensearch/api/_types/_common.aggregations";
 import { ErrorResponse } from "../errors/ErrorResponse";
 import { DateHistogramResponse } from "../interfaces/ResponseInterface";
+import { QueryContainer } from "@opensearch-project/opensearch/api/_types/_common.query_dsl";
+import { Script } from "@opensearch-project/opensearch/api/_types/_common";
 
 interface DatabaseDocumentId {
   _id: string;
@@ -135,6 +137,27 @@ export default class DatabaseService {
     }
   }
 
+  async scriptUpdateDocuments(
+    indexName: string,
+    query: QueryContainer,
+    script: Script,
+  ): Promise<void> {
+    try {
+      await this.databaseClient.updateByQuery({
+        index: indexName,
+        body: {
+          query,
+          script,
+        },
+        refresh: true,
+        conflicts: "proceed",
+      });
+    } catch (error) {
+      console.error(error);
+      throw new ErrorResponse();
+    }
+  }
+
   async deleteDocument(indexName: string, documentId: string): Promise<void> {
     try {
       await this.databaseClient.delete({
@@ -176,7 +199,13 @@ export default class DatabaseService {
             date_histogram: {
               date_histogram: {
                 field,
-                interval,
+                calendar_interval: interval,
+                min_doc_count: 0,
+                extended_bounds: {
+                  min: "now/M",
+                  max: "now",
+                },
+                time_zone: "+08:00",
               },
             },
           },

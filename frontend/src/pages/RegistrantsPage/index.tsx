@@ -8,6 +8,7 @@ import ErrorMessage from "../../components/ErrorMessage";
 import Loading from "../../components/Loading";
 import PageLayout from "../../components/PageLayout";
 import RegistrantCard from "./RegistrantCard";
+import deleteSubscriber from "../../api/subscribers/deleteSubscriber";
 
 function RegistrantsPage() {
   const {
@@ -28,8 +29,19 @@ function RegistrantsPage() {
     },
   });
 
+  const { mutateAsync: mutateDeleteRegistrant } = useMutation({
+    mutationFn: (id: string) => deleteSubscriber(id),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["fetchSubscribers"] });
+    },
+  });
+
   async function handleApproveRegistrant(id: string) {
     await mutateApproveRegistrant(id);
+  }
+
+  async function handleDeleteRegistrant(id: string) {
+    await mutateDeleteRegistrant(id);
   }
 
   if (isPending) {
@@ -56,7 +68,11 @@ function RegistrantsPage() {
         )}
         {registrants.map((registrant) => (
           <Grid key={registrant.id}>
-            <RegistrantCard registrant={registrant} onApproveRegistrant={handleApproveRegistrant} />
+            <RegistrantCard
+              registrant={registrant}
+              onApproveRegistrant={handleApproveRegistrant}
+              onDeleteRegistrant={handleDeleteRegistrant}
+            />
           </Grid>
         ))}
       </Grid>
