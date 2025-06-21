@@ -6,6 +6,7 @@ import getSubscriberByIdController from "../controllers/subscriber-controllers/g
 import getSubscribersController from "../controllers/subscriber-controllers/getSubscribers";
 import updateSubscriberController from "../controllers/subscriber-controllers/updateSubscriber";
 import validationMiddleware from "../middlewares/validationMiddleware";
+import deleteSubscriberController from "../controllers/subscriber-controllers/deleteSubscriber";
 
 const subscriberRouter = Router();
 
@@ -28,6 +29,7 @@ subscriberRouter.patch(
   validationMiddleware,
   updateSubscriberController.controller,
 );
+subscriberRouter.delete("/:id", deleteSubscriberController.controller);
 
 subscriberRouter.get(
   "/:id/decks",

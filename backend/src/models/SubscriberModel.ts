@@ -111,4 +111,8 @@ export class SubscriberModel {
 
     return response;
   }
+
+  async delete(subscriberId: string) {
+    await this.databaseService.deleteDocument(this.DATABASE_INDEX, subscriberId);
+  }
 }
