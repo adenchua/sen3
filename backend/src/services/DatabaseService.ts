@@ -176,7 +176,13 @@ export default class DatabaseService {
             date_histogram: {
               date_histogram: {
                 field,
-                interval,
+                calendar_interval: interval,
+                min_doc_count: 0,
+                extended_bounds: {
+                  min: "now/M",
+                  max: "now",
+                },
+                time_zone: "+08:00",
               },
             },
           },
