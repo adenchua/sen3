@@ -4,8 +4,10 @@ import { body, ValidationChain } from "express-validator";
 import SubscriberAlreadyExistsError from "../../errors/subscribers/SubscriberAlreadyExistsError";
 import ControllerInterface from "../../interfaces/ControllerInterface";
 import Subscriber from "../../interfaces/SubscriberInterface";
+import { DeckTemplateModel } from "../../models/DeckTemplateModel";
 import { SubscriberModel } from "../../models/SubscriberModel";
 import { databaseInstance } from "../../singletons";
+import { DeckModel } from "../../models/DeckModel";
 
 interface RequestBody {
   userId: string;
@@ -34,6 +36,8 @@ async function createSubscriber(request: Request, response: Response): Promise<v
     isApproved: false,
   };
   const subscriberModel = new SubscriberModel(databaseInstance);
+  const deckTemplateModel = new DeckTemplateModel(databaseInstance);
+  const deckModel = new DeckModel(databaseInstance);
 
   const subscriber = await subscriberModel.fetchOne(userId);
 
@@ -42,7 +46,20 @@ async function createSubscriber(request: Request, response: Response): Promise<v
     throw new SubscriberAlreadyExistsError(userId);
   }
 
-  await subscriberModel.save(newSubscriber);
+  const newSubscriberId = await subscriberModel.save(newSubscriber);
+  const defaultDeckTemplates = await deckTemplateModel.fetch({ isDefault: true, isDeleted: false });
+
+  // add decks from deck templates to this subscriber
+  for (const defaultDeckTemplate of defaultDeckTemplates) {
+    const { chatIds, title } = defaultDeckTemplate;
+    await deckModel.save({
+      chatIds,
+      title,
+      isActive: true,
+      keywords: [],
+      subscriberId: newSubscriberId,
+    });
+  }
 
   response.status(201).send();
 }

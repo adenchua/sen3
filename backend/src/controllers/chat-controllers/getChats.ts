@@ -8,9 +8,9 @@ import wrapResponse from "../../utils/responseUtils";
 import transformQueryParam from "../utils/queryParamTransformer";
 
 interface RequestQuery {
-  from: string;
-  size: string;
-  crawlActive: string;
+  from?: string;
+  size?: string;
+  crawlActive?: string;
 }
 
 const validationChains: ValidationChain[] = [
@@ -20,7 +20,7 @@ const validationChains: ValidationChain[] = [
 ];
 
 async function getChats(request: Request, response: Response): Promise<void> {
-  const { from, size, crawlActive } = request.query as unknown as RequestQuery;
+  const { from, size, crawlActive } = request.query as RequestQuery;
 
   const _from = transformQueryParam<number>(from, Number);
   const _size = transformQueryParam<number>(size, Number);

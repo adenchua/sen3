@@ -33,7 +33,7 @@ async function createChat(request: Request, response: Response): Promise<void> {
   const { id, about, createdDate, isChannel, isVerified, participantCount, title, username } =
     request.body as RequestBody;
 
-  const newChat: Chat = {
+  const newChat: Omit<Chat, "updatedDate"> = {
     id,
     about,
     createdDate: new Date(createdDate),
@@ -51,7 +51,6 @@ async function createChat(request: Request, response: Response): Promise<void> {
     lastCrawlDate: null,
     messageOffsetId: null,
     recommendedChannels: [],
-    updatedDate: new Date(),
   };
 
   const chatModel = new ChatModel(databaseInstance);

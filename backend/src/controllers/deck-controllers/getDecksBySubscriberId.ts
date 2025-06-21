@@ -8,9 +8,9 @@ import wrapResponse from "../../utils/responseUtils";
 import transformQueryParam from "../utils/queryParamTransformer";
 
 interface RequestQuery {
-  from: string;
-  size: string;
-  isActive: string;
+  from?: string;
+  size?: string;
+  isActive?: string;
 }
 
 const validationChains: ValidationChain[] = [
@@ -20,7 +20,7 @@ const validationChains: ValidationChain[] = [
 ];
 
 async function getDecksBySubscriberId(request: Request, response: Response): Promise<void> {
-  const { from, size, isActive } = request.query as unknown as RequestQuery;
+  const { from, size, isActive } = request.query as RequestQuery;
   const { id } = request.params;
 
   const _from = transformQueryParam<number>(from, Number);

@@ -7,4 +7,5 @@ export default interface DeckInterface {
   lastNotificationDate: string;
   subscriberId: string;
   title: string;
+  updatedDate: string;
 }

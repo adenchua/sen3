@@ -35,6 +35,10 @@
             "type": "keyword"
           }
         }
+      },
+      "updated_date": {
+        "type": "date",
+        "format": "strict_date_time"
       }
     }
   },

@@ -68,7 +68,7 @@ export default function SubscriberDetailsPage() {
           startIcon={<ArrowBack />}
           onClick={() => navigate(APP_ROUTES.subscribersPage.path)}
           color="secondary"
-          sx={{ mb: 12 }}
+          sx={{ mb: 4 }}
         >
           Back
         </Button>

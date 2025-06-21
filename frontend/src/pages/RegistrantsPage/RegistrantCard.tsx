@@ -53,7 +53,7 @@ export default function RegistrantCard(props: IProps) {
       </CardContent>
       <CardActions
         sx={{
-          borderTop: "2px solid",
+          borderTop: "1px solid",
           borderColor: "divider",
           display: "flex",
           justifyContent: "flex-end",

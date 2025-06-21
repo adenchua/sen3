@@ -10,6 +10,7 @@ import Button from "../Button";
 
 interface IProps {
   children: JSX.Element;
+  disableConfirmButton?: boolean;
   heading: string;
   isOpen: boolean;
   onClose: VoidFunction;
@@ -21,14 +22,15 @@ interface IProps {
 
 export default function ActionDialog(props: IProps) {
   const {
-    heading,
-    subheading,
     children,
+    disableConfirmButton = false,
+    heading,
     isOpen,
     onClose,
-    onConfirm,
     onCloseText = "Cancel",
+    onConfirm,
     onConfirmText = "Confirm",
+    subheading,
   } = props;
 
   return (
@@ -64,7 +66,7 @@ export default function ActionDialog(props: IProps) {
         <Button onClick={onClose} color="secondary">
           {onCloseText}
         </Button>
-        <Button onClick={onConfirm} color="primary">
+        <Button onClick={onConfirm} color="primary" disabled={disableConfirmButton}>
           {onConfirmText}
         </Button>
       </DialogActions>

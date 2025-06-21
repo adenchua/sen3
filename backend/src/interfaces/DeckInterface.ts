@@ -1,5 +1,5 @@
 export default interface Deck {
-  id?: string;
+  id: string;
   subscriberId: string;
   chatIds: string[];
   createdDate: Date;
@@ -7,4 +7,5 @@ export default interface Deck {
   keywords: string[];
   lastNotificationDate: Date;
   title: string;
+  updatedDate: Date;
 }

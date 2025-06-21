@@ -52,7 +52,7 @@ export default function DeckCard(props: IProps) {
             display: "flex",
             alignItems: "center",
             gap: 2,
-            width: "240px",
+            width: "100%",
             overflow: "hidden",
             textOverflow: "ellipsis",
           }}

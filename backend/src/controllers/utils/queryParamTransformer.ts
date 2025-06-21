@@ -1,5 +1,5 @@
 export default function transformQueryParam<T>(
-  queryParam: string | number | undefined,
+  queryParam: string | undefined,
   typeConstructor: NumberConstructor | BooleanConstructor | ArrayConstructor,
 ): T | undefined {
   if (queryParam == undefined) {

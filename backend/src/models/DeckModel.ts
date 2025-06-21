@@ -4,7 +4,7 @@ import DatabaseService from "../services/DatabaseService";
 
 /** database deck mapping */
 interface DatabaseDeck {
-  _id?: string;
+  _id: string;
   subscriber_id: string;
   chat_ids: string[];
   created_date: string;
@@ -12,6 +12,7 @@ interface DatabaseDeck {
   keywords: string[];
   last_notification_date: string;
   title: string;
+  updated_date: string;
 }
 
 export class DeckModel {
@@ -26,14 +27,13 @@ export class DeckModel {
     return {
       _id: deck.id,
       chat_ids: deck.chatIds,
-      created_date: deck.createdDate ? deck.createdDate.toISOString() : undefined,
+      created_date: deck.createdDate?.toISOString(),
       is_active: deck.isActive,
       keywords: deck.keywords,
-      last_notification_date: deck.lastNotificationDate
-        ? deck.lastNotificationDate.toISOString()
-        : undefined,
+      last_notification_date: deck.lastNotificationDate?.toISOString(),
       subscriber_id: deck.subscriberId,
       title: deck.title,
+      updated_date: deck.updatedDate?.toISOString(),
     };
   }
 
@@ -47,22 +47,30 @@ export class DeckModel {
       lastNotificationDate: new Date(rawDeck.last_notification_date),
       subscriberId: rawDeck.subscriber_id,
       title: rawDeck.title,
+      updatedDate: new Date(rawDeck.updated_date),
     };
   }
 
   /** Creates a deck in the database */
-  async save(deck: Deck): Promise<string> {
-    const rawDeck = this.transformToRawDeck(deck);
+  async save(
+    deck: Omit<Deck, "id" | "updatedDate" | "createdDate" | "lastNotificationDate">,
+  ): Promise<string> {
+    const rawDeck = this.transformToRawDeck({
+      ...deck,
+      updatedDate: new Date(),
+      createdDate: new Date(),
+      lastNotificationDate: new Date(),
+    });
     const documentId = await this.databaseService.ingestDocument(rawDeck, this.DATABASE_INDEX);
     return documentId;
   }
 
   async fetch(
-    fields: { subscriberId?: string; isActive?: boolean },
+    filters: { subscriberId?: string; isActive?: boolean },
     from = 0,
     size = 10,
   ): Promise<Deck[]> {
-    const { subscriberId, isActive } = fields;
+    const { subscriberId, isActive } = filters;
 
     const queryBuilder = new QueryBuilder();
     queryBuilder.addPagination(from, size);
@@ -81,9 +89,7 @@ export class DeckModel {
       query,
     );
 
-    const result = response.map((rawDeck) =>
-      this.transformToDeck(rawDeck as unknown as DatabaseDeck),
-    );
+    const result = response.map((rawDeck) => this.transformToDeck(rawDeck as DatabaseDeck));
 
     return result;
   }
@@ -103,15 +109,16 @@ export class DeckModel {
       return null;
     }
 
-    const [result] = response.map((rawDeck) =>
-      this.transformToDeck(rawDeck as unknown as DatabaseDeck),
-    );
+    const [result] = response.map((rawDeck) => this.transformToDeck(rawDeck));
 
     return result;
   }
 
   async update(deckId: string, updatedFields: Partial<Deck>) {
-    const transformedUpdatedFields = this.transformToRawDeck(updatedFields);
+    const transformedUpdatedFields = this.transformToRawDeck({
+      ...updatedFields,
+      updatedDate: new Date(),
+    });
 
     const response = await this.databaseService.updateDocument<DatabaseDeck>(
       this.DATABASE_INDEX,
@@ -120,5 +127,9 @@ export class DeckModel {
     );
 
     return response;
+  }
+
+  async delete(deckId: string) {
+    await this.databaseService.deleteDocument(this.DATABASE_INDEX, deckId);
   }
 }

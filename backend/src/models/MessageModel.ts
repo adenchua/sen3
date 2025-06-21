@@ -72,11 +72,11 @@ export class MessageModel {
   }
 
   async fetch(
-    fields: { keywords?: string[]; chatIds?: string[]; createdDateFrom?: string },
+    filters: { keywords?: string[]; chatIds?: string[]; createdDateFrom?: string },
     from = 0,
     size = 10,
   ): Promise<Message[]> {
-    const { keywords, chatIds, createdDateFrom } = fields;
+    const { keywords, chatIds, createdDateFrom } = filters;
 
     const queryBuilder = new QueryBuilder();
     queryBuilder.addPagination(from, size);
@@ -99,9 +99,7 @@ export class MessageModel {
       query,
     );
 
-    const result = response.map((rawChat) =>
-      this.transformToMessage(rawChat as unknown as RawMessage),
-    );
+    const result = response.map((rawMessage) => this.transformToMessage(rawMessage));
 
     return result;
   }

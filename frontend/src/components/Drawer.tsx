@@ -10,6 +10,7 @@ import APP_ROUTES from "../constants/routes";
 import { SECONDARY_BACKGROUND_COLOR } from "../constants/styling";
 import BrandingIcon from "../icons/BrandingIcon";
 import ChatsPageIcon from "../icons/ChatsPageIcon";
+import DeckTemplatesIcon from "../icons/DeckTemplatesIcon";
 import LandingPageIcon from "../icons/LandingPageIcon";
 import RegistrantsPageIcon from "../icons/RegistrantPageIcon";
 import SubscribersPageIcon from "../icons/SubscribersPageIcon";
@@ -63,6 +64,12 @@ function Drawer() {
           text="Channels/Groups"
           link={APP_ROUTES.chatsPage.path}
           isDisabled={!APP_ROUTES.chatsPage.isActive}
+        />
+        <DrawerNavigationButton
+          icon={<DeckTemplatesIcon />}
+          text="Deck Templates"
+          link={APP_ROUTES.deckTemplatesPage.path}
+          isDisabled={!APP_ROUTES.deckTemplatesPage.isActive}
         />
         <DrawerNavigationButton
           icon={<SubscribersPageIcon />}

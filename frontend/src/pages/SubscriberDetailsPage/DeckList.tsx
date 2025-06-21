@@ -1,5 +1,5 @@
 import Stack from "@mui/material/Stack";
-import { compareAsc } from "date-fns";
+import { compareDesc } from "date-fns";
 
 import DeckInterface from "../../interfaces/deck";
 import DeckCard from "./DeckCard";
@@ -14,7 +14,7 @@ export default function DeckList(props: IProps) {
   return (
     <Stack spacing={1}>
       {decks
-        .sort((a, b) => compareAsc(a.createdDate, b.createdDate))
+        .sort((a, b) => compareDesc(a.updatedDate, b.updatedDate))
         .map((deck) => {
           return <DeckCard deck={deck} key={deck.id} />;
         })}
