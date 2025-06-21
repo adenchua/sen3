@@ -8,6 +8,7 @@ from commands.modify_deck_keywords_command import modify_keywords_conv_handler
 from commands.mute_deck_command import mute_deck_conv_handler
 from commands.unmute_deck_command import unmute_deck_conv_handler
 from commands.new_deck_command import new_deck_conv_handler
+from commands.delete_deck_command import delete_deck_conv_handler
 
 
 app = ApplicationBuilder().token(TELEGRAM_BOT_API_TOKEN).build()
@@ -21,5 +22,6 @@ app.add_handler(modify_keywords_conv_handler)
 app.add_handler(mute_deck_conv_handler)
 app.add_handler(unmute_deck_conv_handler)
 app.add_handler(new_deck_conv_handler)
+app.add_handler(delete_deck_conv_handler)
 
 app.run_polling()

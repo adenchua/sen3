@@ -128,4 +128,8 @@ export class DeckModel {
 
     return response;
   }
+
+  async delete(deckId: string) {
+    await this.databaseService.deleteDocument(this.DATABASE_INDEX, deckId);
+  }
 }

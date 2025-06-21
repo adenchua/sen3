@@ -135,6 +135,19 @@ export default class DatabaseService {
     }
   }
 
+  async deleteDocument(indexName: string, documentId: string): Promise<void> {
+    try {
+      await this.databaseClient.delete({
+        index: indexName,
+        id: documentId,
+        refresh: true,
+      });
+    } catch (error) {
+      console.error(error);
+      throw new ErrorResponse();
+    }
+  }
+
   async fetchCount(indexName: string, query: Count_RequestBody): Promise<number> {
     try {
       const response = await this.databaseClient.count({
