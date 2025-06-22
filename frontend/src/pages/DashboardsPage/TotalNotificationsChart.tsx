@@ -49,7 +49,7 @@ export default function TotalNotificationsChart() {
         <Typography variant="h3" color="primary">
           {notificationsCount.toLocaleString()}
         </Typography>
-        <Typography color="primary">Toital notifications sent</Typography>
+        <Typography color="primary">Total notifications sent</Typography>
       </Box>
     </TitledPaper>
   );
