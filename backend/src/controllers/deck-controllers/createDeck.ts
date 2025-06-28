@@ -21,7 +21,7 @@ interface RequestBody {
 const validationChains: ValidationChain[] = [
   body("chatIds.*").isString(),
   body("chatIds").isArray().exists(),
-  body("deckTemplateId").isString().notEmpty(),
+  body("deckTemplateId").isString().notEmpty().optional(),
   body("isActive").isBoolean().exists(),
   body("keywords.*").isString(),
   body("keywords").isArray().exists(),
