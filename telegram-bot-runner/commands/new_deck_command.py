@@ -62,15 +62,28 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
             deck_templates_response_json: dict = deck_templates_response.json()
             deck_templates: list[dict] = deck_templates_response_json.get("data", None)
 
-            if len(deck_templates) == 0:
+            deck_template_filter_ids = []
+            for deck in decks:
+                deck_template_id = deck.get("deckTemplateId")
+                if deck_template_id is not None:
+                    deck_template_filter_ids.append(deck_template_id)
+
+            # filter out deck templates that are already in active decks
+            filtered_deck_templates = [
+                item
+                for item in deck_templates
+                if item["id"] not in deck_template_filter_ids
+            ]
+
+            if len(filtered_deck_templates) == 0:
                 await update.message.reply_text(
-                    "Sorry, you have reached the maximum deck limit.",
+                    "Sorry, there are no available decks to add",
                     reply_markup=ReplyKeyboardRemove(),
                 )
                 context.user_data.clear()
                 return ConversationHandler.END
 
-            for index, deck_template in enumerate(deck_templates):
+            for index, deck_template in enumerate(filtered_deck_templates):
                 keyboard.append(
                     [
                         InlineKeyboardButton(
