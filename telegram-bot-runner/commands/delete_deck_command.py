@@ -95,7 +95,7 @@ async def deck_input(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
 
 async def cancel(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
     await update.message.reply_text(
-        "Operation cancelled", reply_markup=ReplyKeyboardRemove()
+        "Operation cancelled. No decks deleted", reply_markup=ReplyKeyboardRemove()
     )
     context.user_data.clear()
     return ConversationHandler.END

@@ -95,7 +95,7 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
             reply_markup = InlineKeyboardMarkup(keyboard)
 
             await update.message.reply_text(
-                "Please select a template to create your new deck:",
+                "Please select a new deck:",
                 reply_markup=reply_markup,
             )
 
@@ -135,7 +135,9 @@ async def deck_template_input(
             }
             response = await client.post(CREATE_DECK_URL, json=dict(request_body))
             response.raise_for_status()
-            await query.edit_message_text("Deck created successfully!")
+            await query.edit_message_text(
+                "Deck created successfully! Use /modifykeywords command to set keywords for your new deck"
+            )
         except httpx.HTTPStatusError as http_error:
             logger.error(f"http error: {http_error}")
         except Exception as error:
@@ -147,7 +149,7 @@ async def deck_template_input(
 
 async def cancel(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
     await update.message.reply_text(
-        "Operation cancelled", reply_markup=ReplyKeyboardRemove()
+        "Operation cancelled. No decks created", reply_markup=ReplyKeyboardRemove()
     )
     context.user_data.clear()
     return ConversationHandler.END

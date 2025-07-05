@@ -98,11 +98,20 @@ async def keyword_input(update: Update, context: ContextTypes.DEFAULT_TYPE) -> i
             deck_keywords: list[str] = deck.get("keywords", [])
             deck_title = deck.get("title", "Untitled")
 
-            stringified_deck_keywords = ",".join(deck_keywords)
+            stringified_deck_keywords = ", ".join(deck_keywords)
+            keyword_display_text = (
+                f"Current keywords: \n{format_keywords(stringified_deck_keywords)}"
+            )
+
+            # no keywords, show a different display
+            if len(deck_keywords) == 0:
+                keyword_display_text = (
+                    "There are currently no keywords set for this deck"
+                )
 
             reply_message = inspect.cleandoc(
                 f"Deck selected: {deck_title}\n\n"
-                f"Current keywords: \n{format_keywords(stringified_deck_keywords)}\n\n"
+                f"{keyword_display_text}\n\n"
                 f"Please type in the new keywords, each keyword separated with a comma\n\n"
                 f"Allowed characters:\n- Letters (a-z, A-Z)\n- Numbers (0-9)\n- Spaces\n- Basic punctuation: comma (,), period (.), hyphen (-), underscore (_)\n\n"
                 f"To cancel anytime, use the /cancel command!\n\n"
@@ -111,7 +120,7 @@ async def keyword_input(update: Update, context: ContextTypes.DEFAULT_TYPE) -> i
             if len(deck_keywords) > 0:
                 # Additional message for convenience
                 await update.callback_query.message.reply_text(
-                    "For convenience, these are the previous keywords:"
+                    "For convenience, these are the previous keywords for you to copy and modify:"
                 )
                 await update.callback_query.message.reply_text(
                     stringified_deck_keywords
@@ -179,7 +188,7 @@ async def end(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
             except Exception as error:
                 logger.error(error)
     else:
-        await query.edit_message_text("Operation cancelled")
+        await query.edit_message_text("Operation cancelled. No decks modified")
 
     context.user_data.clear()
     return ConversationHandler.END
@@ -187,7 +196,7 @@ async def end(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
 
 async def cancel(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
     await update.message.reply_text(
-        "Operation cancelled", reply_markup=ReplyKeyboardRemove()
+        "Operation cancelled. No decks modified", reply_markup=ReplyKeyboardRemove()
     )
     context.user_data.clear()
     return ConversationHandler.END

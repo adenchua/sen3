@@ -16,8 +16,8 @@ def is_safe_opensearch_query_string(input_str: str) -> bool:
 
     Returns True if input is safe, False otherwise.
     """
-    # Regex pattern: only allow letters, digits, spaces, comma, period, hyphen, underscore
-    pattern = r"^[a-zA-Z0-9\s,._-]+$"
+    # Regex pattern: only allow letters, digits, spaces, comma, period, hyphen, underscore. Characters between , must not be empty space
+    pattern = r"^\s*([a-zA-Z0-9._-]*[a-zA-Z0-9._-][a-zA-Z0-9._\s-]*)\s*(,\s*([a-zA-Z0-9._-]*[a-zA-Z0-9._-][a-zA-Z0-9._\s-]*)\s*)*$"
     return bool(re.fullmatch(pattern, input_str))
 
 
