@@ -41,7 +41,7 @@ async def run():
     task2 = asyncio.create_task(chat_messages_background_job.run())
     task3 = asyncio.create_task(subscriber_notification_background_job.run())
 
-    await asyncio.wait([task1, task2, task3])
+    await asyncio.gather([task1, task2, task3])
 
 
 if __name__ == "__main__":
