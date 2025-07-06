@@ -1,6 +1,5 @@
-import requests
 import asyncio
-from requests.exceptions import HTTPError
+import httpx
 import logging
 
 from constants import TELEGRAM_SERVICE_API_URL, BACKEND_SERVICE_API_URL
@@ -18,7 +17,9 @@ class ChatMessagesBackgroundJob:
     def __init__(self, interval_minutes: int):
         self.interval_minutes = interval_minutes
 
-    def update_chat_offset(self, chat_id: str, max_offset_id: int) -> None:
+    async def update_chat_offset(
+        self, client: httpx.AsyncClient, chat_id: str, max_offset_id: int
+    ) -> None:
         """
         Update a chat's message offset id and the last crawl date
         """
@@ -27,11 +28,13 @@ class ChatMessagesBackgroundJob:
             "messageOffsetId": max_offset_id,
             "lastCrawlDate": get_current_datetime_iso(),
         }
-        response = requests.patch(URL, json=dict(request_body))
+        response = await client.patch(URL, json=dict(request_body))
         response.raise_for_status()
         logging.info(f"Updated {chat_id} offset_id...")
 
-    def ingest_messages(self, messages: list[dict]) -> None:
+    async def ingest_messages(
+        self, client: httpx.AsyncClient, messages: list[dict]
+    ) -> None:
         """
         Ingest messages to the databse
         """
@@ -51,11 +54,13 @@ class ChatMessagesBackgroundJob:
             transformed_messages.append(transformed_message)
 
         request_body = {"messages": transformed_messages}
-        response = requests.post(URL, json=dict(request_body))
+        response = await client.post(URL, json=dict(request_body))
         response.raise_for_status()
         logging.info(f"Ingested {len(messages)} messages...")
 
-    def fetch_chat_messages(self, chat: dict, latest_max_limit=10) -> None:
+    async def fetch_chat_messages(
+        self, client: httpx.AsyncClient, chat: dict, latest_max_limit=10
+    ) -> None:
         """
         Retrieves chat messages and ingests in the database.
 
@@ -81,8 +86,7 @@ class ChatMessagesBackgroundJob:
                 "offset_id": str(chat_offset_id),
                 "reverse": "true",
             }
-
-        response = requests.get(url=URL, params=request_params)
+        response = await client.get(url=URL, params=request_params)
         response.raise_for_status()
         response_json: dict = response.json()
         messages = response_json.get("data", None)
@@ -99,42 +103,47 @@ class ChatMessagesBackgroundJob:
             # bulk ingests all messages
             # need to chunk the array, if not will throw payload entity too large error
             CHUNK_SIZE = 50
-            message_chunks = [messages[i:i + CHUNK_SIZE] for i in range(0, len(messages), CHUNK_SIZE)]
+            message_chunks = [
+                messages[i : i + CHUNK_SIZE]
+                for i in range(0, len(messages), CHUNK_SIZE)
+            ]
             for message_chunk in message_chunks:
-                self.ingest_messages(message_chunk)
+                await self.ingest_messages(client, message_chunk)
 
         # update chat offset_id and last crawl date
         if max_offset_id != -1:
-            self.update_chat_offset(chat_id, max_offset_id)
+            await self.update_chat_offset(client, chat_id, max_offset_id)
 
     async def run(self) -> None:
         """
         Retrieves all active chats and fetches the latest messages and ingests them in the database.
         Sleeps for a specified interval in minutes
         """
-        while True:
-            try:
-                logging.info(f"Running background job to fetch chat messages...")
+        async with httpx.AsyncClient() as client:
+            while True:
+                try:
+                    logging.info(f"Running background job to fetch chat messages...")
 
-                fetch_chats_url = f"{BACKEND_SERVICE_API_URL}/api/v1/chats"
-                # obtain crawl active chats only
-                response = requests.get(
-                    fetch_chats_url, {"crawlActive": "1", "size": "10000"}
-                )
-                response.raise_for_status()
-                response_json: dict = response.json()
-                chats: list[dict] = response_json.get("data", None)
+                    fetch_chats_url = f"{BACKEND_SERVICE_API_URL}/api/v1/chats"
+                    # obtain crawl active chats only
+                    response = await client.get(
+                        fetch_chats_url,
+                        params={"crawlActive": "1", "size": "10000"},
+                    )
+                    response.raise_for_status()
+                    response_json: dict = response.json()
+                    chats: list[dict] = response_json.get("data", None)
 
-                # for each chat, fetch and ingest messages
-                for chat in chats:
-                    self.fetch_chat_messages(chat, 10)
+                    # for each chat, fetch and ingest messages
+                    for chat in chats:
+                        await self.fetch_chat_messages(client, chat, 10)
 
-            except HTTPError as http_error:
-                logging.exception(http_error)
-            except Exception as error:
-                logging.exception(error)
-            finally:
-                logging.info(
-                    f"Background job completed! Sleeping for {self.interval_minutes} minutes..."
-                )
-                await asyncio.sleep(60 * self.interval_minutes)
+                except httpx.HTTPStatusError as http_error:
+                    logging.exception(http_error)
+                except Exception as error:
+                    logging.exception(error)
+                finally:
+                    logging.info(
+                        f"Background job completed! Sleeping for {self.interval_minutes} minutes..."
+                    )
+                    await asyncio.sleep(60 * self.interval_minutes)

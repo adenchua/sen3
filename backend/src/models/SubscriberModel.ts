@@ -1,21 +1,11 @@
-import Subscriber from "../interfaces/SubscriberInterface";
 import DatabaseService from "../services/DatabaseService";
 import QueryBuilder from "../classes/QueryBuilder";
-
-/** database subscriber mapping */
-interface DatabaseSubscriber {
-  _id: string;
-  allow_notifications: boolean;
-  first_name: string;
-  is_approved: boolean;
-  last_name?: string;
-  registered_date: string;
-  username?: string;
-}
+import { DatabaseIndex } from "../interfaces/common";
+import { Subscriber, DatabaseSubscriber, DSubscriber } from "../interfaces/SubscriberInterface";
 
 export class SubscriberModel {
   private databaseService: DatabaseService;
-  private DATABASE_INDEX: string = "subscriber";
+  private DATABASE_INDEX: DatabaseIndex = "subscriber";
 
   constructor(databaseService: DatabaseService) {
     this.databaseService = databaseService;
@@ -60,15 +50,16 @@ export class SubscriberModel {
     queryBuilder.addTermQuery("_id", id);
     const query = queryBuilder.getQuery();
 
-    const response = await this.databaseService.fetchDocuments(this.DATABASE_INDEX, query);
+    const response = await this.databaseService.fetchDocuments<DSubscriber>(
+      this.DATABASE_INDEX,
+      query,
+    );
 
     if (response.length === 0) {
       return null;
     }
 
-    const [result] = response.map((rawSubscriber) =>
-      this.transformToSubscriber(rawSubscriber as unknown as DatabaseSubscriber),
-    );
+    const [result] = response.map((rawSubscriber) => this.transformToSubscriber(rawSubscriber));
 
     return result;
   }
@@ -90,7 +81,7 @@ export class SubscriberModel {
     }
     const query = queryBuilder.getQuery();
 
-    const response = await this.databaseService.fetchDocuments<DatabaseSubscriber>(
+    const response = await this.databaseService.fetchDocuments<DSubscriber>(
       this.DATABASE_INDEX,
       query,
     );
@@ -103,7 +94,7 @@ export class SubscriberModel {
   async update(subscriberId: string, updatedFields: Partial<Subscriber>) {
     const transformedUpdatedFields = this.transformToRawSubscriber(updatedFields);
 
-    const response = await this.databaseService.updateDocument<DatabaseSubscriber>(
+    const response = await this.databaseService.updateDocument<DSubscriber>(
       this.DATABASE_INDEX,
       subscriberId,
       transformedUpdatedFields,

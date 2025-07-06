@@ -1,32 +1,11 @@
-import Chat from "../interfaces/ChatInterface";
 import DatabaseService from "../services/DatabaseService";
 import QueryBuilder from "../classes/QueryBuilder";
-
-interface ParticipantStat {
-  count: number;
-  date: string;
-}
-
-/** database chat mapping */
-interface DatabaseChat {
-  _id: string;
-  about: string;
-  crawl_active: boolean;
-  created_date: string;
-  is_channel: boolean;
-  is_verified: boolean;
-  last_crawl_date?: string | null;
-  message_offset_id?: number | null;
-  participant_stats: ParticipantStat[];
-  recommended_channels: string[];
-  title: string;
-  updated_date: string;
-  username: string;
-}
+import { Chat, DatabaseChat, DChat } from "../interfaces/ChatInterface";
+import { DatabaseIndex } from "../interfaces/common";
 
 export class ChatModel {
   private databaseService: DatabaseService;
-  private DATABASE_INDEX: string = "chat";
+  private DATABASE_INDEX: DatabaseIndex = "chat";
 
   constructor(databaseService: DatabaseService) {
     this.databaseService = databaseService;
@@ -111,14 +90,9 @@ export class ChatModel {
     }
 
     const query = queryBuilder.getQuery();
-    const response = await this.databaseService.fetchDocuments<DatabaseChat>(
-      this.DATABASE_INDEX,
-      query,
-    );
+    const response = await this.databaseService.fetchDocuments<DChat>(this.DATABASE_INDEX, query);
 
-    const result = response.map((rawChat) =>
-      this.transformToChat(rawChat as unknown as DatabaseChat),
-    );
+    const result = response.map((rawChat) => this.transformToChat(rawChat));
 
     return result;
   }
@@ -129,20 +103,18 @@ export class ChatModel {
     queryBuilder.addTermQuery("_id", id);
     const query = queryBuilder.getQuery();
 
-    const response = await this.databaseService.fetchDocuments(this.DATABASE_INDEX, query);
+    const response = await this.databaseService.fetchDocuments<DChat>(this.DATABASE_INDEX, query);
 
     if (response.length === 0) {
       return null;
     }
 
-    const [result] = response.map((rawChat) =>
-      this.transformToChat(rawChat as unknown as DatabaseChat),
-    );
+    const [result] = response.map((rawChat) => this.transformToChat(rawChat));
 
     return result;
   }
 
-  async update(chatId: string, updatedFields: Partial<Chat>) {
+  async update(chatId: string, updatedFields: Partial<Omit<Chat, "id">>) {
     // transform to database mapping
     const transformedUpdatedFields = this.transformToRawChat({
       ...updatedFields,

@@ -9,7 +9,7 @@ export default class QueryBuilder {
     query: {
       bool: { must: [] as QueryContainer[] },
     },
-  };
+  } satisfies Search_RequestBody;
 
   getQuery(): Search_RequestBody {
     return this.query;

@@ -1,24 +1,11 @@
 import QueryBuilder from "../classes/QueryBuilder";
-import Deck from "../interfaces/DeckInterface";
+import { DatabaseIndex } from "../interfaces/common";
+import { DatabaseDeck, DDeck, Deck } from "../interfaces/DeckInterface";
 import DatabaseService from "../services/DatabaseService";
-
-/** database deck mapping */
-interface DatabaseDeck {
-  _id: string;
-  chat_ids: string[];
-  created_date: string;
-  deck_template_id?: string;
-  is_active: boolean;
-  keywords: string[];
-  last_notification_date: string;
-  subscriber_id: string;
-  title: string;
-  updated_date: string;
-}
 
 export class DeckModel {
   private databaseService: DatabaseService;
-  private DATABASE_INDEX: string = "deck";
+  private DATABASE_INDEX: DatabaseIndex = "deck";
 
   constructor(databaseService: DatabaseService) {
     this.databaseService = databaseService;
@@ -87,12 +74,9 @@ export class DeckModel {
 
     const query = queryBuilder.getQuery();
 
-    const response = await this.databaseService.fetchDocuments<DatabaseDeck>(
-      this.DATABASE_INDEX,
-      query,
-    );
+    const response = await this.databaseService.fetchDocuments<DDeck>(this.DATABASE_INDEX, query);
 
-    const result = response.map((rawDeck) => this.transformToDeck(rawDeck as DatabaseDeck));
+    const result = response.map((rawDeck) => this.transformToDeck(rawDeck));
 
     return result;
   }
@@ -103,10 +87,7 @@ export class DeckModel {
     queryBuilder.addTermQuery("_id", id);
     const query = queryBuilder.getQuery();
 
-    const response = await this.databaseService.fetchDocuments<DatabaseDeck>(
-      this.DATABASE_INDEX,
-      query,
-    );
+    const response = await this.databaseService.fetchDocuments<DDeck>(this.DATABASE_INDEX, query);
 
     if (response.length === 0) {
       return null;
@@ -123,7 +104,7 @@ export class DeckModel {
       updatedDate: new Date(),
     });
 
-    const response = await this.databaseService.updateDocument<DatabaseDeck>(
+    const response = await this.databaseService.updateDocument<DDeck>(
       this.DATABASE_INDEX,
       deckId,
       transformedUpdatedFields,

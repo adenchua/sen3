@@ -2,7 +2,7 @@ import { Request, Response } from "express";
 import { body, ValidationChain } from "express-validator";
 
 import ControllerInterface from "../../interfaces/ControllerInterface";
-import DeckTemplate from "../../interfaces/DeckTemplateInterface";
+import { DeckTemplate } from "../../interfaces/DeckTemplateInterface";
 import { DeckTemplateModel } from "../../models/DeckTemplateModel";
 import { databaseInstance } from "../../singletons";
 import wrapResponse from "../../utils/responseUtils";

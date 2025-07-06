@@ -1,33 +1,24 @@
 import { CalendarInterval } from "@opensearch-project/opensearch/api/_types/_common.aggregations";
 
 import QueryBuilder from "../classes/QueryBuilder";
-import Message from "../interfaces/MessageInterface";
+import { DatabaseIndex } from "../interfaces/common";
+import { DatabaseMessage, DMessage, Message } from "../interfaces/MessageInterface";
 import DatabaseService from "../services/DatabaseService";
 
-interface RawMessage {
-  _id: string;
-  chat_id: string;
-  created_date: string;
-  chat_username: string;
-  edited_date: string | null;
-  forward_count: number;
-  message_id: string;
-  text: string;
-  updated_date: string;
-  view_count: number;
-}
-
-type MessageDateFields = Extract<keyof RawMessage, "created_date" | "edited_date" | "updated_date">;
+type MessageDateFields = Extract<
+  keyof DatabaseMessage,
+  "created_date" | "edited_date" | "updated_date"
+>;
 
 export class MessageModel {
   private databaseService: DatabaseService;
-  private DATABASE_INDEX: string = "message";
+  private DATABASE_INDEX: DatabaseIndex = "message";
 
   constructor(databaseService: DatabaseService) {
     this.databaseService = databaseService;
   }
 
-  private transformToRawMessage(message: Partial<Message>): Partial<RawMessage> {
+  private transformToRawMessage(message: Partial<Message>): Partial<DatabaseMessage> {
     return {
       _id: message.id,
       chat_id: message.chatId,
@@ -42,7 +33,7 @@ export class MessageModel {
     };
   }
 
-  private transformToMessage(rawMessage: RawMessage): Message {
+  private transformToMessage(rawMessage: DatabaseMessage): Message {
     return {
       id: rawMessage._id,
       chatId: rawMessage.chat_id,
@@ -65,8 +56,8 @@ export class MessageModel {
 
   async saveMany(messages: Message[]): Promise<void> {
     const rawMessages = messages.map((message) => this.transformToRawMessage(message));
-    await this.databaseService.ingestDocuments(
-      rawMessages as unknown as RawMessage[],
+    await this.databaseService.ingestDocuments<DMessage>(
+      rawMessages as DatabaseMessage[],
       this.DATABASE_INDEX,
     );
   }
@@ -94,7 +85,7 @@ export class MessageModel {
     }
 
     const query = queryBuilder.getQuery();
-    const response = await this.databaseService.fetchDocuments<RawMessage>(
+    const response = await this.databaseService.fetchDocuments<DMessage>(
       this.DATABASE_INDEX,
       query,
     );

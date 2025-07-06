@@ -1,29 +1,20 @@
 import { CalendarInterval } from "@opensearch-project/opensearch/api/_types/_common.aggregations";
 
-import Notification from "../interfaces/NotificationInterface";
+import { DatabaseIndex } from "../interfaces/common";
+import { DatabaseNotification, Notification } from "../interfaces/NotificationInterface";
 import DatabaseService from "../services/DatabaseService";
 
-/** database notification mapping */
-interface RawNotification {
-  _id: string;
-  chat_id: string;
-  keywords: string[];
-  message: string;
-  notification_date: string;
-  subscriber_id: string;
-}
-
-type NotificationDateFields = Extract<keyof RawNotification, "notification_date">;
+type NotificationDateFields = Extract<keyof DatabaseNotification, "notification_date">;
 
 export class NotificationModel {
   private databaseService: DatabaseService;
-  private DATABASE_INDEX: string = "notification";
+  private DATABASE_INDEX: DatabaseIndex = "notification";
 
   constructor(databaseService: DatabaseService) {
     this.databaseService = databaseService;
   }
 
-  transformToRawNotification(notification: Partial<Notification>): Partial<RawNotification> {
+  transformToRawNotification(notification: Partial<Notification>): Partial<DatabaseNotification> {
     return {
       chat_id: notification.chatId,
       keywords: notification.keywords,
@@ -33,8 +24,7 @@ export class NotificationModel {
     };
   }
 
-  /** Creates a notification document in the database */
-  async save(notification: Notification): Promise<void> {
+  async save(notification: Omit<Notification, "id">): Promise<void> {
     const rawNotification = this.transformToRawNotification(notification);
     await this.databaseService.ingestDocument(rawNotification, this.DATABASE_INDEX);
   }

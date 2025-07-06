@@ -3,7 +3,7 @@ import { body, ValidationChain } from "express-validator";
 
 import SubscriberAlreadyExistsError from "../../errors/subscribers/SubscriberAlreadyExistsError";
 import ControllerInterface from "../../interfaces/ControllerInterface";
-import Subscriber from "../../interfaces/SubscriberInterface";
+import { Subscriber } from "../../interfaces/SubscriberInterface";
 import { DeckTemplateModel } from "../../models/DeckTemplateModel";
 import { SubscriberModel } from "../../models/SubscriberModel";
 import { databaseInstance } from "../../singletons";

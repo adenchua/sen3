@@ -2,7 +2,7 @@ import { Request, Response } from "express";
 import { body, ValidationChain } from "express-validator";
 
 import ControllerInterface from "../../interfaces/ControllerInterface";
-import Notification from "../../interfaces/NotificationInterface";
+import { Notification } from "../../interfaces/NotificationInterface";
 import { NotificationModel } from "../../models/NotificationModel";
 import { databaseInstance } from "../../singletons";
 
@@ -24,7 +24,7 @@ const validationChains: ValidationChain[] = [
 async function createNotification(request: Request, response: Response): Promise<void> {
   const { chatId, keywords, message, subscriberId } = request.body as RequestBody;
 
-  const newNotification: Notification = {
+  const newNotification: Omit<Notification, "id"> = {
     chatId,
     keywords,
     message,

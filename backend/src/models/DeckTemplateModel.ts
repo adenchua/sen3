@@ -1,20 +1,15 @@
 import QueryBuilder from "../classes/QueryBuilder";
-import DeckTemplate from "../interfaces/DeckTemplateInterface";
+import { DatabaseIndex } from "../interfaces/common";
+import {
+  DatabaseDeckTemplate,
+  DDeckTemplate,
+  DeckTemplate,
+} from "../interfaces/DeckTemplateInterface";
 import DatabaseService from "../services/DatabaseService";
-
-interface RawDeckTemplate {
-  _id: string;
-  chat_ids: string[];
-  created_date: string;
-  is_deleted: boolean;
-  is_default: boolean;
-  title: string;
-  updated_date: string;
-}
 
 export class DeckTemplateModel {
   private databaseService: DatabaseService;
-  private DATABASE_INDEX: string = "deck-template";
+  private DATABASE_INDEX: DatabaseIndex = "deck-template";
 
   constructor(databaseService: DatabaseService) {
     this.databaseService = databaseService;
@@ -22,7 +17,7 @@ export class DeckTemplateModel {
 
   private transformToRawDeckTemplate(
     deckTemplate: Partial<DeckTemplate>,
-  ): Partial<RawDeckTemplate> {
+  ): Partial<DatabaseDeckTemplate> {
     return {
       chat_ids: deckTemplate.chatIds,
       created_date: deckTemplate.createdDate?.toISOString(),
@@ -33,7 +28,7 @@ export class DeckTemplateModel {
     };
   }
 
-  private transformToDeckTemplate(rawDeckTemplate: RawDeckTemplate): DeckTemplate {
+  private transformToDeckTemplate(rawDeckTemplate: DatabaseDeckTemplate): DeckTemplate {
     return {
       id: rawDeckTemplate._id,
       chatIds: rawDeckTemplate.chat_ids,
@@ -75,7 +70,7 @@ export class DeckTemplateModel {
     }
 
     const query = queryBuilder.getQuery();
-    const response = await this.databaseService.fetchDocuments<RawDeckTemplate>(
+    const response = await this.databaseService.fetchDocuments<DDeckTemplate>(
       this.DATABASE_INDEX,
       query,
     );
@@ -91,7 +86,7 @@ export class DeckTemplateModel {
     queryBuilder.addTermQuery("_id", id);
     const query = queryBuilder.getQuery();
 
-    const response = await this.databaseService.fetchDocuments<RawDeckTemplate>(
+    const response = await this.databaseService.fetchDocuments<DDeckTemplate>(
       this.DATABASE_INDEX,
       query,
     );

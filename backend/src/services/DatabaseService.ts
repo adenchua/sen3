@@ -5,19 +5,16 @@ import {
   Search_ResponseBody,
   Update_ResponseBody,
 } from "@opensearch-project/opensearch/api";
-
+import { Script } from "@opensearch-project/opensearch/api/_types/_common";
 import {
   CalendarInterval,
   DateHistogramBucket,
 } from "@opensearch-project/opensearch/api/_types/_common.aggregations";
-import { ErrorResponse } from "../errors/ErrorResponse";
-import { DateHistogramResponse } from "../interfaces/ResponseInterface";
 import { QueryContainer } from "@opensearch-project/opensearch/api/_types/_common.query_dsl";
-import { Script } from "@opensearch-project/opensearch/api/_types/_common";
 
-interface DatabaseDocumentId {
-  _id: string;
-}
+import { ErrorResponse } from "../errors/ErrorResponse";
+import { DatabaseDocument, DatabaseIndex } from "../interfaces/common";
+import { DateHistogramResponse } from "../interfaces/ResponseInterface";
 
 export default class DatabaseService {
   private databaseClient: Client;
@@ -37,9 +34,7 @@ export default class DatabaseService {
     this.databaseClient = client;
   }
 
-  private processHitsResponse<T>(
-    searchResponse: Search_ResponseBody,
-  ): Array<DatabaseDocumentId & T> {
+  private processHitsResponse<T>(searchResponse: Search_ResponseBody): Array<DatabaseDocument<T>> {
     const result = searchResponse.hits.hits.map((hit) => {
       return {
         _id: hit._id,
@@ -54,7 +49,11 @@ export default class DatabaseService {
     return (await this.databaseClient.ping()).statusCode === 200;
   }
 
-  async ingestDocument<T>(document: T, indexName: string, documentId?: string): Promise<string> {
+  async ingestDocument<T>(
+    document: T,
+    indexName: DatabaseIndex,
+    documentId?: string,
+  ): Promise<string> {
     try {
       const response = await this.databaseClient.index({
         body: document as object,
@@ -71,9 +70,9 @@ export default class DatabaseService {
   }
 
   /** bulk ingest documents. Each document must contain a unique _id field */
-  async ingestDocuments<T extends DatabaseDocumentId>(
-    documents: Array<T>,
-    indexName: string,
+  async ingestDocuments<T>(
+    documents: Array<DatabaseDocument<T>>,
+    indexName: DatabaseIndex,
   ): Promise<number> {
     try {
       const response = await this.databaseClient.helpers.bulk({
@@ -99,9 +98,9 @@ export default class DatabaseService {
   }
 
   async fetchDocuments<T>(
-    indexName: string,
+    indexName: DatabaseIndex,
     query: Search_RequestBody,
-  ): Promise<Array<DatabaseDocumentId & T>> {
+  ): Promise<Array<DatabaseDocument<T>>> {
     try {
       const response = await this.databaseClient.search({
         index: indexName,
@@ -116,7 +115,7 @@ export default class DatabaseService {
   }
 
   async updateDocument<T>(
-    indexName: string,
+    indexName: DatabaseIndex,
     documentId: string,
     updatedFields: Partial<T>,
   ): Promise<Update_ResponseBody> {
@@ -138,7 +137,7 @@ export default class DatabaseService {
   }
 
   async scriptUpdateDocuments(
-    indexName: string,
+    indexName: DatabaseIndex,
     query: QueryContainer,
     script: Script,
   ): Promise<void> {
@@ -158,7 +157,7 @@ export default class DatabaseService {
     }
   }
 
-  async deleteDocument(indexName: string, documentId: string): Promise<void> {
+  async deleteDocument(indexName: DatabaseIndex, documentId: string): Promise<void> {
     try {
       await this.databaseClient.delete({
         index: indexName,
@@ -171,7 +170,7 @@ export default class DatabaseService {
     }
   }
 
-  async fetchCount(indexName: string, query: Count_RequestBody): Promise<number> {
+  async fetchCount(indexName: DatabaseIndex, query: Count_RequestBody): Promise<number> {
     try {
       const response = await this.databaseClient.count({
         index: indexName,
@@ -186,7 +185,7 @@ export default class DatabaseService {
   }
 
   async fetchDateHistogram(
-    indexName: string,
+    indexName: DatabaseIndex,
     field: string,
     interval: CalendarInterval,
   ): Promise<DateHistogramResponse> {

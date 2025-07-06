@@ -2,7 +2,6 @@ import { Request, Response } from "express";
 import { body, check, ValidationChain } from "express-validator";
 
 import InvalidChatError from "../../errors/chats/InvalidChatError";
-import { ParticipantStat } from "../../interfaces/ChatInterface";
 import ControllerInterface from "../../interfaces/ControllerInterface";
 import { ChatModel } from "../../models/ChatModel";
 import { databaseInstance } from "../../singletons";
@@ -44,8 +43,7 @@ async function updateChat(request: Request, response: Response): Promise<void> {
 
   if (participantStat != undefined) {
     const countDate = new Date(participantStat.date);
-    const temp: ParticipantStat = { count: participantStat.count, date: countDate };
-    chatParticipantStats.push(temp);
+    chatParticipantStats.push({ count: participantStat.count, date: countDate });
   }
 
   await chatModel.update(id, {

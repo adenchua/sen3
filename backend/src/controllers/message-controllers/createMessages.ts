@@ -2,7 +2,7 @@ import { Request, Response } from "express";
 import { body, ValidationChain } from "express-validator";
 
 import ControllerInterface from "../../interfaces/ControllerInterface";
-import Message from "../../interfaces/MessageInterface";
+import { Message } from "../../interfaces/MessageInterface";
 import { MessageModel } from "../../models/MessageModel";
 import { databaseInstance } from "../../singletons";
 

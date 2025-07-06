@@ -1,4 +1,6 @@
-interface Subscriber {
+import { DatabaseDocument, Flatten, TDocument } from "./common";
+
+export interface TSubscriber {
   id: string;
   allowNotifications: boolean;
   firstName: string;
@@ -8,4 +10,15 @@ interface Subscriber {
   username?: string;
 }
 
-export default Subscriber;
+export interface DSubscriber {
+  _id: string;
+  allow_notifications: boolean;
+  first_name: string;
+  is_approved: boolean;
+  last_name?: string;
+  registered_date: string;
+  username?: string;
+}
+
+export type DatabaseSubscriber = Flatten<DatabaseDocument<DSubscriber>>;
+export type Subscriber = Flatten<TDocument<TSubscriber>>;

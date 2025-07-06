@@ -3,11 +3,11 @@ import { body, ValidationChain } from "express-validator";
 
 import InvalidSubscriberError from "../../errors/subscribers/InvalidSubscriberError";
 import ControllerInterface from "../../interfaces/ControllerInterface";
-import Deck from "../../interfaces/DeckInterface";
 import { DeckModel } from "../../models/DeckModel";
 import { SubscriberModel } from "../../models/SubscriberModel";
 import { databaseInstance } from "../../singletons";
 import wrapResponse from "../../utils/responseUtils";
+import { Deck } from "../../interfaces/DeckInterface";
 
 interface RequestBody {
   chatIds: string[];

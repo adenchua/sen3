@@ -1,11 +1,11 @@
 import { Request, Response } from "express";
 import { body, ValidationChain } from "express-validator";
 
-import Chat from "../../interfaces/ChatInterface";
 import ControllerInterface from "../../interfaces/ControllerInterface";
 import { ChatModel } from "../../models/ChatModel";
 import { databaseInstance } from "../../singletons";
 import wrapResponse from "../../utils/responseUtils";
+import { Chat } from "../../interfaces/ChatInterface";
 
 interface RequestBody {
   id: string;

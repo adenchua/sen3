@@ -1,6 +1,5 @@
-import requests
+import httpx
 import asyncio
-from requests.exceptions import HTTPError
 import logging
 
 from constants import TELEGRAM_SERVICE_API_URL, BACKEND_SERVICE_API_URL
@@ -18,7 +17,9 @@ class ChatUpdateBackgroundJob:
     def __init__(self, interval_days: int):
         self.interval_days = interval_days
 
-    def update_chat_participant(self, chat_username: str) -> None:
+    async def update_chat_participant(
+        self, client: httpx.AsyncClient, chat_username: str
+    ) -> None:
         """
         Retrieves a valid chat by the chat username,
         updates the chat's participant count in the database
@@ -27,7 +28,7 @@ class ChatUpdateBackgroundJob:
             raise Exception("Chat username must not be empty")
 
         URL = f"{TELEGRAM_SERVICE_API_URL}/api/v1/chats/{chat_username}"
-        response = requests.get(URL)
+        response = await client.get(URL)
         response.raise_for_status()
         response_json: dict = response.json()
         chat: dict = response_json.get("data", None)
@@ -45,7 +46,7 @@ class ChatUpdateBackgroundJob:
                 "date": get_current_datetime_iso(),
             }
         }
-        response = requests.patch(UPDATE_CHAT_URL, json=dict(request_body))
+        response = await client.patch(UPDATE_CHAT_URL, json=dict(request_body))
         response.raise_for_status()
         logging.info(f"Updated chat participant stats for {chat_username}...")
 
@@ -54,28 +55,29 @@ class ChatUpdateBackgroundJob:
         Retrieves all chats in the database and updates the participant count
         for each chat. Sleeps for a specified interval before executing again
         """
-        while True:
-            try:
-                logging.info(
-                    f"Running background job to update chat participant count..."
-                )
+        async with httpx.AsyncClient() as client:
+            while True:
+                try:
+                    logging.info(
+                        f"Running background job to update chat participant count..."
+                    )
 
-                URL = f"{BACKEND_SERVICE_API_URL}/api/v1/chats"
-                response = requests.get(URL)
-                response.raise_for_status()
-                response_json: dict = response.json()
-                chats: list[dict] = response_json.get("data", None)
+                    URL = f"{BACKEND_SERVICE_API_URL}/api/v1/chats"
+                    response = await client.get(URL)
+                    response.raise_for_status()
+                    response_json: dict = response.json()
+                    chats: list[dict] = response_json.get("data", [])
 
-                for chat in chats:
-                    chat_username = chat.get("username", "")
-                    self.update_chat_participant(chat_username)
+                    for chat in chats:
+                        chat_username = chat.get("username", "")
+                        await self.update_chat_participant(client, chat_username)
 
-            except HTTPError as http_error:
-                logging.exception(http_error)
-            except Exception as error:
-                logging.exception(error)
-            finally:
-                logging.info(
-                    f"Background job completed! Sleeping for {self.interval_days} days..."
-                )
-                await asyncio.sleep(86400 * self.interval_days)
+                except httpx.HTTPStatusError as http_error:
+                    logging.exception(http_error)
+                except Exception as error:
+                    logging.exception(error)
+                finally:
+                    logging.info(
+                        f"Background job completed! Sleeping for {self.interval_days} days..."
+                    )
+                    await asyncio.sleep(86400 * self.interval_days)
