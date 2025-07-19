@@ -14,8 +14,9 @@ export class NotificationModel {
     this.databaseService = databaseService;
   }
 
-  transformToRawNotification(notification: Partial<Notification>): Partial<DatabaseNotification> {
+  transformToRawNotification(notification: Notification): DatabaseNotification {
     return {
+      _id: notification.id,
       chat_id: notification.chatId,
       keywords: notification.keywords,
       message: notification.message,
@@ -24,9 +25,10 @@ export class NotificationModel {
     };
   }
 
-  async save(notification: Omit<Notification, "id">): Promise<void> {
+  async save(notification: Notification): Promise<void> {
     const rawNotification = this.transformToRawNotification(notification);
-    await this.databaseService.ingestDocument(rawNotification, this.DATABASE_INDEX);
+    const { _id: id, ...document } = rawNotification;
+    await this.databaseService.ingestDocument(document, this.DATABASE_INDEX, id);
   }
 
   async getCount(

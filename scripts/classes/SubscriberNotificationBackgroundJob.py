@@ -64,6 +64,7 @@ class SubscriberNotificationBackgroundJob:
                                     chat_id=matched_message["chatId"],
                                     message=message_content,
                                     subscriber_id=subscriber_id,
+                                    message_id=matched_message_id,
                                 )
 
                                 # add source information to message
@@ -158,6 +159,7 @@ class SubscriberNotificationBackgroundJob:
         message: str,
         subscriber_id: str,
         chat_id: str,
+        message_id: str,
     ):
         """
         Creates a notification stat object in the database for analytical purposes
@@ -166,6 +168,7 @@ class SubscriberNotificationBackgroundJob:
         request_body = {
             "keywords": keywords,
             "message": message,
+            "messageId": message_id,
             "subscriberId": subscriber_id,
             "chatId": chat_id,
         }

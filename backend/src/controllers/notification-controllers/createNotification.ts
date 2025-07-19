@@ -10,6 +10,7 @@ interface RequestBody {
   chatId: string;
   keywords: string[];
   message: string;
+  messageId: string;
   subscriberId: string;
 }
 
@@ -18,13 +19,15 @@ const validationChains: ValidationChain[] = [
   body("keywords").isArray().exists(),
   body("keywords.*").isString(),
   body("message").isString().exists(),
+  body("messageId").isString().exists(),
   body("subscriberId").isString().exists(),
 ];
 
 async function createNotification(request: Request, response: Response): Promise<void> {
-  const { chatId, keywords, message, subscriberId } = request.body as RequestBody;
+  const { chatId, keywords, message, messageId, subscriberId } = request.body as RequestBody;
 
-  const newNotification: Omit<Notification, "id"> = {
+  const newNotification: Notification = {
+    id: `${chatId}:${messageId}:${subscriberId}`,
     chatId,
     keywords,
     message,
