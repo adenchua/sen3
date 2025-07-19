@@ -6,7 +6,7 @@ Telegram hosts hundreds of vibrant communities sharing a constant stream of usef
 
 ## Project motivation
 
-I used to follow various telegram channels and groups that send news, shopping and food deals, but I wanted to only read the messages that I want.
+I used to follow various telegram channels and groups that send news, shopping and food deals, but I wanted to only read the messages that interest me. The first version (called project SIFT) had fixed themes (news, shopping and food) and subscribers were unable to modify the channels/groups of each theme. After collecting some initial user feedback, I created this project that allows better management of channels/groups.
 
 ## Installation & set-up
 
