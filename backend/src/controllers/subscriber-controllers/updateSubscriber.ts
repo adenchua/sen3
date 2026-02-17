@@ -22,12 +22,12 @@ async function updateSubscriber(request: Request, response: Response): Promise<v
 
   const subscriberModel = new SubscriberModel(databaseInstance);
 
-  const subscriber = await subscriberModel.fetchOne(id);
+  const subscriber = await subscriberModel.fetchOne(id as string);
   if (subscriber == null) {
-    throw new InvalidSubscriberError(id);
+    throw new InvalidSubscriberError(id as string);
   }
 
-  await subscriberModel.update(id, { isApproved, allowNotifications });
+  await subscriberModel.update(id as string, { isApproved, allowNotifications });
 
   response.status(204).send();
 }

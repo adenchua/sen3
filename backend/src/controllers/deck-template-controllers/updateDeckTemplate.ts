@@ -28,13 +28,13 @@ async function updateDeckTemplate(request: Request, response: Response): Promise
 
   const deckTemplateModel = new DeckTemplateModel(databaseInstance);
   const deckModel = new DeckModel(databaseInstance);
-  const deckTemplate = await deckTemplateModel.fetchOne(id);
+  const deckTemplate = await deckTemplateModel.fetchOne(id as string);
 
   if (deckTemplate == null) {
-    throw new InvalidDeckError(id);
+    throw new InvalidDeckError(id as string);
   }
 
-  await deckTemplateModel.update(id, {
+  await deckTemplateModel.update(id as string, {
     chatIds,
     isDefault,
     isDeleted,
@@ -43,7 +43,7 @@ async function updateDeckTemplate(request: Request, response: Response): Promise
 
   // update chat IDs for all decks that inherited from this template
   if (chatIds && chatIds.length > 0) {
-    await deckModel.syncDecksWithTemplate(id, { chatIds });
+    await deckModel.syncDecksWithTemplate(id as string, { chatIds });
   }
 
   response.sendStatus(204);

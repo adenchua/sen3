@@ -29,15 +29,15 @@ async function getChatMessages(request: Request, response: Response): Promise<vo
     tempOffsetId = Number(offsetId);
   }
 
-  const chat = await telegramInstance.fetchTelegramChat(chatUsername);
+  const chat = await telegramInstance.fetchTelegramChat(chatUsername as string);
 
   // chat does not exist, throw error
   if (chat == null) {
-    throw new InvalidChatError(chatUsername);
+    throw new InvalidChatError(chatUsername as string);
   }
 
   const messages = await telegramInstance.fetchTelegramChatMessages(
-    chatUsername,
+    chatUsername as string,
     tempLimit,
     tempLatest,
     tempOffsetId,

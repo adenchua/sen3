@@ -8,7 +8,7 @@ async function deleteSubscriber(request: Request, response: Response): Promise<v
   const { id } = request.params;
 
   const subscriberModel = new SubscriberModel(databaseInstance);
-  await subscriberModel.delete(id);
+  await subscriberModel.delete(id as string);
 
   response.status(204).send();
 }

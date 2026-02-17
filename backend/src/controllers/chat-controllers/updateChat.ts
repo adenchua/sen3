@@ -33,10 +33,10 @@ async function updateChat(request: Request, response: Response): Promise<void> {
 
   const chatModel = new ChatModel(databaseInstance);
 
-  const chat = await chatModel.fetchOne(id);
+  const chat = await chatModel.fetchOne(id as string);
 
   if (chat == null) {
-    throw new InvalidChatError(id);
+    throw new InvalidChatError(id as string);
   }
 
   const chatParticipantStats = chat.participantStats;
@@ -46,7 +46,7 @@ async function updateChat(request: Request, response: Response): Promise<void> {
     chatParticipantStats.push({ count: participantStat.count, date: countDate });
   }
 
-  await chatModel.update(id, {
+  await chatModel.update(id as string, {
     participantStats: chatParticipantStats,
     crawlActive,
     messageOffsetId,

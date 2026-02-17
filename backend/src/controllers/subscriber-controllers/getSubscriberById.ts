@@ -10,10 +10,10 @@ async function getSubscriberById(request: Request, response: Response): Promise<
   const { id } = request.params;
 
   const subscriberModel = new SubscriberModel(databaseInstance);
-  const result = await subscriberModel.fetchOne(id);
+  const result = await subscriberModel.fetchOne(id as string);
 
   if (result == null) {
-    throw new InvalidSubscriberError(id);
+    throw new InvalidSubscriberError(id as string);
   }
 
   response.status(200).send(wrapResponse(result));

@@ -8,10 +8,10 @@ import ControllerInterface from "../../interfaces/ControllerInterface";
 async function getChat(request: Request, response: Response): Promise<void> {
   const { chatUsername } = request.params;
 
-  const chat = await telegramInstance.fetchTelegramChat(chatUsername);
+  const chat = await telegramInstance.fetchTelegramChat(chatUsername as string);
 
   if (chat == null) {
-    throw new InvalidChatError(chatUsername);
+    throw new InvalidChatError(chatUsername as string);
   }
 
   response.status(200).send(wrapResponse(chat));

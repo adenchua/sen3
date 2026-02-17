@@ -10,10 +10,10 @@ async function getChatById(request: Request, response: Response): Promise<void> 
   const { id } = request.params;
 
   const chatModel = new ChatModel(databaseInstance);
-  const result = await chatModel.fetchOne(id);
+  const result = await chatModel.fetchOne(id as string);
 
   if (result == null) {
-    throw new InvalidChatError(id);
+    throw new InvalidChatError(id as string);
   }
 
   response.status(200).send(wrapResponse(result));

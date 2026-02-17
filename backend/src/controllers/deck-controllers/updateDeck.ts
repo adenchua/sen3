@@ -31,13 +31,13 @@ async function updateDeck(request: Request, response: Response): Promise<void> {
   const _lastNotificationDate = lastNotificationDate ? new Date(lastNotificationDate) : undefined;
 
   const deckModel = new DeckModel(databaseInstance);
-  const deck = await deckModel.fetchOne(id);
+  const deck = await deckModel.fetchOne(id as string);
 
   if (deck == null) {
-    throw new InvalidDeckError(id);
+    throw new InvalidDeckError(id as string);
   }
 
-  await deckModel.update(id, {
+  await deckModel.update(id as string, {
     chatIds,
     isActive,
     keywords,

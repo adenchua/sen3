@@ -10,10 +10,10 @@ async function getDeckTemplateById(request: Request, response: Response): Promis
   const { id } = request.params;
 
   const deckTemplateModel = new DeckTemplateModel(databaseInstance);
-  const result = await deckTemplateModel.fetchOne(id);
+  const result = await deckTemplateModel.fetchOne(id as string);
 
   if (result == null) {
-    throw new InvalidDeckTemplateError(id);
+    throw new InvalidDeckTemplateError(id as string);
   }
 
   response.status(200).send(wrapResponse(result));

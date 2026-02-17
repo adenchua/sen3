@@ -8,7 +8,7 @@ async function deleteDeck(request: Request, response: Response): Promise<void> {
   const { id } = request.params;
 
   const deckModel = new DeckModel(databaseInstance);
-  await deckModel.delete(id);
+  await deckModel.delete(id as string);
 
   response.status(204).send();
 }

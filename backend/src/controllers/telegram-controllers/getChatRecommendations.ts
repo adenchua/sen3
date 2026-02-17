@@ -7,7 +7,7 @@ import wrapResponse from "../../utils/responseUtils";
 async function getChannelRecommendations(request: Request, response: Response): Promise<void> {
   const { chatUsername } = request.params;
 
-  const channels = await telegramInstance.fetchTelegramRecommendedChats(chatUsername);
+  const channels = await telegramInstance.fetchTelegramRecommendedChats(chatUsername as string);
 
   response.status(200).send(wrapResponse(channels));
 }

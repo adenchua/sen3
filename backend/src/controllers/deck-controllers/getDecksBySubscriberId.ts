@@ -28,7 +28,11 @@ async function getDecksBySubscriberId(request: Request, response: Response): Pro
   const _isActive = transformQueryParam<boolean>(isActive, Boolean);
 
   const deckModel = new DeckModel(databaseInstance);
-  const result = await deckModel.fetch({ subscriberId: id, isActive: _isActive }, _from, _size);
+  const result = await deckModel.fetch(
+    { subscriberId: id as string, isActive: _isActive },
+    _from,
+    _size,
+  );
 
   response.status(200).send(wrapResponse(result));
 }

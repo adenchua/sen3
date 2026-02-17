@@ -10,10 +10,10 @@ async function getDeckById(request: Request, response: Response): Promise<void> 
   const { id } = request.params;
 
   const deckModel = new DeckModel(databaseInstance);
-  const result = await deckModel.fetchOne(id);
+  const result = await deckModel.fetchOne(id as string);
 
   if (result == null) {
-    throw new InvalidDeckError(id);
+    throw new InvalidDeckError(id as string);
   }
 
   response.status(200).send(wrapResponse(result));
