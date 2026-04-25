@@ -34,7 +34,7 @@ export default function RegistrantCard(props: IProps) {
       elevation={0}
     >
       <CardContent>
-        <Grid container spacing={2} alignItems="center" mb={2}>
+        <Grid container spacing={2} sx={{ alignItems: "center", mb: 2 }}>
           <Grid>
             <Avatar>
               <RegistrantIcon />

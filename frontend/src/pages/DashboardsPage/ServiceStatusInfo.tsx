@@ -17,12 +17,12 @@ export default function ServiceStatusInfo(props: IProps) {
   const ERROR_COLOR = red[800];
 
   return (
-    <Box display="flex" gap={2} alignItems="center">
+    <Box sx={{ display: "flex", gap: 2, alignItems: "center" }}>
       <Avatar variant="rounded" sx={{ bgcolor: isAvailable ? SUCCESS_COLOR : ERROR_COLOR }}>
         {icon}
       </Avatar>
       <Typography sx={{ color: isAvailable ? SUCCESS_COLOR : ERROR_COLOR }}>{title}</Typography>
-      <Box flexGrow={1} />
+      <Box sx={{ flexGrow: 1 }} />
       {isAvailable && <Typography color={SUCCESS_COLOR}>Service running normally</Typography>}
       {!isAvailable && <Typography color={ERROR_COLOR}>Service not available</Typography>}
     </Box>

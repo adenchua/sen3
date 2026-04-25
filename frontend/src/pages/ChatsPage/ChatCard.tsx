@@ -52,12 +52,12 @@ function ChatCard(props: IProps) {
             flexGrow: 1,
           }}
         >
-          <Box display="flex" gap={1} alignItems="flex-start">
+          <Box sx={{ display: "flex", gap: 1, alignItems: "flex-start" }}>
             <Avatar variant="rounded" sx={{ bgcolor: crawlActive ? "primary.main" : "" }}>
               {isChannel ? <TelegramChannelIcon /> : <TelegramChatGroupIcon />}
             </Avatar>
-            <Box mt="-2px">
-              <Typography fontWeight="bold" color={crawlActive ? "textPrimary" : "textSecondary"}>
+            <Box sx={{ mt: "-2px" }}>
+              <Typography sx={{ fontWeight: "bold" }} color={crawlActive ? "textPrimary" : "textSecondary"}>
                 {title}
               </Typography>
               <Typography variant="body2" color="textSecondary">
@@ -66,7 +66,7 @@ function ChatCard(props: IProps) {
             </Box>
           </Box>
           {lastCrawlDate && (
-            <Box display="flex" gap={1} alignItems="center">
+            <Box sx={{ display: "flex", gap: 1, alignItems: "center" }}>
               <CloudSyncIcon fontSize="small" color="disabled" />
               <Typography color="textSecondary" variant="body2">
                 {formattedLastCrawlDate}
@@ -86,7 +86,7 @@ function ChatCard(props: IProps) {
               icon={<RecommendedChannelsIcon />}
             />
           )}
-          <Box flexGrow={1} />
+          <Box sx={{ flexGrow: 1 }} />
           <Tooltip title="Toggle to crawl messages">
             <Switch checked={crawlActive} onChange={() => onToggleCrawlStatus(chat)} />
           </Tooltip>

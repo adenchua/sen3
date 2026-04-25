@@ -3,7 +3,7 @@ import Grid from "@mui/material/Grid";
 import { TextFieldProps } from "@mui/material/TextField";
 import Typography from "@mui/material/Typography";
 import { useQueryClient } from "@tanstack/react-query";
-import { useEffect, useRef, useState } from "react";
+import { startTransition, useEffect, useRef, useState } from "react";
 
 import updateDeck from "../../api/decks/updateDeck";
 import Chip from "../../components/Chip";
@@ -28,9 +28,8 @@ export default function ManageDeckDialog(props: IProps) {
   const queryClient = useQueryClient();
 
   useEffect(() => {
-    // when dialog is open, reset form
     if (isOpen) {
-      setEditableDeck(deck);
+      startTransition(() => setEditableDeck(deck));
     }
   }, [isOpen, deck]);
 
@@ -101,8 +100,8 @@ export default function ManageDeckDialog(props: IProps) {
       onCloseText="Close"
     >
       <div>
-        <Box mb={4}>
-          <Typography mb={1}>Title</Typography>
+        <Box sx={{ mb: 4 }}>
+          <Typography sx={{ mb: 1 }}>Title</Typography>
           <InputText
             label=""
             id="deck-title"
@@ -117,14 +116,14 @@ export default function ManageDeckDialog(props: IProps) {
             fullWidth
           />
         </Box>
-        <Box mb={4}>
-          <Typography mb={1}>Channels/Groups</Typography>
+        <Box sx={{ mb: 4 }}>
+          <Typography sx={{ mb: 1 }}>Channels/Groups</Typography>
           <ChatSelectDropdown
             defaultSelectedChatIds={editableDeck.chatIds}
             onUpdate={handleSelectChat}
           />
         </Box>
-        <Typography mb={1.5}>Keywords to monitor</Typography>
+        <Typography sx={{ mb: 1.5 }}>Keywords to monitor</Typography>
         <InputText
           onKeyDown={(e) => {
             // if enter key is pressed, add keyword

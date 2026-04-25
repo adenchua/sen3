@@ -13,7 +13,7 @@ export default function MetricCard(props: IProps) {
   const { icon, title, value } = props;
 
   return (
-    <Box display="flex" flexDirection="column" alignItems="center">
+    <Box sx={{ display: "flex", flexDirection: "column", alignItems: "center" }}>
       <Avatar
         sx={{ bgcolor: "transparent", border: "1px solid", borderColor: "primary.main", mb: 1 }}
         variant="rounded"

@@ -118,14 +118,14 @@ function RecommendedChatsDialog(props: IProps) {
               >
                 <div>
                   <Typography>{recommendedChannel.title}</Typography>
-                  <Typography variant="body2" color="textSecondary" display="block">
+                  <Typography variant="body2" color="textSecondary" sx={{ display: "block" }}>
                     @{recommendedChannel.username}
                   </Typography>
-                  <Typography variant="caption" color="textSecondary" display="block">
+                  <Typography variant="caption" color="textSecondary" sx={{ display: "block" }}>
                     {recommendedChannel.participantsCount.toLocaleString()} subscribers
                   </Typography>
                 </div>
-                <Box flexGrow={1} />
+                <Box sx={{ flexGrow: 1 }} />
                 <AddRecommendedChannelButton
                   isExists={existingChannelsHashMap[String(recommendedChannel.id)]}
                   channel={recommendedChannel}

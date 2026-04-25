@@ -38,8 +38,8 @@ export default function TotalNotificationsChart() {
   return (
     <TitledPaper title={PAGE_TITLE}>
       <Box
-        mt={5}
         sx={{
+          mt: 5,
           display: "flex",
           flexDirection: "column",
           alignItems: "center",

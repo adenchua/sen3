@@ -1,7 +1,7 @@
 import Grid from "@mui/material/Grid";
 import { TextFieldProps } from "@mui/material/TextField";
 import Typography from "@mui/material/Typography";
-import { useEffect, useRef, useState } from "react";
+import { startTransition, useEffect, useRef, useState } from "react";
 
 import addChat from "../../api/chats/addChat";
 import fetchChatById from "../../api/chats/fetchChatById";
@@ -26,7 +26,7 @@ function AddChatDialog(props: IProps) {
 
   useEffect(() => {
     if (isOpen) {
-      setChat(undefined); // set chat to undefined
+      startTransition(() => setChat(undefined));
     }
   }, [isOpen]);
 
@@ -58,8 +58,8 @@ function AddChatDialog(props: IProps) {
       onClose={onClose}
     >
       <>
-        <Grid container alignItems="center" spacing={1}>
-          <Grid flexGrow={1}>
+        <Grid container sx={{ alignItems: "center" }} spacing={1}>
+          <Grid sx={{ flexGrow: 1 }}>
             <InputText inputRef={searchRef} label="Search by telegram handle" fullWidth />
           </Grid>
           <Grid>

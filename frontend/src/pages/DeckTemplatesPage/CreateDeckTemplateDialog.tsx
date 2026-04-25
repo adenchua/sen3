@@ -1,8 +1,7 @@
 import Box from "@mui/material/Box";
-import { TextFieldProps } from "@mui/material/TextField";
 import Typography from "@mui/material/Typography";
 import { useQueryClient } from "@tanstack/react-query";
-import { useEffect, useRef, useState } from "react";
+import { startTransition, useEffect, useState } from "react";
 
 import addDeckTemplate from "../../api/deck-templates/addDeckTemplate";
 import ChatSelectDropdown from "../../components/ChatSelectDropdown";
@@ -20,31 +19,26 @@ export default function CreateDeckTemplateDialog(props: IProps) {
 
   const [selectedChatIds, setSelectedChatIds] = useState<string[]>([]);
   const [isDefault, setIsDefault] = useState<boolean>(false);
-
-  const titleInputRef = useRef<TextFieldProps>(null);
+  const [titleInput, setTitleInput] = useState<string>("");
 
   const queryClient = useQueryClient();
 
   useEffect(() => {
-    // when dialog is open, reset form
     if (isOpen) {
-      setSelectedChatIds([]);
-      titleInputRef.current = null;
-      setIsDefault(false);
+      startTransition(() => {
+        setSelectedChatIds([]);
+        setTitleInput("");
+        setIsDefault(false);
+      });
     }
   }, [isOpen]);
 
   async function handleConfirm() {
-    if (
-      !titleInputRef.current ||
-      titleInputRef.current.value === "" ||
-      selectedChatIds.length === 0
-    ) {
+    if (titleInput === "" || selectedChatIds.length === 0) {
       return;
     }
-    const title = titleInputRef.current.value as string;
 
-    await addDeckTemplate(title, selectedChatIds, isDefault);
+    await addDeckTemplate(titleInput, selectedChatIds, isDefault);
     queryClient.invalidateQueries({ queryKey: ["fetchDeckTemplates"] });
     onClose();
   }
@@ -56,21 +50,27 @@ export default function CreateDeckTemplateDialog(props: IProps) {
       onConfirm={handleConfirm}
       heading="Create Deck Template"
       subheading="Deck templates will show up for subscribers when they add new decks"
-      disableConfirmButton={selectedChatIds.length === 0 || !titleInputRef.current}
+      disableConfirmButton={selectedChatIds.length === 0 || titleInput === ""}
     >
       <div>
-        <Box mb={5}>
-          <Typography mb={1}>Title</Typography>
-          <InputText label="" id="deck-template-title" fullWidth inputRef={titleInputRef} />
+        <Box sx={{ mb: 5 }}>
+          <Typography sx={{ mb: 1 }}>Title</Typography>
+          <InputText
+            label=""
+            id="deck-template-title"
+            fullWidth
+            value={titleInput}
+            onChange={(e) => setTitleInput(e.target.value)}
+          />
         </Box>
-        <Box mb={5}>
-          <Typography mb={1}>Select chats</Typography>
+        <Box sx={{ mb: 5 }}>
+          <Typography sx={{ mb: 1 }}>Select chats</Typography>
           <ChatSelectDropdown onUpdate={(chatIds) => setSelectedChatIds(chatIds)} />
         </Box>
-        <Box mb={5} display="flex" justifyContent="space-between">
+        <Box sx={{ mb: 5, display: "flex", justifyContent: "space-between" }}>
           <div>
             <Typography gutterBottom>Set as default deck</Typography>
-            <Typography variant="body2" mb={2} maxWidth="80%">
+            <Typography variant="body2" sx={{ mb: 2, maxWidth: "80%" }}>
               Default decks are automatically added to new subscriber decks when they join
             </Typography>
           </div>

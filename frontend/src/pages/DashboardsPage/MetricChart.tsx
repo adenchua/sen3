@@ -47,7 +47,7 @@ export default function MetricChart() {
 
   return (
     <TitledPaper title={PAGE_TITLE}>
-      <Grid container mt={5}>
+      <Grid container sx={{ mt: 5 }}>
         <Grid size={6}>
           <MetricCard
             title="Messages downloaded"

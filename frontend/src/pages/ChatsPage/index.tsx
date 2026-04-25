@@ -121,7 +121,7 @@ export default function ChatsPage() {
 
   return (
     <PageLayout title={PAGE_TITLE}>
-      <Grid container mb={4} spacing={1}>
+      <Grid container sx={{ mb: 4 }} spacing={1}>
         <Button
           onClick={() => setChatTypeFilter("ALL")}
           color={chatTypeFilter === "ALL" ? "primary" : "secondary"}
@@ -141,7 +141,7 @@ export default function ChatsPage() {
           Groups ({groupsCount})
         </Button>
       </Grid>
-      <Grid container alignItems="center" spacing={2} mb={4}>
+      <Grid container sx={{ alignItems: "center", mb: 4 }} spacing={2}>
         <Grid size="auto">
           <InputText
             sx={{ width: "480px" }}

@@ -7,8 +7,10 @@
     "resolveJsonModule": true,
     "strict": true,
     "skipLibCheck": true,
+    "rootDir": "src",
     "outDir": "dist",
-    "moduleResolution": "node",
+    "ignoreDeprecations": "6.0",
+    "moduleResolution": "node10",
     "module": "CommonJS"
   },
   "include": ["src/**/*.ts"]

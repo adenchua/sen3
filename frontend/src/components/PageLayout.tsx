@@ -21,8 +21,8 @@ function PageLayout(props: IProps) {
           marginLeft: DRAWER_WIDTH,
         }}
       >
-        <Box p={4}>
-          <Typography variant="h5" mb={4} color="primary">
+        <Box sx={{ p: 4 }}>
+          <Typography variant="h5" sx={{ mb: 4 }} color="primary">
             {title}
           </Typography>
           {children}

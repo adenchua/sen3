@@ -74,7 +74,7 @@ export default function SubscriberDetailsPage() {
         </Button>
         {decks && (
           <>
-            <Box display="flex" gap={2} mb={4}>
+            <Box sx={{ display: "flex", gap: 2, mb: 4 }}>
               <Typography variant="h5">Decks</Typography>
               <Button startIcon={<AddIcon />} onClick={handleAddDeck}>
                 Add deck

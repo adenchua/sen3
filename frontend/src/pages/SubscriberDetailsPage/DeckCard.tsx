@@ -73,7 +73,7 @@ export default function DeckCard(props: IProps) {
           <Button variant="text" startIcon={<SettingsIcon />} onClick={() => setIsDialogOpen(true)}>
             Manage deck
           </Button>
-          <Box display="flex" gap={1} alignItems="center">
+          <Box sx={{ display: "flex", gap: 1, alignItems: "center" }}>
             <Typography variant="caption" color="primary">
               Receive notifications
             </Typography>

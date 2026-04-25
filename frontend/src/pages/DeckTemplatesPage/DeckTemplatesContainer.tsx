@@ -32,7 +32,7 @@ export default function DeckTemplatesContainer() {
 
   return (
     <Box sx={{ height: "calc(100vh - 196px)", overflowY: "auto" }}>
-      <Stack gap={2}>
+      <Stack sx={{ gap: 2 }}>
         {sortedDeckTemplates.map((deckTemplate) => {
           return <DeckTemplateCard key={deckTemplate.id} deckTemplate={deckTemplate} />;
         })}

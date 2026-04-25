@@ -1,7 +1,7 @@
 import Box from "@mui/material/Box";
 import Typography from "@mui/material/Typography";
 import { useQueryClient } from "@tanstack/react-query";
-import { useEffect, useState } from "react";
+import { startTransition, useEffect, useState } from "react";
 
 import updateDeckTemplate from "../../api/deck-templates/updateDeckTemplate";
 import ChatSelectDropdown from "../../components/ChatSelectDropdown";
@@ -29,12 +29,13 @@ export default function ManageDeckTemplateDialog(props: IProps) {
   const queryClient = useQueryClient();
 
   useEffect(() => {
-    // when dialog is open, reset form
     if (isOpen) {
-      setSelectedChatIds(chatIds);
-      setIsDefaultInput(isDefault);
-      setIsDeletedInput(isDeleted);
-      setTitleInput(title);
+      startTransition(() => {
+        setSelectedChatIds(chatIds);
+        setIsDefaultInput(isDefault);
+        setIsDeletedInput(isDeleted);
+        setTitleInput(title);
+      });
     }
   }, [isOpen, chatIds, isDefault, title, isDeleted]);
 
@@ -64,8 +65,8 @@ export default function ManageDeckTemplateDialog(props: IProps) {
       disableConfirmButton={selectedChatIds.length === 0 || !titleInput}
     >
       <div>
-        <Box mb={5}>
-          <Typography mb={1}>Title</Typography>
+        <Box sx={{ mb: 5 }}>
+          <Typography sx={{ mb: 1 }}>Title</Typography>
           <InputText
             label=""
             id="deck-template-title"
@@ -74,26 +75,26 @@ export default function ManageDeckTemplateDialog(props: IProps) {
             onChange={(e) => setTitleInput(e.target.value)}
           />
         </Box>
-        <Box mb={5}>
-          <Typography mb={1}>Select chats</Typography>
+        <Box sx={{ mb: 5 }}>
+          <Typography sx={{ mb: 1 }}>Select chats</Typography>
           <ChatSelectDropdown
             onUpdate={(chatIds) => setSelectedChatIds(chatIds)}
             defaultSelectedChatIds={chatIds}
           />
         </Box>
-        <Box mb={5} display="flex" justifyContent="space-between">
+        <Box sx={{ mb: 5, display: "flex", justifyContent: "space-between" }}>
           <div>
             <Typography gutterBottom>Set as default deck</Typography>
-            <Typography variant="body2" maxWidth="80%">
+            <Typography variant="body2" sx={{ maxWidth: "80%" }}>
               Default decks are automatically added to new subscriber decks when they join
             </Typography>
           </div>
           <Switch checked={isDefaultInput} onChange={(e) => setIsDefaultInput(e.target.checked)} />
         </Box>
-        <Box mb={5} display="flex" justifyContent="space-between">
+        <Box sx={{ mb: 5, display: "flex", justifyContent: "space-between" }}>
           <div>
             <Typography gutterBottom>Hide deck template</Typography>
-            <Typography variant="body2" maxWidth="80%">
+            <Typography variant="body2" sx={{ maxWidth: "80%" }}>
               Hidden decks are not shown to subscribers
             </Typography>
           </div>

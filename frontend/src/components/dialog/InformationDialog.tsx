@@ -23,12 +23,14 @@ function InformationDialog(props: IProps) {
     <Dialog
       open={isOpen}
       onClose={onClose}
-      PaperProps={{
-        elevation: 0,
-        sx: {
-          borderRadius: "28px",
-          padding: 1,
-          boxShadow: "none",
+      slotProps={{
+        paper: {
+          elevation: 0,
+          sx: {
+            borderRadius: "28px",
+            padding: 1,
+            boxShadow: "none",
+          },
         },
       }}
     >

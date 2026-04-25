@@ -46,7 +46,7 @@ export default function ServiceStatusChart() {
 
   return (
     <TitledPaper title="Service Status">
-      <Stack gap={2}>
+      <Stack sx={{ gap: 2 }}>
         <ServiceStatusInfo
           icon={<DatabaseIcon />}
           title="Database"

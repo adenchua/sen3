@@ -17,7 +17,7 @@ export default function DeckTemplatesPage() {
       <Button startIcon={<AddIcon />} onClick={() => setIsDialogOpen(true)}>
         Create deck template
       </Button>
-      <Box mt={4}>
+      <Box sx={{ mt: 4 }}>
         <DeckTemplatesContainer />
       </Box>
       <CreateDeckTemplateDialog isOpen={isDialogOpen} onClose={() => setIsDialogOpen(false)} />

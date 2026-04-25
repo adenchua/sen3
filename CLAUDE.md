@@ -152,3 +152,13 @@ Flask API that wraps the Telegram client API. The backend calls it to fetch chat
 - **TypeScript/JS**: Prettier, 100-char line width, 2-space indent, semicolons, no trailing commas on single-line
 - **Python**: Black formatter, MyPy type checking
 - No tests are currently configured (`npm test` exits with error)
+
+## TypeScript Configuration
+
+`backend/tsconfig.json` uses `moduleResolution: "node10"` with `ignoreDeprecations: "6.0"` and `module: "CommonJS"`. This is intentional — TypeScript 6 deprecated `node10` in favour of `node16`, but switching to `node16` breaks deep sub-path imports from `@opensearch-project/opensearch` (e.g. `@opensearch-project/opensearch/api/_types/_common`). The package has a `"./*": "./*"` wildcard in its exports map but TypeScript's `node16` resolver does not resolve type declarations through it. Keep `node10` until the OpenSearch package adds explicit type entries in its exports map.
+
+## npm Dependency Management
+
+- **Never use `--legacy-peer-deps`** when installing packages.
+- To resolve peer dependency conflicts: delete `node_modules/` and `package-lock.json`, then run a clean `npm install`.
+- Some `node_modules` files may be owned by `root` (from Docker runs) — use `sudo rm -rf node_modules package-lock.json` if `rm -rf` fails with permission errors.

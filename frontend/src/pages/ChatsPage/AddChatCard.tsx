@@ -29,14 +29,14 @@ export default function AddChatCard(props: IProps) {
     >
       <div>
         <Typography>{chat.title}</Typography>
-        <Typography variant="body2" color="textSecondary" display="block">
+        <Typography variant="body2" color="textSecondary" sx={{ display: "block" }}>
           @{chat.username}
         </Typography>
-        <Typography variant="caption" color="textSecondary" display="block">
+        <Typography variant="caption" color="textSecondary" sx={{ display: "block" }}>
           {chat?.participantsCount.toLocaleString()} subscribers
         </Typography>
       </div>
-      <Box flexGrow={1} />
+      <Box sx={{ flexGrow: 1 }} />
       <Button onClick={() => onAddChat(chat)}>Add Chat</Button>
     </Paper>
   );

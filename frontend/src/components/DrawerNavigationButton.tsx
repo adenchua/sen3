@@ -31,7 +31,7 @@ function DrawerNavigationButton(props: IProps) {
       onClick={() => navigate(link)}
     >
       {icon}
-      <Typography ml={2}>{text}</Typography>
+      <Typography sx={{ ml: 2 }}>{text}</Typography>
     </MenuItem>
   );
 }
