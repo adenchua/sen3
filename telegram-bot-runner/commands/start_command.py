@@ -1,18 +1,19 @@
 import inspect
 
-import httpx
 from telegram import Update
 from telegram.ext import ContextTypes
 
-from constants import BACKEND_SERVICE_API_URL
-from logging_helper import logger
+from api_client import api_post
+from api_routes import subscribers_url
 
 
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
-    username = update.effective_user.username
-    first_name = update.effective_user.first_name
-    last_name = update.effective_user.last_name
-    user_id = str(update.effective_user.id)
+    """Register the Telegram user as a new subscriber pending admin approval."""
+    user = update.effective_user
+    first_name = user.first_name
+    username = user.username
+    last_name = user.last_name
+    user_id = str(user.id)
 
     reply_message = inspect.cleandoc(
         f"Hello {first_name}! Thank you for showing interest in our project!\n\n"
@@ -21,19 +22,12 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
         f"Thank you for your understanding!\n\n"
     )
 
-    URL = f"{BACKEND_SERVICE_API_URL}/api/v1/subscribers"
     request_body = {
         "username": username,
         "firstName": first_name,
         "lastName": last_name,
         "userId": user_id,
     }
-    async with httpx.AsyncClient() as client:
-        try:
-            response = await client.post(URL, json=dict(request_body))
-            response.raise_for_status()
-            await update.message.reply_text(reply_message)
-        except httpx.HTTPStatusError as http_error:
-            logger.error(f"http error: {http_error}")
-        except Exception as error:
-            logger.error(error)
+    result = await api_post(subscribers_url(), request_body)
+    if result is not None:
+        await update.message.reply_text(reply_message)

@@ -158,6 +158,8 @@ Flask API that wraps the Telegram client API. The backend calls it to fetch chat
 
 - **TypeScript/JS**: Prettier, 100-char line width, 2-space indent, semicolons, no trailing commas on single-line
 - **Python**: Black formatter, MyPy type checking
+  - No single-letter variable names — use descriptive names everywhere (e.g. `error` not `e`, `response` not `r`)
+  - Every function must have a docstring describing what it does and what it returns
 - No tests are currently configured (`npm test` exits with error)
 
 ## TypeScript Configuration

@@ -1,10 +1,4 @@
-import httpx
-from telegram import (
-    InlineKeyboardButton,
-    InlineKeyboardMarkup,
-    ReplyKeyboardRemove,
-    Update,
-)
+from telegram import Update
 from telegram.ext import (
     ContextTypes,
     ConversationHandler,
@@ -12,103 +6,85 @@ from telegram.ext import (
     CallbackQueryHandler,
 )
 
-from constants import BACKEND_SERVICE_API_URL
-from logging_helper import logger
-from utils.subscriberHelper import is_subscriber_approved
+from api_client import api_patch
+from api_routes import deck_url
+from commands.conversation_helpers import (
+    build_deck_keyboard,
+    fetch_approved_subscriber_decks,
+    make_cancel,
+)
 
 
 DECK_INPUT = 1
 
 
-async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
-    user_id = str(update.effective_user.id)
+def _make_start(*, muting: bool):
+    """
+    Return a start handler for mute (muting=True) or unmute (muting=False).
 
-    keyboard = []
+    Fetches only decks eligible for the operation: active decks when muting,
+    muted decks when unmuting.
+    """
+    is_active_filter = "1" if muting else "0"
+    empty_message = "No decks are unmuted." if muting else "There are no muted decks."
+    prompt = "Please select a deck to mute:" if muting else "Please select a deck to unmute:"
 
-    GET_SUBSCRIBER_URL = f"{BACKEND_SERVICE_API_URL}/api/v1/subscribers/{user_id}"
-    GET_DECKS_URL = f"{BACKEND_SERVICE_API_URL}/api/v1/subscribers/{user_id}/decks"
+    async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
+        """Show eligible decks for mute or unmute selection."""
+        user_id = str(update.effective_user.id)
+        decks = await fetch_approved_subscriber_decks(
+            user_id,
+            update,
+            context,
+            deck_params={"isActive": is_active_filter},
+            empty_message=empty_message,
+        )
+        if decks is None:
+            return ConversationHandler.END
 
-    async with httpx.AsyncClient() as client:
-        try:
-            get_subscriber_response = await client.get(GET_SUBSCRIBER_URL)
-            get_subscriber_response.raise_for_status()
-            get_subscriber_response_json: dict = get_subscriber_response.json()
-            subscriber: dict = get_subscriber_response_json.get("data", None)
+        await update.message.reply_text(prompt, reply_markup=build_deck_keyboard(decks))
+        return DECK_INPUT
 
-            # subscriber not approved, do not send reply
-            if not is_subscriber_approved(subscriber):
-                return
-
-            # get only active decks
-            decks_response = await client.get(GET_DECKS_URL, params={"isActive": "1"})
-            decks_response.raise_for_status()
-            decks_response_json: dict = decks_response.json()
-            decks: list[dict] = decks_response_json.get("data", None)
-
-            if len(decks) == 0:
-                await update.message.reply_text(
-                    "No decks are unmuted", reply_markup=ReplyKeyboardRemove()
-                )
-                context.user_data.clear()
-                return ConversationHandler.END
-
-            for index, deck in enumerate(decks):
-                keyboard.append(
-                    [
-                        InlineKeyboardButton(
-                            deck.get("title", f"Untitled deck {index}"),
-                            callback_data=deck.get("id"),
-                        )
-                    ]
-                )
-            reply_markup = InlineKeyboardMarkup(keyboard)
-
-            await update.message.reply_text(
-                "Please select a deck:", reply_markup=reply_markup
-            )
-
-            return DECK_INPUT
-        except httpx.HTTPStatusError as http_error:
-            logger.error(f"http error: {http_error}")
-        except Exception as error:
-            logger.error(error)
+    return start
 
 
-async def deck_input(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
-    query = update.callback_query
-    await query.answer()
-    selected_deck_id = query.data
+def _make_deck_input(*, muting: bool):
+    """
+    Return a deck_input handler for mute (muting=True) or unmute (muting=False).
 
-    async with httpx.AsyncClient() as client:
-        try:
-            URL = f"{BACKEND_SERVICE_API_URL}/api/v1/decks/{selected_deck_id}"
-            request_body = {
-                "isActive": False,
-            }
-            response = await client.patch(URL, json=dict(request_body))
-            response.raise_for_status()
-            await query.edit_message_text(
-                "Deck muted! You will no longer receive notifications from this deck"
-            )
-        except httpx.HTTPStatusError as http_error:
-            logger.error(f"http error: {http_error}")
-        except Exception as error:
-            logger.error(error)
-
-    context.user_data.clear()
-    return ConversationHandler.END
-
-
-async def cancel(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
-    await update.message.reply_text(
-        "Operation cancelled. No decks muted", reply_markup=ReplyKeyboardRemove()
+    Sets isActive to the opposite of muting: False when muting, True when unmuting.
+    """
+    new_active_state = not muting
+    success_message = (
+        "Deck muted! You will no longer receive notifications from this deck."
+        if muting
+        else "Deck unmuted! You will now receive notifications from this deck."
     )
-    context.user_data.clear()
-    return ConversationHandler.END
+
+    async def deck_input(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
+        """Apply the mute or unmute change to the selected deck."""
+        query = update.callback_query
+        await query.answer()
+        selected_deck_id = query.data
+
+        result = await api_patch(deck_url(selected_deck_id), {"isActive": new_active_state})
+        if result is not None:
+            await query.edit_message_text(success_message)
+
+        context.user_data.clear()
+        return ConversationHandler.END
+
+    return deck_input
 
 
 mute_deck_conv_handler = ConversationHandler(
-    entry_points=[CommandHandler("mutedeck", start)],
-    states={DECK_INPUT: [CallbackQueryHandler(deck_input)]},
-    fallbacks=[CommandHandler("cancel", cancel)],
+    entry_points=[CommandHandler("mutedeck", _make_start(muting=True))],
+    states={DECK_INPUT: [CallbackQueryHandler(_make_deck_input(muting=True))]},
+    fallbacks=[CommandHandler("cancel", make_cancel("Operation cancelled. No decks muted."))],
+)
+
+unmute_deck_conv_handler = ConversationHandler(
+    entry_points=[CommandHandler("unmutedeck", _make_start(muting=False))],
+    states={DECK_INPUT: [CallbackQueryHandler(_make_deck_input(muting=False))]},
+    fallbacks=[CommandHandler("cancel", make_cancel("Operation cancelled. No decks unmuted."))],
 )

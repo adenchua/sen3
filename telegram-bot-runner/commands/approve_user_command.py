@@ -1,4 +1,3 @@
-import httpx
 from telegram import (
     InlineKeyboardButton,
     InlineKeyboardMarkup,
@@ -14,7 +13,10 @@ from telegram.ext import (
     CallbackQueryHandler,
 )
 
-from constants import BACKEND_SERVICE_API_URL, TELEGRAM_BOT_ADMIN_TOKEN
+from api_client import api_get, api_patch
+from api_routes import subscribers_url, subscriber_url
+from commands.conversation_helpers import make_cancel
+from constants import TELEGRAM_BOT_ADMIN_TOKEN
 from logging_helper import logger
 
 
@@ -22,21 +24,30 @@ TOKEN_INPUT, SUBSCRIBER_INPUT, CONFIRMATION = range(3)
 
 
 def _build_subscriber_keyboard(subscribers: list[dict]) -> InlineKeyboardMarkup:
+    """Build an InlineKeyboardMarkup listing each pending subscriber as a selectable button."""
     keyboard = []
-    for sub in subscribers:
-        first = sub.get("firstName", "") or ""
-        last = sub.get("lastName", "") or ""
-        display = f"{first} {last}".strip() or sub.get("username") or str(sub.get("id"))
-        keyboard.append([InlineKeyboardButton(display, callback_data=str(sub.get("id")))])
+    for subscriber in subscribers:
+        first = subscriber.get("firstName", "") or ""
+        last = subscriber.get("lastName", "") or ""
+        display = (
+            f"{first} {last}".strip()
+            or subscriber.get("username")
+            or str(subscriber.get("id"))
+        )
+        keyboard.append(
+            [InlineKeyboardButton(display, callback_data=str(subscriber.get("id")))]
+        )
     return InlineKeyboardMarkup(keyboard)
 
 
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
+    """Begin the approval flow by prompting for the admin token."""
     await update.message.reply_text("Please enter the admin token:")
     return TOKEN_INPUT
 
 
 async def token_input(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
+    """Validate the admin token and show the list of pending subscribers."""
     entered_token = update.message.text.strip()
 
     if not TELEGRAM_BOT_ADMIN_TOKEN or entered_token != TELEGRAM_BOT_ADMIN_TOKEN:
@@ -44,40 +55,32 @@ async def token_input(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int
         context.user_data.clear()
         return ConversationHandler.END
 
-    GET_SUBSCRIBERS_URL = f"{BACKEND_SERVICE_API_URL}/api/v1/subscribers"
+    subscribers_data = await api_get(
+        subscribers_url(), params={"isApproved": 0, "size": 10}
+    )
+    if subscribers_data is None:
+        context.user_data.clear()
+        return ConversationHandler.END
 
-    async with httpx.AsyncClient() as client:
-        try:
-            response = await client.get(
-                GET_SUBSCRIBERS_URL, params={"isApproved": 0, "size": 10}
-            )
-            response.raise_for_status()
-            subscribers: list[dict] = response.json().get("data", [])
+    subscribers: list[dict] = subscribers_data.get("data", [])
 
-            if not subscribers:
-                await update.message.reply_text(
-                    "No pending subscribers found.", reply_markup=ReplyKeyboardRemove()
-                )
-                context.user_data.clear()
-                return ConversationHandler.END
+    if not subscribers:
+        await update.message.reply_text(
+            "No pending subscribers found.", reply_markup=ReplyKeyboardRemove()
+        )
+        context.user_data.clear()
+        return ConversationHandler.END
 
-            context.user_data["subscribers"] = subscribers
-
-            await update.message.reply_text(
-                "Select a subscriber to approve:",
-                reply_markup=_build_subscriber_keyboard(subscribers),
-            )
-            return SUBSCRIBER_INPUT
-        except httpx.HTTPStatusError as http_error:
-            logger.error(f"http error: {http_error}")
-        except Exception as error:
-            logger.error(error)
-
-    context.user_data.clear()
-    return ConversationHandler.END
+    context.user_data["subscribers"] = subscribers
+    await update.message.reply_text(
+        "Select a subscriber to approve:",
+        reply_markup=_build_subscriber_keyboard(subscribers),
+    )
+    return SUBSCRIBER_INPUT
 
 
 async def subscriber_input(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
+    """Show a yes/no confirmation prompt for the selected subscriber."""
     query = update.callback_query
     await query.answer()
     selected_id = query.data
@@ -85,11 +88,17 @@ async def subscriber_input(update: Update, context: ContextTypes.DEFAULT_TYPE) -
     context.user_data["selected_subscriber_id"] = selected_id
 
     subscribers: list[dict] = context.user_data.get("subscribers", [])
-    match = next((s for s in subscribers if str(s.get("id")) == selected_id), None)
-    if match:
-        first = match.get("firstName", "") or ""
-        last = match.get("lastName", "") or ""
-        display_name = f"{first} {last}".strip() or match.get("username") or selected_id
+    matched_subscriber = next(
+        (sub for sub in subscribers if str(sub.get("id")) == selected_id), None
+    )
+    if matched_subscriber:
+        first = matched_subscriber.get("firstName", "") or ""
+        last = matched_subscriber.get("lastName", "") or ""
+        display_name = (
+            f"{first} {last}".strip()
+            or matched_subscriber.get("username")
+            or selected_id
+        )
     else:
         display_name = selected_id
 
@@ -101,7 +110,6 @@ async def subscriber_input(update: Update, context: ContextTypes.DEFAULT_TYPE) -
             ]
         ]
     )
-
     await query.edit_message_text(
         f"Approve {display_name}? This cannot be undone.",
         reply_markup=yes_no_keyboard,
@@ -110,37 +118,34 @@ async def subscriber_input(update: Update, context: ContextTypes.DEFAULT_TYPE) -
 
 
 async def confirmation(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
+    """Approve the subscriber or return to the list based on the admin's choice."""
     query = update.callback_query
     await query.answer()
     answer = query.data
 
     if answer == "YES":
         selected_id = context.user_data.get("selected_subscriber_id")
-        PATCH_URL = f"{BACKEND_SERVICE_API_URL}/api/v1/subscribers/{selected_id}"
+        result = await api_patch(subscriber_url(selected_id), {"isApproved": True})
 
-        async with httpx.AsyncClient() as client:
+        if result is not None:
             try:
-                response = await client.patch(PATCH_URL, json={"isApproved": True})
-                response.raise_for_status()
-                try:
-                    await context.bot.send_message(
-                        chat_id=selected_id,
-                        text=(
-                            "Your registration has been approved! You can now:\n"
-                            "• Use /modifykeywords to add or update keywords on an existing deck\n"
-                            "• Use /newdeck to create a new alert deck"
-                        ),
-                    )
-                except Exception as notify_error:
-                    logger.warning(f"Could not notify subscriber {selected_id}: {notify_error}")
-                await query.edit_message_text("Subscriber approved successfully!")
-            except httpx.HTTPStatusError as http_error:
-                logger.error(f"http error: {http_error}")
-                await query.edit_message_text(
-                    "An error occurred while approving the subscriber. Please try again."
+                await context.bot.send_message(
+                    chat_id=selected_id,
+                    text=(
+                        "Your registration has been approved! You can now:\n"
+                        "• Use /modifykeywords to add or update keywords on an existing deck\n"
+                        "• Use /newdeck to create a new alert deck"
+                    ),
                 )
-            except Exception as error:
-                logger.error(error)
+            except Exception as notify_error:
+                logger.warning(
+                    f"Could not notify subscriber {selected_id}: {notify_error}"
+                )
+            await query.edit_message_text("Subscriber approved successfully!")
+        else:
+            await query.edit_message_text(
+                "An error occurred while approving the subscriber. Please try again."
+            )
 
         context.user_data.clear()
         return ConversationHandler.END
@@ -153,14 +158,6 @@ async def confirmation(update: Update, context: ContextTypes.DEFAULT_TYPE) -> in
     return SUBSCRIBER_INPUT
 
 
-async def cancel(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
-    await update.message.reply_text(
-        "Operation cancelled.", reply_markup=ReplyKeyboardRemove()
-    )
-    context.user_data.clear()
-    return ConversationHandler.END
-
-
 approve_user_conv_handler = ConversationHandler(
     entry_points=[CommandHandler("approve_user", start)],
     states={
@@ -168,5 +165,5 @@ approve_user_conv_handler = ConversationHandler(
         SUBSCRIBER_INPUT: [CallbackQueryHandler(subscriber_input)],
         CONFIRMATION: [CallbackQueryHandler(confirmation)],
     },
-    fallbacks=[CommandHandler("cancel", cancel)],
+    fallbacks=[CommandHandler("cancel", make_cancel("Operation cancelled."))],
 )

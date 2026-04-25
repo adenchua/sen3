@@ -1,39 +1,48 @@
-import httpx
 from telegram import Update
 from telegram.ext import ContextTypes
 
-from logging_helper import logger
-from constants import BACKEND_SERVICE_API_URL
+from api_client import api_get, api_patch
+from api_routes import subscriber_url
 from utils.subscriberHelper import is_subscriber_approved
 
 
-async def subscribe(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
+async def _set_notifications(
+    update: Update,
+    context: ContextTypes.DEFAULT_TYPE,
+    *,
+    enable: bool,
+) -> None:
+    """
+    Toggle the allowNotifications flag on a subscriber's account.
+
+    Skips the PATCH call if the flag is already in the desired state.
+    Does nothing if the subscriber is not yet approved.
+    """
     user_id = str(update.effective_user.id)
+    url = subscriber_url(user_id)
 
-    reply_message = "Subscribed to notifications!"
+    subscriber_data = await api_get(url)
+    if subscriber_data is None:
+        return
 
-    URL = f"{BACKEND_SERVICE_API_URL}/api/v1/subscribers/{user_id}"
-    request_body = {"allowNotifications": True}
+    subscriber: dict = subscriber_data.get("data")
+    if not is_subscriber_approved(subscriber):
+        return
 
-    async with httpx.AsyncClient() as client:
-        try:
-            get_subscriber_response = await client.get(URL)
-            get_subscriber_response.raise_for_status()
-            get_subscriber_response_json: dict = get_subscriber_response.json()
-            subscriber: dict = get_subscriber_response_json.get("data", None)
+    if subscriber.get("allowNotifications") != enable:
+        result = await api_patch(url, {"allowNotifications": enable})
+        if result is None:
+            return
 
-            # subscriber not approved, do not send reply
-            if not is_subscriber_approved(subscriber):
-                return
+    reply = "Subscribed to notifications!" if enable else "Unsubscribed from all notifications!"
+    await update.message.reply_text(reply)
 
-            # if subscriber notifications turned off, turn it on
-            # save a call to the API if its already True
-            if subscriber.get("allowNotifications") == False:
-                response = await client.patch(URL, json=dict(request_body))
-                response.raise_for_status()
 
-            await update.message.reply_text(reply_message)
-        except httpx.HTTPStatusError as http_error:
-            logger.error(f"http error: {http_error}")
-        except Exception as error:
-            logger.error(error)
+async def subscribe(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
+    """Enable notifications for the subscriber."""
+    await _set_notifications(update, context, enable=True)
+
+
+async def unsubscribe(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
+    """Disable notifications for the subscriber."""
+    await _set_notifications(update, context, enable=False)
