@@ -5,3 +5,4 @@ import os
 load_dotenv()
 TELEGRAM_BOT_API_TOKEN: str = os.getenv("TELEGRAM_BOT_API_TOKEN", "")
 BACKEND_SERVICE_API_URL: str = os.getenv("BACKEND_SERVICE_API_URL", "")
+TELEGRAM_BOT_ADMIN_TOKEN: str = os.getenv("TELEGRAM_BOT_ADMIN_TOKEN", "")
