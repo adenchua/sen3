@@ -79,6 +79,7 @@ Copy `.env.template` → `.env` and fill in:
 - `TELEGRAM_API_ID` / `TELEGRAM_API_HASH` / `TELEGRAM_BOT_TOKEN`
 - `TELEGRAM_SERVICE_API_URL` — URL backend uses to reach telegram-service
 - `VITE_BACKEND_API_URL` — URL frontend uses to reach backend (empty in prod when co-hosted)
+- `TELEGRAM_BOT_ADMIN_TOKEN` — secret token required by the `/approve_user` admin bot command
 - Background job intervals: `CHAT_MESSAGES_JOB_INTERVAL_MINS`, `SUBSCRIBER_NOTIFICATION_JOB_INTERVAL_MINS`, `CHAT_UPDATE_JOB_INTERVAL_DAYS`
 
 ## Backend Patterns
@@ -141,7 +142,13 @@ OpenSearch indexes use **strict mapping** — undeclared fields are rejected. Da
 
 ### telegram-bot-runner/
 
-Handles Telegram bot commands (e.g. subscribe, unsubscribe, deck management) and delivers notification messages to subscribers via the Telegram Bot API.
+Handles Telegram bot commands and delivers notification messages to subscribers via the Telegram Bot API.
+
+**User commands**: `/start`, `/subscribe`, `/unsubscribe`, `/modifykeywords`, `/newdeck`, `/deletedeck`, `/mutedeck`, `/unmutedeck`
+
+**Admin commands**: `/approve_user` — approves pending subscriber registrations; requires `TELEGRAM_BOT_ADMIN_TOKEN` for authentication.
+
+Bot commands are registered with Telegram on startup via the `post_init` hook on `ApplicationBuilder` in `main.py`, which calls `bot.set_my_commands()` to populate the in-chat command menu automatically.
 
 ### telegram-service/
 

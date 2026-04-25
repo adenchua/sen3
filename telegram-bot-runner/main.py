@@ -1,3 +1,4 @@
+from telegram import BotCommand
 from telegram.ext import ApplicationBuilder, CommandHandler, ContextTypes
 
 from constants import TELEGRAM_BOT_API_TOKEN
@@ -12,7 +13,23 @@ from commands.delete_deck_command import delete_deck_conv_handler
 from commands.approve_user_command import approve_user_conv_handler
 
 
-app = ApplicationBuilder().token(TELEGRAM_BOT_API_TOKEN).build()
+BOT_COMMANDS = [
+    BotCommand("start", "Register to get access to the bot"),
+    BotCommand("subscribe", "Enable notifications"),
+    BotCommand("unsubscribe", "Disable all notifications"),
+    BotCommand("modifykeywords", "Set or update keywords for a deck"),
+    BotCommand("newdeck", "Create a new deck from a template"),
+    BotCommand("deletedeck", "Delete a deck permanently"),
+    BotCommand("mutedeck", "Mute a deck to pause its notifications"),
+    BotCommand("unmutedeck", "Unmute a deck to resume its notifications"),
+]
+
+
+async def post_init(application: ApplicationBuilder) -> None:
+    await application.bot.set_my_commands(BOT_COMMANDS)
+
+
+app = ApplicationBuilder().token(TELEGRAM_BOT_API_TOKEN).post_init(post_init).build()
 
 
 async def error_handler(update: object, context: ContextTypes.DEFAULT_TYPE) -> None:
