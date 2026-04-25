@@ -1,4 +1,12 @@
 from telethon import TelegramClient, functions
+from telethon.errors import (
+    ChannelBannedError,
+    ChannelIdInvalidError,
+    ChannelInvalidError,
+    ChannelPrivateError,
+    PublicChannelMissingError,
+    UsernameInvalidError,
+)
 from telethon.tl.types import Message, MessageService, messages, TypeUsername
 
 from models.Models import Chat
@@ -27,30 +35,40 @@ class ChatService:
         Returns a telegram Chat object
         """
         client: TelegramClient
-        async with self.telegram_client as client:
-            response: messages.ChatFull = await client(
-                functions.channels.GetFullChannelRequest(channel=chat_username)
-            )
-            chat = response.chats[0]
-            chat_full = response.full_chat
+        try:
+            async with self.telegram_client as client:
+                response: messages.ChatFull = await client(
+                    functions.channels.GetFullChannelRequest(channel=chat_username)
+                )
+                chat = response.chats[0]
+                chat_full = response.full_chat
 
-            temp_username: str | None = chat.username
-            # some channels have > 1 username, resulting in chat.username to be None
-            # telegram stores the usernames as an array in chat.usernames
-            if temp_username is None and chat.usernames is not None:
-                temp_username = self.get_active_chat_username(chat.usernames)
+                temp_username: str | None = chat.username
+                # some channels have > 1 username, resulting in chat.username to be None
+                # telegram stores the usernames as an array in chat.usernames
+                if temp_username is None and chat.usernames is not None:
+                    temp_username = self.get_active_chat_username(chat.usernames)
 
-            result = Chat(
-                id=chat_full.id,
-                about=chat_full.about,
-                participants_count=chat_full.participants_count,
-                username=temp_username,
-                is_channel=chat.broadcast,
-                is_verified=chat.verified,
-                title=chat.title,
-                created_date=chat.date,
-            )
-            return result.model_dump()
+                result = Chat(
+                    id=chat_full.id,
+                    about=chat_full.about,
+                    participants_count=chat_full.participants_count,
+                    username=temp_username,
+                    is_channel=chat.broadcast,
+                    is_verified=chat.verified,
+                    title=chat.title,
+                    created_date=chat.date,
+                )
+                return result.model_dump()
+        except (
+            ChannelBannedError,
+            ChannelIdInvalidError,
+            ChannelInvalidError,
+            ChannelPrivateError,
+            PublicChannelMissingError,
+            UsernameInvalidError,
+        ) as error:
+            raise ValueError(f"Chat '{chat_username}' is not available: {error}") from error
 
     async def get_chat_messages(
         self,
@@ -69,34 +87,44 @@ class ChatService:
         To obtain the latest messages from a chat, set the reverse parameter to False.
         """
         client: TelegramClient
-        async with self.telegram_client as client:
-            response: list[Message | MessageService] = await client.get_messages(
-                entity=chat_username,
-                limit=limit if limit is not None else 10,
-                offset_id=offset_id if offset_id is not None else 0,
-                reverse=reverse if reverse is not None else True,
-            )
-            result: list[_Message] = []
+        try:
+            async with self.telegram_client as client:
+                response: list[Message | MessageService] = await client.get_messages(
+                    entity=chat_username,
+                    limit=limit if limit is not None else 10,
+                    offset_id=offset_id if offset_id is not None else 0,
+                    reverse=reverse if reverse is not None else True,
+                )
+                result: list[_Message] = []
 
-            # process the response
-            # filter non Messages such as announcements/chat edit
-            # parse message
-            for message in response:
-                # MessageService is returned by the client in the array, need to filter out
-                if isinstance(message, Message):
-                    temp = _Message(
-                        chat_id=message.peer_id.channel_id,
-                        chat_username=chat_username,
-                        id=message.id,
-                        created_date=message.date,
-                        text=message.message,
-                        view_count=message.views,
-                        forward_count=message.forwards,
-                        edited_date=message.edit_date,
-                    )
-                    result.append(temp.model_dump())
+                # process the response
+                # filter non Messages such as announcements/chat edit
+                # parse message
+                for message in response:
+                    # MessageService is returned by the client in the array, need to filter out
+                    if isinstance(message, Message):
+                        temp = _Message(
+                            chat_id=message.peer_id.channel_id,
+                            chat_username=chat_username,
+                            id=message.id,
+                            created_date=message.date,
+                            text=message.message,
+                            view_count=message.views,
+                            forward_count=message.forwards,
+                            edited_date=message.edit_date,
+                        )
+                        result.append(temp.model_dump())
 
-            return result
+                return result
+        except (
+            ChannelBannedError,
+            ChannelIdInvalidError,
+            ChannelInvalidError,
+            ChannelPrivateError,
+            PublicChannelMissingError,
+            UsernameInvalidError,
+        ) as error:
+            raise ValueError(f"Chat '{chat_username}' is not available: {error}") from error
 
     async def get_recommended_chats(self, chat_username: str) -> list[Chat]:
         """
@@ -105,23 +133,33 @@ class ChatService:
         Recommendations are given by telegram and usually 10 chats will be recommended
         """
         client: TelegramClient
-        async with self.telegram_client as client:
-            response: messages.Chats = await client(
-                functions.channels.GetChannelRecommendationsRequest(
-                    channel=chat_username
+        try:
+            async with self.telegram_client as client:
+                response: messages.Chats = await client(
+                    functions.channels.GetChannelRecommendationsRequest(
+                        channel=chat_username
+                    )
                 )
-            )
 
-            result: list[Chat] = []
+                result: list[Chat] = []
 
-            for chat in response.chats:
-                temp_username: str = chat.username
-                # some channels have > 1 username, resulting in chat.username to be None
-                # telegram stores the usernames as an array in chat.usernames
-                if temp_username is None and chat.usernames is not None:
-                    temp_username = self.get_active_chat_username(chat.usernames)
+                for chat in response.chats:
+                    temp_username: str = chat.username
+                    # some channels have > 1 username, resulting in chat.username to be None
+                    # telegram stores the usernames as an array in chat.usernames
+                    if temp_username is None and chat.usernames is not None:
+                        temp_username = self.get_active_chat_username(chat.usernames)
 
-                temp_chat = await self.get_chat(temp_username)
-                result.append(temp_chat)
+                    temp_chat = await self.get_chat(temp_username)
+                    result.append(temp_chat)
 
-            return result
+                return result
+        except (
+            ChannelBannedError,
+            ChannelIdInvalidError,
+            ChannelInvalidError,
+            ChannelPrivateError,
+            PublicChannelMissingError,
+            UsernameInvalidError,
+        ) as error:
+            raise ValueError(f"Chat '{chat_username}' is not available: {error}") from error
