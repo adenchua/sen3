@@ -1,49 +1,123 @@
-# SEN3 - Get keyword alerts from across all your favorite Telegram communities
+# SEN3 — Keyword Alerts for Telegram Communities
 
-## Project Description
+> Get keyword alerts from across all your favourite Telegram communities.
 
-Telegram hosts hundreds of vibrant communities sharing a constant stream of useful information—but keeping up can be overwhelming. This application collects messages from related channels and groups, and sends a user notifications only when their chosen keywords appear.
+## Overview
 
-## Project motivation
+Telegram hosts hundreds of vibrant communities sharing a constant stream of information — news, deals, announcements, and more. Keeping up manually is overwhelming. SEN3 solves this by continuously crawling subscribed chats and dispatching alerts to users the moment their keywords are matched, all managed through a clean admin dashboard.
 
-I used to follow various telegram channels and groups that send news, shopping and food deals, but I wanted to only read the messages that interest me. The first version (called project SIFT) had fixed themes (news, shopping and food) and subscribers were unable to modify the channels/groups of each theme. After collecting some initial user feedback, I created this project that allows better management of channels/groups.
+## Motivation
 
-## Installation & set-up
+I used to follow various Telegram channels and groups for news, shopping deals, and food recommendations — but I only ever wanted to read the messages that were actually relevant to me. SEN3 was created out of that frustration.
 
-1. You will need to obtain a valid telegram (and bot) api key from the official telegram website. This is required to create a Telegram bot to send a user notifications
-2. Once you have your api key, create a `.env` at the root of this project. You may reference the keys from `.env.template`. Fill up the values on the `.env` file.
-3. Run `docker compose start`. This should start up a container with 6 services.
-
-## System Overview
-
-The following diagram shows the high-level system of this project:
+## System Architecture
 
 ![System Diagram](./docs/System-Diagram.jpg)
 
+## Features
+
+- **Keyword alerting** — users define keyword sets ("decks") and receive Telegram notifications on matches
+- **Multi-chat monitoring** — crawl any number of Telegram channels and groups concurrently
+- **Deck management** — activate, mute, or modify decks at any time via Telegram bot commands
+- **Default templates** — administrators can define deck templates that are automatically applied to new subscribers
+- **Admin dashboard** — web UI for managing chats, subscribers, decks, and viewing analytics
+- **Configurable intervals** — crawl frequency and notification dispatch cadence are environment-configurable
+
+## Tech Stack
+
+<!-- prettier-ignore -->
+| Service | Technology | Port | Purpose |
+|---|---|---|---|
+| `opensearch-node` | OpenSearch 2.18 | 9200 | Primary database |
+| `opensearch-dashboards` | OpenSearch Dashboards | 5601 | Database admin UI |
+| `telegram-service` | Python 3.13 / Flask | 5099 | Telegram API bridge |
+| `backend-service` | Node.js 22 / Express 5 / TypeScript | 5098 | REST API |
+| `scripts` | Python 3.13 | — | Background jobs (crawl + notify) |
+| `frontend` | React 19 / Nginx | 3400 | Admin dashboard |
+
+## Prerequisites
+
+- [Docker](https://docs.docker.com/get-docker/) and [Docker Compose](https://docs.docker.com/compose/install/)
+- A Telegram account with an **API ID** and **API Hash** — obtain these from [my.telegram.org](https://my.telegram.org)
+- A **Telegram Bot Token** — create a bot via [@BotFather](https://t.me/BotFather) on Telegram
+
+## Installation & Setup
+
+1. **Clone the repository**
+
+   ```bash
+   git clone https://github.com/your-username/sen3.git
+   cd sen3
+   ```
+
+2. **Configure environment variables**
+
+   Copy the template and fill in your values:
+
+   ```bash
+   cp .env.template .env
+   ```
+
+   Key variables to set:
+
+<!-- prettier-ignore -->
+   | Variable | Description |
+   |---|---|
+   | `OPENSEARCH_USERNAME` | OpenSearch admin username |
+   | `OPENSEARCH_PASSWORD` | OpenSearch admin password |
+   | `TELEGRAM_API_ID` | Telegram client API ID |
+   | `TELEGRAM_API_HASH` | Telegram client API hash |
+   | `TELEGRAM_BOT_TOKEN` | Telegram bot token from BotFather |
+   | `TELEGRAM_BOT_ADMIN_TOKEN` | Secret token required for the `/approve_user` admin command |
+   | `TELEGRAM_SERVICE_API_URL` | URL the backend uses to reach `telegram-service` |
+   | `VITE_BACKEND_API_URL` | URL the frontend uses to reach the backend (leave empty when co-hosted) |
+
+Refer to `.env.template` for the full list of variables and their descriptions.
+
+3. **Start the stack**
+
+   ```bash
+   docker compose up
+   ```
+
+   All six services will start in dependency order. The `scripts` service waits for all other services to be healthy before running background jobs.
+
+4. **Access the admin dashboard**
+
+   Open [http://localhost:3400](http://localhost:3400) in your browser.
+
+## Service Architecture
+
 ### OpenSearch Database
 
-Primary database to store messages, channels, subscribers. Opensearch database provides built-in tools and configuration options that allows fine-tuning of how keyword matching and relevance scoring behave. Their keyword search also allow messages to be accurately matched and returned to users.
+The primary data store for messages, chats, subscribers, decks, and notifications. OpenSearch's built-in full-text search and relevance scoring are used to match crawled messages against subscriber keyword sets accurately.
 
 ### Telegram Service
 
-Communicates with official telegram APIs to retrieve messages, channel/group information
+A lightweight Flask API that wraps the Telegram client API. The backend delegates all Telegram credential handling to this service, keeping secrets isolated and the REST API stateless.
 
-### Backend Server
+### Backend Service
 
-UI backend server to serve the admin frontend application. Communicates with various services for different business needs
+An Express 5 / TypeScript REST API that serves the admin frontend and coordinates business logic across OpenSearch and the Telegram Service. All endpoints are versioned under `/api/v1/`.
 
 ### Admin Frontend
 
-UI for administrators to manage channels/groups and subscribers
+A React 19 single-page application for administrators to manage chats, subscribers, decks, templates, and view notification analytics.
 
 ### Scripts
 
-Background jobs running every few minutes (customizable) to download messages from telegram, and sends notification to users upon keyword match
+Three async background jobs run concurrently:
+
+- **ChatMessagesBackgroundJob** — paginates new messages from active chats into OpenSearch
+- **ChatUpdateBackgroundJob** — updates channel participant counts on a daily schedule
+- **SubscriberNotificationBackgroundJob** — matches messages against subscriber decks and dispatches Telegram notifications
+
+Job intervals are configurable via environment variables (`CHAT_MESSAGES_JOB_INTERVAL_MINS`, `SUBSCRIBER_NOTIFICATION_JOB_INTERVAL_MINS`, `CHAT_UPDATE_JOB_INTERVAL_DAYS`).
 
 ### Telegram Bot
 
-Official telegram bot APIs to send messages, handle bot commands
+Handles bot commands and delivers notification messages to subscribers. Supported user commands: `/start`, `/subscribe`, `/unsubscribe`, `/modifykeywords`, `/newdeck`, `/deletedeck`, `/mutedeck`, `/unmutedeck`. Admin command: `/approve_user`.
 
-## Contribution
+## Contributing
 
-This is a passion project of mine and it is closed for contribution. For bug reporting and suggestions, please send me a message directly!
+This is a passion project of mine and it is closed for contribution. For bug reports and feature suggestions, please open a [GitHub Issue](../../issues) — I'd love to hear from you!
