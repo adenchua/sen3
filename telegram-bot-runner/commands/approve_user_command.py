@@ -122,6 +122,17 @@ async def confirmation(update: Update, context: ContextTypes.DEFAULT_TYPE) -> in
             try:
                 response = await client.patch(PATCH_URL, json={"isApproved": True})
                 response.raise_for_status()
+                try:
+                    await context.bot.send_message(
+                        chat_id=selected_id,
+                        text=(
+                            "Your registration has been approved! You can now:\n"
+                            "• Use /modifykeywords to add or update keywords on an existing deck\n"
+                            "• Use /newdeck to create a new alert deck"
+                        ),
+                    )
+                except Exception as notify_error:
+                    logger.warning(f"Could not notify subscriber {selected_id}: {notify_error}")
                 await query.edit_message_text("Subscriber approved successfully!")
             except httpx.HTTPStatusError as http_error:
                 logger.error(f"http error: {http_error}")
