@@ -99,7 +99,7 @@ async def deck_template_input(
         result = await api_post(decks_url(), request_body)
         if result is not None:
             await query.edit_message_text(
-                "Deck created successfully! Use /modifykeywords command to set keywords for your new deck"
+                "Deck created successfully! Use /modify_keywords command to set keywords for your new deck"
             )
 
     context.user_data.clear()
@@ -107,7 +107,7 @@ async def deck_template_input(
 
 
 new_deck_conv_handler = ConversationHandler(
-    entry_points=[CommandHandler("newdeck", start)],
+    entry_points=[CommandHandler("new_deck", start)],
     states={DECK_TEMPLATE_INPUT: [CallbackQueryHandler(deck_template_input)]},
     fallbacks=[CommandHandler("cancel", make_cancel("Operation cancelled. No decks created."))],
 )

@@ -51,7 +51,7 @@ async def deck_input(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
 
 
 delete_deck_conv_handler = ConversationHandler(
-    entry_points=[CommandHandler("deletedeck", start)],
+    entry_points=[CommandHandler("delete_deck", start)],
     states={DECK_INPUT: [CallbackQueryHandler(deck_input)]},
     fallbacks=[CommandHandler("cancel", make_cancel("Operation cancelled. No decks deleted."))],
 )

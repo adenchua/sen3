@@ -78,13 +78,13 @@ def _make_deck_input(*, muting: bool):
 
 
 mute_deck_conv_handler = ConversationHandler(
-    entry_points=[CommandHandler("mutedeck", _make_start(muting=True))],
+    entry_points=[CommandHandler("mute_deck", _make_start(muting=True))],
     states={DECK_INPUT: [CallbackQueryHandler(_make_deck_input(muting=True))]},
     fallbacks=[CommandHandler("cancel", make_cancel("Operation cancelled. No decks muted."))],
 )
 
 unmute_deck_conv_handler = ConversationHandler(
-    entry_points=[CommandHandler("unmutedeck", _make_start(muting=False))],
+    entry_points=[CommandHandler("unmute_deck", _make_start(muting=False))],
     states={DECK_INPUT: [CallbackQueryHandler(_make_deck_input(muting=False))]},
     fallbacks=[CommandHandler("cancel", make_cancel("Operation cancelled. No decks unmuted."))],
 )

@@ -15,11 +15,11 @@ BOT_COMMANDS = [
     BotCommand("start", "Register to get access to the bot"),
     BotCommand("subscribe", "Enable notifications"),
     BotCommand("unsubscribe", "Disable all notifications"),
-    BotCommand("modifykeywords", "Set or update keywords for a deck"),
-    BotCommand("newdeck", "Create a new deck from a template"),
-    BotCommand("deletedeck", "Delete a deck permanently"),
-    BotCommand("mutedeck", "Mute a deck to pause its notifications"),
-    BotCommand("unmutedeck", "Unmute a deck to resume its notifications"),
+    BotCommand("modify_keywords", "Set or update keywords for a deck"),
+    BotCommand("new_deck", "Create a new deck from a template"),
+    BotCommand("delete_deck", "Delete a deck permanently"),
+    BotCommand("mute_deck", "Mute a deck to pause its notifications"),
+    BotCommand("unmute_deck", "Unmute a deck to resume its notifications"),
 ]
 
 

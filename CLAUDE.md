@@ -144,7 +144,7 @@ OpenSearch indexes use **strict mapping** — undeclared fields are rejected. Da
 
 Handles Telegram bot commands and delivers notification messages to subscribers via the Telegram Bot API.
 
-**User commands**: `/start`, `/subscribe`, `/unsubscribe`, `/modifykeywords`, `/newdeck`, `/deletedeck`, `/mutedeck`, `/unmutedeck`
+**User commands**: `/start`, `/subscribe`, `/unsubscribe`, `/modify_keywords`, `/new_deck`, `/delete_deck`, `/mute_deck`, `/unmute_deck`
 
 **Admin commands**: `/approve_user` — approves pending subscriber registrations; requires `TELEGRAM_BOT_ADMIN_TOKEN` for authentication.
 

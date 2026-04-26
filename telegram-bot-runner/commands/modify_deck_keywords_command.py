@@ -145,7 +145,7 @@ async def end(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
 
 
 modify_keywords_conv_handler = ConversationHandler(
-    entry_points=[CommandHandler("modifykeywords", start)],
+    entry_points=[CommandHandler("modify_keywords", start)],
     states={
         KEYWORD_INPUT: [CallbackQueryHandler(keyword_input)],
         CONFIRMATION: [MessageHandler(filters.TEXT & ~filters.COMMAND, confirmation)],

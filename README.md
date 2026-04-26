@@ -116,7 +116,7 @@ Job intervals are configurable via environment variables (`CHAT_MESSAGES_JOB_INT
 
 ### Telegram Bot
 
-Handles bot commands and delivers notification messages to subscribers. Supported user commands: `/start`, `/subscribe`, `/unsubscribe`, `/modifykeywords`, `/newdeck`, `/deletedeck`, `/mutedeck`, `/unmutedeck`. Admin command: `/approve_user`.
+Handles bot commands and delivers notification messages to subscribers. Supported user commands: `/start`, `/subscribe`, `/unsubscribe`, `/modify_keywords`, `/new_deck`, `/delete_deck`, `/mute_deck`, `/unmute_deck`. Admin command: `/approve_user`.
 
 ## Contributing
 

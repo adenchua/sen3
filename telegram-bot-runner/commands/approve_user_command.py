@@ -132,8 +132,8 @@ async def confirmation(update: Update, context: ContextTypes.DEFAULT_TYPE) -> in
                 chat_id=selected_id,
                 text=(
                     "Your registration has been approved! You can now:\n"
-                    "• Use /modifykeywords to add or update keywords on an existing deck\n"
-                    "• Use /newdeck to create a new alert deck"
+                    "• Use /modify_keywords to add or update keywords on an existing deck\n"
+                    "• Use /new_deck to create a new alert deck"
                 ),
             )
         except Exception as notify_error:
