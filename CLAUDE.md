@@ -150,6 +150,13 @@ Handles Telegram bot commands and delivers notification messages to subscribers 
 
 Bot commands are registered with Telegram on startup via the `post_init` hook on `ApplicationBuilder` in `main.py`, which calls `bot.set_my_commands()` to populate the in-chat command menu automatically.
 
+**API client (`api_client.py`) return conventions:**
+- `api_get()` / `api_post()` — return `dict | None` (parsed JSON body, or `None` on error)
+- `api_patch()` — returns `dict | bool | None`: parsed JSON if a body is present, `True` if the request succeeded with no body (e.g. 204 No Content), `None` on error
+- `api_delete()` — returns `bool` (`True` on success, `False` on error)
+
+**Backend PATCH and DELETE endpoints return 204 No Content** (no response body). Commands must check `if result is not None:` (not `if result:`) to gate success messages, since `True` is the success sentinel for empty responses.
+
 ### telegram-service/
 
 Flask API that wraps the Telegram client API. The backend calls it to fetch chat info and messages without directly holding Telegram credentials.

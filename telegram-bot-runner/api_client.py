@@ -39,16 +39,19 @@ async def api_post(url: str, body: dict) -> dict | None:
     return None
 
 
-async def api_patch(url: str, body: dict) -> dict | None:
+async def api_patch(url: str, body: dict) -> dict | bool | None:
     """
-    Perform a PATCH request with a JSON body and return the parsed JSON response.
+    Perform a PATCH request with a JSON body.
 
-    Returns None on HTTP error or any unexpected exception.
+    Returns the parsed JSON response if present, True if the request succeeded with no body
+    (e.g. 204 No Content), or None on HTTP error or any unexpected exception.
     """
     async with httpx.AsyncClient() as client:
         try:
             response = await client.patch(url, json=body)
             response.raise_for_status()
+            if not response.content:
+                return True
             return response.json()
         except httpx.HTTPStatusError as http_error:
             logger.error(f"http error: {http_error}")

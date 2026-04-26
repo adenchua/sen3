@@ -25,10 +25,10 @@ export class NotificationModel {
     };
   }
 
-  async save(notification: Notification): Promise<void> {
+  async save(notification: Notification): Promise<string> {
     const rawNotification = this.transformToRawNotification(notification);
     const { _id: id, ...document } = rawNotification;
-    await this.databaseService.ingestDocument(document, this.DATABASE_INDEX, id);
+    return await this.databaseService.ingestDocument(document, this.DATABASE_INDEX, id);
   }
 
   async getCount(

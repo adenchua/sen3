@@ -48,10 +48,10 @@ export class MessageModel {
     };
   }
 
-  async save(message: Message): Promise<void> {
+  async save(message: Message): Promise<string> {
     const rawMessage = this.transformToRawMessage(message);
     const { _id: id, ...rest } = rawMessage;
-    await this.databaseService.ingestDocument(rest, this.DATABASE_INDEX, id);
+    return await this.databaseService.ingestDocument(rest, this.DATABASE_INDEX, id);
   }
 
   async saveMany(messages: Message[]): Promise<void> {

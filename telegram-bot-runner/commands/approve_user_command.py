@@ -125,27 +125,20 @@ async def confirmation(update: Update, context: ContextTypes.DEFAULT_TYPE) -> in
 
     if answer == "YES":
         selected_id = context.user_data.get("selected_subscriber_id")
-        result = await api_patch(subscriber_url(selected_id), {"isApproved": True})
+        await api_patch(subscriber_url(selected_id), {"isApproved": True})
 
-        if result is not None:
-            try:
-                await context.bot.send_message(
-                    chat_id=selected_id,
-                    text=(
-                        "Your registration has been approved! You can now:\n"
-                        "• Use /modifykeywords to add or update keywords on an existing deck\n"
-                        "• Use /newdeck to create a new alert deck"
-                    ),
-                )
-            except Exception as notify_error:
-                logger.warning(
-                    f"Could not notify subscriber {selected_id}: {notify_error}"
-                )
-            await query.edit_message_text("Subscriber approved successfully!")
-        else:
-            await query.edit_message_text(
-                "An error occurred while approving the subscriber. Please try again."
+        try:
+            await context.bot.send_message(
+                chat_id=selected_id,
+                text=(
+                    "Your registration has been approved! You can now:\n"
+                    "• Use /modifykeywords to add or update keywords on an existing deck\n"
+                    "• Use /newdeck to create a new alert deck"
+                ),
             )
+        except Exception as notify_error:
+            logger.warning(f"Could not notify subscriber {selected_id}: {notify_error}")
+        await query.edit_message_text("Subscriber approved successfully!")
 
         context.user_data.clear()
         return ConversationHandler.END

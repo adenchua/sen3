@@ -8,6 +8,7 @@ import { DeckTemplateModel } from "../../models/DeckTemplateModel";
 import { SubscriberModel } from "../../models/SubscriberModel";
 import { databaseInstance } from "../../singletons";
 import { DeckModel } from "../../models/DeckModel";
+import wrapResponse from "../../utils/responseUtils";
 
 interface RequestBody {
   userId: string;
@@ -62,7 +63,7 @@ async function createSubscriber(request: Request, response: Response): Promise<v
     });
   }
 
-  response.status(201).send();
+  response.status(201).send(wrapResponse(newSubscriberId));
 }
 
 const createSubscriberController: ControllerInterface = {
