@@ -144,14 +144,19 @@ class ChatMessagesBackgroundJob:
             # bulk ingest all accumulated messages
             # need to chunk the array, if not will throw payload entity too large error
             if len(all_messages) > 0:
+                logging.info(
+                    f"Retrieved {len(all_messages)} messages from all chats, performing ingestion..."
+                )
                 CHUNK_SIZE = 50
                 for index in range(0, len(all_messages), CHUNK_SIZE):
                     await self.ingest_messages(
                         client, all_messages[index : index + CHUNK_SIZE]
                     )
+                logging.info(f"Ingested {len(all_messages)} messages successfully!")
 
             # update all chat offset_ids and last crawl dates in one bulk call
             await self.update_chat_offsets(client, offset_updates)
+            logging.info(f"Updated chat offsets successfully!")
 
         except httpx.HTTPStatusError as http_error:
             logging.exception(http_error)
