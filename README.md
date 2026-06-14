@@ -67,6 +67,7 @@ I used to follow various Telegram channels and groups for news, shopping deals, 
    | `OPENSEARCH_PASSWORD` | OpenSearch admin password |
    | `TELEGRAM_API_ID` | Telegram client API ID |
    | `TELEGRAM_API_HASH` | Telegram client API hash |
+   | `TELEGRAM_SESSION_STRING` | Telegram user session string for `telegram-service` (generated in the next step) |
    | `TELEGRAM_BOT_TOKEN` | Telegram bot token from BotFather |
    | `TELEGRAM_BOT_ADMIN_TOKEN` | Secret token required for the `/approve_user` admin command |
    | `TELEGRAM_SERVICE_API_URL` | URL the backend uses to reach `telegram-service` |
@@ -74,7 +75,19 @@ I used to follow various Telegram channels and groups for news, shopping deals, 
 
 Refer to `.env.template` for the full list of variables and their descriptions.
 
-3. **Start the stack**
+3. **Generate a Telegram session string**
+
+   `telegram-service` connects to Telegram as a user account (bots cannot read arbitrary public channel history). It authenticates with a portable **session string** rather than a session file, so there is no interactive login prompt at runtime.
+
+   Run the one-time login below to produce the string. A session string is **not** tied to the machine that created it, so you can generate it anywhere — including inside a throwaway container, which means the host needs only Docker:
+
+   ```bash
+   docker compose -f docker-compose.local.yml run --rm -it telegram-service python login.py
+   ```
+
+   Enter your phone number and the OTP Telegram sends you, then copy the printed value into `TELEGRAM_SESSION_STRING` in your `.env`. You only need to do this once.
+
+4. **Start the stack**
 
    ```bash
    docker compose up
@@ -82,7 +95,7 @@ Refer to `.env.template` for the full list of variables and their descriptions.
 
    All six services will start in dependency order. The `scripts` service waits for all other services to be healthy before running background jobs.
 
-4. **Access the admin dashboard**
+5. **Access the admin dashboard**
 
    Open [http://localhost:3400](http://localhost:3400) in your browser.
 
@@ -94,7 +107,7 @@ The primary data store for messages, chats, subscribers, decks, and notification
 
 ### Telegram Service
 
-A lightweight Flask API that wraps the Telegram client API. The backend delegates all Telegram credential handling to this service, keeping secrets isolated and the REST API stateless.
+A lightweight Flask API that wraps the Telegram client API. The backend delegates all Telegram credential handling to this service, keeping secrets isolated and the REST API stateless. It authenticates with a portable user **session string** (`TELEGRAM_SESSION_STRING`, generated once via `login.py`) and holds a single long-lived Telegram client per worker, so it never prompts for a login at runtime and avoids per-request reconnects.
 
 ### Backend Service
 

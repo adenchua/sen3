@@ -1,26 +1,14 @@
 import logging
-import os
 
-from dotenv import load_dotenv
 from flask import Blueprint, abort, make_response, request
 
 from telegram.ChatService import ChatService, RateLimitedError
+from telegram.client import get_client, run_on_loop
 from .responsewrapper import wrap_error, wrap_response
 
 logger = logging.getLogger(__name__)
 
 blueprint = Blueprint("chat", __name__)
-
-# load environment keys
-load_dotenv()
-API_ID: int = int(os.getenv("TELEGRAM_API_ID", -1))
-API_HASH: str = os.getenv("TELEGRAM_API_HASH", "")
-
-if API_ID == -1 or not API_HASH:
-    logger.warning(
-        "TELEGRAM_API_ID/TELEGRAM_API_HASH are not set; "
-        "Telegram requests will fail until credentials are provided"
-    )
 
 
 def is_true(value):
@@ -54,10 +42,10 @@ def rate_limited_response(error):
 
 
 @blueprint.route("/<chat_username>", methods=["GET"])
-async def get_chat(chat_username):
+def get_chat(chat_username):
     try:
-        chat_service = ChatService(API_ID, API_HASH)
-        result = await chat_service.get_chat(chat_username)
+        chat_service = ChatService(get_client())
+        result = run_on_loop(chat_service.get_chat(chat_username))
         return wrap_response(result)
     except RateLimitedError as error:
         return rate_limited_response(error)
@@ -71,18 +59,20 @@ async def get_chat(chat_username):
 
 
 @blueprint.route("/<chat_username>/messages", methods=["GET"])
-async def get_chat_messages(chat_username):
+def get_chat_messages(chat_username):
     limit = parse_int_param("limit", 10)
     offset_id = parse_int_param("offset_id", 0)
     reverse = request.args.get("reverse", default=True, type=is_true)
 
     try:
-        chat_service = ChatService(API_ID, API_HASH)
-        result = await chat_service.get_chat_messages(
-            chat_username=chat_username,
-            limit=limit,
-            reverse=reverse,
-            offset_id=offset_id,
+        chat_service = ChatService(get_client())
+        result = run_on_loop(
+            chat_service.get_chat_messages(
+                chat_username=chat_username,
+                limit=limit,
+                reverse=reverse,
+                offset_id=offset_id,
+            )
         )
         return wrap_response(result)
     except RateLimitedError as error:
@@ -97,10 +87,10 @@ async def get_chat_messages(chat_username):
 
 
 @blueprint.route("/<chat_username>/recommendations", methods=["GET"])
-async def get_chat_recommendations(chat_username):
+def get_chat_recommendations(chat_username):
     try:
-        chat_service = ChatService(API_ID, API_HASH)
-        result = await chat_service.get_recommended_chats(chat_username)
+        chat_service = ChatService(get_client())
+        result = run_on_loop(chat_service.get_recommended_chats(chat_username))
         return wrap_response(result)
     except RateLimitedError as error:
         return rate_limited_response(error)

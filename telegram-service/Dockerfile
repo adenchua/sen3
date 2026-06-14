@@ -15,4 +15,6 @@ COPY ./telegram-service .
 ENV PYTHONUNBUFFERED=1
 ENV PYTHONPATH=/app/telegram-service/src
 
-CMD ["gunicorn", "--bind", "0.0.0.0:5099", "src.main:create_app()"]
+# single worker: each worker process holds its own long-lived Telegram client,
+# so one worker keeps a single shared client/event loop for the service
+CMD ["gunicorn", "--workers", "1", "--bind", "0.0.0.0:5099", "src.main:create_app()"]

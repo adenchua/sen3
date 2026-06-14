@@ -50,8 +50,9 @@ class ChatService:
     Telegram wrapper class that provides telegram chat related methods
     """
 
-    def __init__(self, api_id: int, api_hash: str):
-        self.telegram_client: TelegramClient = TelegramClient("anon", api_id, api_hash)
+    def __init__(self, client: TelegramClient):
+        """Stores the shared, already-connected Telegram client to use for requests."""
+        self.telegram_client: TelegramClient = client
 
     def get_active_chat_username(self, usernames: list[TypeUsername]):
         # loop through all usernames, get the first active username
@@ -66,32 +67,30 @@ class ChatService:
         Retrieves a Telegram chat by the username or invite link or short link
         Returns a telegram Chat object
         """
-        client: TelegramClient
         try:
-            async with self.telegram_client as client:
-                response: messages.ChatFull = await client(
-                    functions.channels.GetFullChannelRequest(channel=chat_username)
-                )
-                chat = response.chats[0]
-                chat_full = response.full_chat
+            response: messages.ChatFull = await self.telegram_client(
+                functions.channels.GetFullChannelRequest(channel=chat_username)
+            )
+            chat = response.chats[0]
+            chat_full = response.full_chat
 
-                temp_username: str | None = chat.username
-                # some channels have > 1 username, resulting in chat.username to be None
-                # telegram stores the usernames as an array in chat.usernames
-                if temp_username is None and chat.usernames is not None:
-                    temp_username = self.get_active_chat_username(chat.usernames)
+            temp_username: str | None = chat.username
+            # some channels have > 1 username, resulting in chat.username to be None
+            # telegram stores the usernames as an array in chat.usernames
+            if temp_username is None and chat.usernames is not None:
+                temp_username = self.get_active_chat_username(chat.usernames)
 
-                result = Chat(
-                    id=chat_full.id,
-                    about=chat_full.about,
-                    participants_count=chat_full.participants_count,
-                    username=temp_username,
-                    is_channel=chat.broadcast,
-                    is_verified=chat.verified,
-                    title=chat.title,
-                    created_date=chat.date,
-                )
-                return result.model_dump()
+            result = Chat(
+                id=chat_full.id,
+                about=chat_full.about,
+                participants_count=chat_full.participants_count,
+                username=temp_username,
+                is_channel=chat.broadcast,
+                is_verified=chat.verified,
+                title=chat.title,
+                created_date=chat.date,
+            )
+            return result.model_dump()
         except FloodWaitError as error:
             logger.warning(
                 "Rate limited by Telegram for chat '%s'; retry after %ss",
@@ -121,36 +120,36 @@ class ChatService:
 
         To obtain the latest messages from a chat, set the reverse parameter to False.
         """
-        client: TelegramClient
         try:
-            async with self.telegram_client as client:
-                response: list[Message | MessageService] = await client.get_messages(
+            response: list[Message | MessageService] = (
+                await self.telegram_client.get_messages(
                     entity=chat_username,
                     limit=limit if limit is not None else 10,
                     offset_id=offset_id if offset_id is not None else 0,
                     reverse=reverse if reverse is not None else True,
                 )
-                result: list[_Message] = []
+            )
+            result: list[_Message] = []
 
-                # process the response
-                # filter non Messages such as announcements/chat edit
-                # parse message
-                for message in response:
-                    # MessageService is returned by the client in the array, need to filter out
-                    if isinstance(message, Message):
-                        temp = _Message(
-                            chat_id=message.peer_id.channel_id,
-                            chat_username=chat_username,
-                            id=message.id,
-                            created_date=message.date,
-                            text=message.message,
-                            view_count=message.views,
-                            forward_count=message.forwards,
-                            edited_date=message.edit_date,
-                        )
-                        result.append(temp.model_dump())
+            # process the response
+            # filter non Messages such as announcements/chat edit
+            # parse message
+            for message in response:
+                # MessageService is returned by the client in the array, need to filter out
+                if isinstance(message, Message):
+                    temp = _Message(
+                        chat_id=message.peer_id.channel_id,
+                        chat_username=chat_username,
+                        id=message.id,
+                        created_date=message.date,
+                        text=message.message,
+                        view_count=message.views,
+                        forward_count=message.forwards,
+                        edited_date=message.edit_date,
+                    )
+                    result.append(temp.model_dump())
 
-                return result
+            return result
         except FloodWaitError as error:
             logger.warning(
                 "Rate limited by Telegram for chat '%s'; retry after %ss",
@@ -170,28 +169,26 @@ class ChatService:
 
         Recommendations are given by telegram and usually 10 chats will be recommended
         """
-        client: TelegramClient
         try:
-            async with self.telegram_client as client:
-                response: messages.Chats = await client(
-                    functions.channels.GetChannelRecommendationsRequest(
-                        channel=chat_username
-                    )
+            response: messages.Chats = await self.telegram_client(
+                functions.channels.GetChannelRecommendationsRequest(
+                    channel=chat_username
                 )
+            )
 
-                result: list[Chat] = []
+            result: list[Chat] = []
 
-                for chat in response.chats:
-                    temp_username: str = chat.username
-                    # some channels have > 1 username, resulting in chat.username to be None
-                    # telegram stores the usernames as an array in chat.usernames
-                    if temp_username is None and chat.usernames is not None:
-                        temp_username = self.get_active_chat_username(chat.usernames)
+            for chat in response.chats:
+                temp_username: str = chat.username
+                # some channels have > 1 username, resulting in chat.username to be None
+                # telegram stores the usernames as an array in chat.usernames
+                if temp_username is None and chat.usernames is not None:
+                    temp_username = self.get_active_chat_username(chat.usernames)
 
-                    temp_chat = await self.get_chat(temp_username)
-                    result.append(temp_chat)
+                temp_chat = await self.get_chat(temp_username)
+                result.append(temp_chat)
 
-                return result
+            return result
         except FloodWaitError as error:
             logger.warning(
                 "Rate limited by Telegram for chat '%s'; retry after %ss",

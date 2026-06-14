@@ -77,6 +77,7 @@ Copy `.env.template` → `.env` and fill in:
 
 - `OPENSEARCH_USERNAME` / `OPENSEARCH_PASSWORD`
 - `TELEGRAM_API_ID` / `TELEGRAM_API_HASH` / `TELEGRAM_BOT_TOKEN`
+- `TELEGRAM_SESSION_STRING` — portable Telethon user session for telegram-service; generate once with `telegram-service/login.py` (see Python Services)
 - `TELEGRAM_SERVICE_API_URL` — URL backend uses to reach telegram-service
 - `VITE_BACKEND_API_URL` — URL frontend uses to reach backend (empty in prod when co-hosted)
 - `TELEGRAM_BOT_ADMIN_TOKEN` — secret token required by the `/approve_user` admin bot command
@@ -175,7 +176,9 @@ Flask API that wraps the Telegram client API (Telethon). The backend calls it to
 - `429` — Telegram rate limit; Telethon `FloodWaitError` is wrapped as `RateLimitedError` (carries `retry_after_seconds`) and surfaced with a `Retry-After` header
 - `500` — unexpected failures (logged via `logger.exception`)
 
-**Known limitation:** each request constructs a new `ChatService` → `TelegramClient("anon", ...)` sharing one `anon.session` SQLite file. This can cause reconnect churn / `database is locked` errors if gunicorn runs more than one worker. A single long-lived client (with an ASGI server for the async routes) is the intended fix; not yet implemented.
+**Session / client lifecycle:** the service authenticates as a Telegram **user account** (bots can't read arbitrary public channel history) using a portable `StringSession` supplied via the `TELEGRAM_SESSION_STRING` env var — no `anon.session` file, no volume mount, and no interactive OTP prompt at runtime. Generate the string once with `telegram-service/login.py` (interactive phone+OTP) on any machine, e.g. inside a throwaway container: `docker compose -f docker-compose.local.yml run --rm -it telegram-service python login.py`, then paste the printed value into the environment. A `StringSession` is not machine-bound, so the server itself never needs Python.
+
+`telegram/client.py` holds **one long-lived, already-connected client** per worker process on a dedicated background asyncio loop (Telethon binds a client to the loop it connected on). Sync Flask views build `ChatService(get_client())` and dispatch coroutines with `run_on_loop(...)`. This replaces the old per-request `TelegramClient("anon", ...)` construction, removing the reconnect churn / `database is locked` problem. Gunicorn runs a single worker (see `Dockerfile`).
 
 ## Code Style
 
