@@ -159,7 +159,21 @@ Bot commands are registered with Telegram on startup via the `post_init` hook on
 
 ### telegram-service/
 
-Flask API that wraps the Telegram client API. The backend calls it to fetch chat info and messages without directly holding Telegram credentials.
+Flask API that wraps the Telegram client API (Telethon). The backend calls it to fetch chat info and messages without directly holding Telegram credentials.
+
+**Routes** (all under `/api/v1/chats`): `GET /<chat_username>`, `GET /<chat_username>/messages`, `GET /<chat_username>/recommendations`, plus `GET /healthcheck`.
+
+**Response envelopes** (`flaskr/responsewrapper.py`):
+- Success — `wrap_response(data)` → `{ data, status: "success", datetime }`
+- Error — `wrap_error(message, status_code)` → `{ error, status_code, status: "error", datetime }`, returned by the 400/404/500 error handlers in `main.py`
+
+**Status code conventions:**
+- `400` — invalid query params (e.g. non-integer `limit`/`offset_id`)
+- `404` — chat not found; Telethon "chat unavailable" errors (`CHAT_UNAVAILABLE_ERRORS` in `ChatService.py`) are translated to `ValueError`, which routes map to 404
+- `429` — Telegram rate limit; Telethon `FloodWaitError` is wrapped as `RateLimitedError` (carries `retry_after_seconds`) and surfaced with a `Retry-After` header
+- `500` — unexpected failures (logged via `logger.exception`)
+
+**Known limitation:** each request constructs a new `ChatService` → `TelegramClient("anon", ...)` sharing one `anon.session` SQLite file. This can cause reconnect churn / `database is locked` errors if gunicorn runs more than one worker. A single long-lived client (with an ASGI server for the async routes) is the intended fix; not yet implemented.
 
 ## Code Style
 

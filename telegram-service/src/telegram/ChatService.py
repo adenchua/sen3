@@ -1,9 +1,12 @@
+import logging
+
 from telethon import TelegramClient, functions
 from telethon.errors import (
     ChannelBannedError,
     ChannelIdInvalidError,
     ChannelInvalidError,
     ChannelPrivateError,
+    FloodWaitError,
     PublicChannelMissingError,
     UsernameInvalidError,
 )
@@ -11,6 +14,35 @@ from telethon.tl.types import Message, MessageService, messages, TypeUsername
 
 from models.Models import Chat
 from models.Models import Message as _Message
+
+logger = logging.getLogger(__name__)
+
+# Telethon errors that mean the requested chat cannot be resolved/accessed.
+# These are translated to a ValueError so routes can map them to a 404.
+CHAT_UNAVAILABLE_ERRORS = (
+    ChannelBannedError,
+    ChannelIdInvalidError,
+    ChannelInvalidError,
+    ChannelPrivateError,
+    PublicChannelMissingError,
+    UsernameInvalidError,
+)
+
+
+class RateLimitedError(Exception):
+    """
+    Raised when Telegram rate-limits a request (Telethon FloodWaitError).
+
+    Carries the number of seconds the caller should wait before retrying so
+    routes can surface it as an HTTP 429 with a Retry-After header.
+    """
+
+    def __init__(self, retry_after_seconds: int):
+        """Stores the retry-after duration in seconds and builds a message."""
+        self.retry_after_seconds = retry_after_seconds
+        super().__init__(
+            f"Rate limited by Telegram; retry after {retry_after_seconds}s"
+        )
 
 
 class ChatService:
@@ -60,15 +92,18 @@ class ChatService:
                     created_date=chat.date,
                 )
                 return result.model_dump()
-        except (
-            ChannelBannedError,
-            ChannelIdInvalidError,
-            ChannelInvalidError,
-            ChannelPrivateError,
-            PublicChannelMissingError,
-            UsernameInvalidError,
-        ) as error:
-            raise ValueError(f"Chat '{chat_username}' is not available: {error}") from error
+        except FloodWaitError as error:
+            logger.warning(
+                "Rate limited by Telegram for chat '%s'; retry after %ss",
+                chat_username,
+                error.seconds,
+            )
+            raise RateLimitedError(error.seconds) from error
+        except CHAT_UNAVAILABLE_ERRORS as error:
+            logger.info("Chat '%s' is not available: %s", chat_username, error)
+            raise ValueError(
+                f"Chat '{chat_username}' is not available: {error}"
+            ) from error
 
     async def get_chat_messages(
         self,
@@ -116,15 +151,18 @@ class ChatService:
                         result.append(temp.model_dump())
 
                 return result
-        except (
-            ChannelBannedError,
-            ChannelIdInvalidError,
-            ChannelInvalidError,
-            ChannelPrivateError,
-            PublicChannelMissingError,
-            UsernameInvalidError,
-        ) as error:
-            raise ValueError(f"Chat '{chat_username}' is not available: {error}") from error
+        except FloodWaitError as error:
+            logger.warning(
+                "Rate limited by Telegram for chat '%s'; retry after %ss",
+                chat_username,
+                error.seconds,
+            )
+            raise RateLimitedError(error.seconds) from error
+        except CHAT_UNAVAILABLE_ERRORS as error:
+            logger.info("Chat '%s' is not available: %s", chat_username, error)
+            raise ValueError(
+                f"Chat '{chat_username}' is not available: {error}"
+            ) from error
 
     async def get_recommended_chats(self, chat_username: str) -> list[Chat]:
         """
@@ -154,12 +192,15 @@ class ChatService:
                     result.append(temp_chat)
 
                 return result
-        except (
-            ChannelBannedError,
-            ChannelIdInvalidError,
-            ChannelInvalidError,
-            ChannelPrivateError,
-            PublicChannelMissingError,
-            UsernameInvalidError,
-        ) as error:
-            raise ValueError(f"Chat '{chat_username}' is not available: {error}") from error
+        except FloodWaitError as error:
+            logger.warning(
+                "Rate limited by Telegram for chat '%s'; retry after %ss",
+                chat_username,
+                error.seconds,
+            )
+            raise RateLimitedError(error.seconds) from error
+        except CHAT_UNAVAILABLE_ERRORS as error:
+            logger.info("Chat '%s' is not available: %s", chat_username, error)
+            raise ValueError(
+                f"Chat '{chat_username}' is not available: {error}"
+            ) from error

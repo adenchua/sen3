@@ -7,13 +7,13 @@ class Chat(BaseModel):
     """Parsed Telegram chat object"""
 
     id: int
-    about: str
+    about: str | None = None
     created_date: datetime
-    participants_count: int
+    participants_count: int | None = None
     is_channel: bool
     is_verified: bool
     title: str
-    username: str
+    username: str | None = None
 
 
 class Message(BaseModel):

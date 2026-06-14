@@ -1,29 +1,46 @@
-from flask import Flask, jsonify
+from flask import Flask
 from dotenv import load_dotenv
 import os
 import logging
 
 from flaskr import chat
+from flaskr.responsewrapper import wrap_error
 
 # load environment keys
 load_dotenv()
-PORT_NUMBER: int = os.getenv("TELEGRAM_SERVICE_PORT", 5099)
+PORT_NUMBER: int = int(os.getenv("TELEGRAM_SERVICE_PORT", 5099))
+LOG_LEVEL: str = os.getenv("LOG_LEVEL", "INFO")
 
 
 def create_app():
     # create and configure the app
     app = Flask(__name__)
 
-    # add logging to gunicorn
+    # route logging through gunicorn's handlers when running under gunicorn,
+    # falling back to a basic config (with an explicit level) otherwise so
+    # INFO/WARNING records are not silently dropped
     gunicorn_logger = logging.getLogger("gunicorn.error")
-    app.logger.handlers = gunicorn_logger.handlers
-    app.logger.setLevel(gunicorn_logger.level)
+    if gunicorn_logger.handlers:
+        logging.basicConfig(
+            handlers=gunicorn_logger.handlers, level=gunicorn_logger.level
+        )
+    else:
+        logging.basicConfig(level=LOG_LEVEL)
+
+    @app.errorhandler(400)
+    def bad_request(error):
+        """Returns a standardized 400 envelope for invalid requests."""
+        return wrap_error(error.description, 400), 400
 
     @app.errorhandler(404)
-    def resource_not_found(e):
-        return jsonify(error=str(e)), 404
+    def resource_not_found(error):
+        """Returns a standardized 404 envelope for missing resources."""
+        return wrap_error(error.description, 404), 404
 
-    app.register_error_handler(404, resource_not_found)
+    @app.errorhandler(500)
+    def internal_server_error(error):
+        """Returns a standardized 500 envelope for unexpected failures."""
+        return wrap_error("internal server error", 500), 500
 
     @app.get("/healthcheck")
     def health_check():
