@@ -1,4 +1,3 @@
-import asyncio
 import httpx
 import logging
 
@@ -14,9 +13,6 @@ logging.basicConfig(
 
 
 class ChatMessagesBackgroundJob:
-    def __init__(self, interval_minutes: int):
-        self.interval_minutes = interval_minutes
-
     async def update_chat_offsets(
         self, client: httpx.AsyncClient, offset_updates: list[dict]
     ) -> None:
@@ -114,56 +110,50 @@ class ChatMessagesBackgroundJob:
 
         return messages, offset_update
 
-    async def run(self) -> None:
+    async def run_once(self, client: httpx.AsyncClient) -> None:
         """
-        Retrieves all active chats and fetches the latest messages and ingests them in the database.
-        Sleeps for a specified interval in minutes
+        Runs a single crawl cycle: retrieves all active chats, fetches the latest
+        messages from each, and ingests them into the database. Catches and logs
+        errors so the caller's loop continues. Returns nothing.
         """
-        async with httpx.AsyncClient() as client:
-            while True:
-                try:
-                    logging.info(f"Running background job to fetch chat messages...")
+        try:
+            logging.info(f"Running background job to fetch chat messages...")
 
-                    fetch_chats_url = f"{BACKEND_SERVICE_API_URL}/api/v1/chats"
-                    # obtain crawl active chats only
-                    response = await client.get(
-                        fetch_chats_url,
-                        params={"crawlActive": "1", "size": "10000"},
+            fetch_chats_url = f"{BACKEND_SERVICE_API_URL}/api/v1/chats"
+            # obtain crawl active chats only
+            response = await client.get(
+                fetch_chats_url,
+                params={"crawlActive": "1", "size": "10000"},
+            )
+            response.raise_for_status()
+            response_json: dict = response.json()
+            chats: list[dict] = response_json.get("data", None)
+
+            # fetch messages from every chat first, accumulating the
+            # messages and offset updates to flush in as few calls as possible
+            all_messages: list[dict] = []
+            offset_updates: list[dict] = []
+            for chat in chats:
+                messages, offset_update = await self.fetch_chat_messages(
+                    client, chat, 10
+                )
+                all_messages.extend(messages)
+                if offset_update is not None:
+                    offset_updates.append(offset_update)
+
+            # bulk ingest all accumulated messages
+            # need to chunk the array, if not will throw payload entity too large error
+            if len(all_messages) > 0:
+                CHUNK_SIZE = 50
+                for index in range(0, len(all_messages), CHUNK_SIZE):
+                    await self.ingest_messages(
+                        client, all_messages[index : index + CHUNK_SIZE]
                     )
-                    response.raise_for_status()
-                    response_json: dict = response.json()
-                    chats: list[dict] = response_json.get("data", None)
 
-                    # fetch messages from every chat first, accumulating the
-                    # messages and offset updates to flush in as few calls as possible
-                    all_messages: list[dict] = []
-                    offset_updates: list[dict] = []
-                    for chat in chats:
-                        messages, offset_update = await self.fetch_chat_messages(
-                            client, chat, 10
-                        )
-                        all_messages.extend(messages)
-                        if offset_update is not None:
-                            offset_updates.append(offset_update)
+            # update all chat offset_ids and last crawl dates in one bulk call
+            await self.update_chat_offsets(client, offset_updates)
 
-                    # bulk ingest all accumulated messages
-                    # need to chunk the array, if not will throw payload entity too large error
-                    if len(all_messages) > 0:
-                        CHUNK_SIZE = 50
-                        for index in range(0, len(all_messages), CHUNK_SIZE):
-                            await self.ingest_messages(
-                                client, all_messages[index : index + CHUNK_SIZE]
-                            )
-
-                    # update all chat offset_ids and last crawl dates in one bulk call
-                    await self.update_chat_offsets(client, offset_updates)
-
-                except httpx.HTTPStatusError as http_error:
-                    logging.exception(http_error)
-                except Exception as error:
-                    logging.exception(error)
-                finally:
-                    logging.info(
-                        f"Background job completed! Sleeping for {self.interval_minutes} minutes..."
-                    )
-                    await asyncio.sleep(60 * self.interval_minutes)
+        except httpx.HTTPStatusError as http_error:
+            logging.exception(http_error)
+        except Exception as error:
+            logging.exception(error)

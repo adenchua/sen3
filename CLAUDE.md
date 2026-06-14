@@ -80,7 +80,7 @@ Copy `.env.template` → `.env` and fill in:
 - `TELEGRAM_SERVICE_API_URL` — URL backend uses to reach telegram-service
 - `VITE_BACKEND_API_URL` — URL frontend uses to reach backend (empty in prod when co-hosted)
 - `TELEGRAM_BOT_ADMIN_TOKEN` — secret token required by the `/approve_user` admin bot command
-- Background job intervals: `CHAT_MESSAGES_JOB_INTERVAL_MINS`, `SUBSCRIBER_NOTIFICATION_JOB_INTERVAL_MINS`, `CHAT_UPDATE_JOB_INTERVAL_DAYS`
+- Background job intervals: `CHAT_MESSAGES_INTERVAL_MINUTES` (governs the combined crawl→notify cycle), `CHAT_INTERVAL_DAYS`
 
 ## Backend Patterns
 
@@ -135,10 +135,12 @@ OpenSearch indexes use **strict mapping** — undeclared fields are rejected. Da
 
 ### scripts/ (background jobs)
 
-`scripts/main.py` runs three async jobs concurrently:
-- `ChatMessagesBackgroundJob` — crawls new messages from active chats
-- `ChatUpdateBackgroundJob` — updates participant counts daily
-- `SubscriberNotificationBackgroundJob` — dispatches notifications to subscribers
+`scripts/main.py` runs two concurrent tasks:
+- A combined crawl→notify cycle (`crawl_and_notify_loop`) that runs every `CHAT_MESSAGES_INTERVAL_MINUTES`:
+  - `ChatMessagesBackgroundJob.run_once()` — crawls new messages from active chats
+  - then immediately `SubscriberNotificationBackgroundJob.run_once()` — dispatches notifications for matched messages
+  - Both phases share one HTTP client and each catches its own errors, so a crawl failure still lets notifications run, and vice versa.
+- `ChatUpdateBackgroundJob` — updates participant counts daily (independent task)
 
 ### telegram-bot-runner/
 

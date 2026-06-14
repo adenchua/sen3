@@ -21,7 +21,7 @@ I used to follow various Telegram channels and groups for news, shopping deals, 
 - **Deck management** — activate, mute, or modify decks at any time via Telegram bot commands
 - **Default templates** — administrators can define deck templates that are automatically applied to new subscribers
 - **Admin dashboard** — web UI for managing chats, subscribers, decks, and viewing analytics
-- **Configurable intervals** — crawl frequency and notification dispatch cadence are environment-configurable
+- **Configurable intervals** — the crawl → notify cycle frequency is environment-configurable
 
 ## Tech Stack
 
@@ -106,13 +106,14 @@ A React 19 single-page application for administrators to manage chats, subscribe
 
 ### Scripts
 
-Three async background jobs run concurrently:
+Two async tasks run concurrently:
 
-- **ChatMessagesBackgroundJob** — paginates new messages from active chats into OpenSearch
-- **ChatUpdateBackgroundJob** — updates channel participant counts on a daily schedule
-- **SubscriberNotificationBackgroundJob** — matches messages against subscriber decks and dispatches Telegram notifications
+- A combined **crawl → notify** cycle, where each pass runs back-to-back so notifications dispatch immediately on freshly crawled messages:
+  - **ChatMessagesBackgroundJob** — paginates new messages from active chats into OpenSearch
+  - **SubscriberNotificationBackgroundJob** — matches those messages against subscriber decks and dispatches Telegram notifications
+- **ChatUpdateBackgroundJob** — updates channel participant counts on a daily schedule (independent task)
 
-Job intervals are configurable via environment variables (`CHAT_MESSAGES_JOB_INTERVAL_MINS`, `SUBSCRIBER_NOTIFICATION_JOB_INTERVAL_MINS`, `CHAT_UPDATE_JOB_INTERVAL_DAYS`).
+Job intervals are configurable via environment variables: `CHAT_MESSAGES_INTERVAL_MINUTES` governs the combined crawl → notify cycle, and `CHAT_INTERVAL_DAYS` governs the participant-count update.
 
 ### Telegram Bot
 
