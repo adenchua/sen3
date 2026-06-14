@@ -32,7 +32,7 @@ async def crawl_and_notify_loop(interval_minutes: int) -> None:
     chat_messages_background_job = ChatMessagesBackgroundJob()
     subscriber_notification_background_job = SubscriberNotificationBackgroundJob()
 
-    async with httpx.AsyncClient() as client:
+    async with httpx.AsyncClient(timeout=httpx.Timeout(120.0)) as client:
         while True:
             await chat_messages_background_job.run_once(client)
             await subscriber_notification_background_job.run_once(client)

@@ -134,9 +134,15 @@ class ChatMessagesBackgroundJob:
             all_messages: list[dict] = []
             offset_updates: list[dict] = []
             for chat in chats:
-                messages, offset_update = await self.fetch_chat_messages(
-                    client, chat, 10
-                )
+                try:
+                    messages, offset_update = await self.fetch_chat_messages(
+                        client, chat, 10
+                    )
+                except Exception as error:
+                    # a single chat's failure (e.g. timeout) must not abort the
+                    # whole cycle and discard messages already collected
+                    logging.exception(error)
+                    continue
                 all_messages.extend(messages)
                 if offset_update is not None:
                     offset_updates.append(offset_update)
