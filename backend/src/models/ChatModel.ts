@@ -129,4 +129,19 @@ export class ChatModel {
 
     return response;
   }
+
+  /** Bulk updates multiple chats in a single database call */
+  async updateMany(updates: Array<{ id: string } & Partial<Omit<Chat, "id">>>): Promise<number> {
+    // transform each update to the database mapping and stamp the updated date
+    const documents = updates.map((update) =>
+      this.transformToRawChat({ ...update, updatedDate: new Date() }),
+    );
+
+    const response = await this.databaseService.bulkUpdateDocuments(
+      documents as DatabaseChat[],
+      this.DATABASE_INDEX,
+    );
+
+    return response;
+  }
 }

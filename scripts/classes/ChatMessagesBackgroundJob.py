@@ -17,20 +17,20 @@ class ChatMessagesBackgroundJob:
     def __init__(self, interval_minutes: int):
         self.interval_minutes = interval_minutes
 
-    async def update_chat_offset(
-        self, client: httpx.AsyncClient, chat_id: str, max_offset_id: int
+    async def update_chat_offsets(
+        self, client: httpx.AsyncClient, offset_updates: list[dict]
     ) -> None:
         """
-        Update a chat's message offset id and the last crawl date
+        Bulk update message offset ids and last crawl dates for multiple chats
+        in a single database call. Does nothing when there are no updates.
         """
-        URL = f"{BACKEND_SERVICE_API_URL}/api/v1/chats/{chat_id}"
-        request_body = {
-            "messageOffsetId": max_offset_id,
-            "lastCrawlDate": get_current_datetime_iso(),
-        }
+        if len(offset_updates) == 0:
+            return
+        URL = f"{BACKEND_SERVICE_API_URL}/api/v1/chats/bulk"
+        request_body = {"chats": offset_updates}
         response = await client.patch(URL, json=dict(request_body))
         response.raise_for_status()
-        logging.info(f"Updated {chat_id} offset_id...")
+        logging.info(f"Updated offsets for {len(offset_updates)} chats...")
 
     async def ingest_messages(
         self, client: httpx.AsyncClient, messages: list[dict]
@@ -60,12 +60,16 @@ class ChatMessagesBackgroundJob:
 
     async def fetch_chat_messages(
         self, client: httpx.AsyncClient, chat: dict, latest_max_limit=10
-    ) -> None:
+    ) -> tuple[list[dict], dict | None]:
         """
-        Retrieves chat messages and ingests in the database.
+        Retrieves chat messages from the telegram service.
 
         If the offset_id is specified, retrieves the latest messages from the
         offset_id. Otherwise, retrieves the latest latest_max_limit messages.
+
+        Returns a tuple of the retrieved messages and an offset-update
+        descriptor (chat id, message offset id, last crawl date) for the chat,
+        or None when no messages were retrieved.
         """
 
         chat_id: str = chat.get("id", None)
@@ -99,20 +103,16 @@ class ChatMessagesBackgroundJob:
             if curr_offset_id > max_offset_id:
                 max_offset_id = curr_offset_id
 
-        if len(messages) > 0:
-            # bulk ingests all messages
-            # need to chunk the array, if not will throw payload entity too large error
-            CHUNK_SIZE = 50
-            message_chunks = [
-                messages[i : i + CHUNK_SIZE]
-                for i in range(0, len(messages), CHUNK_SIZE)
-            ]
-            for message_chunk in message_chunks:
-                await self.ingest_messages(client, message_chunk)
-
-        # update chat offset_id and last crawl date
+        # build the offset-update descriptor when there are messages to advance past
+        offset_update: dict | None = None
         if max_offset_id != -1:
-            await self.update_chat_offset(client, chat_id, max_offset_id)
+            offset_update = {
+                "id": chat_id,
+                "messageOffsetId": max_offset_id,
+                "lastCrawlDate": get_current_datetime_iso(),
+            }
+
+        return messages, offset_update
 
     async def run(self) -> None:
         """
@@ -134,9 +134,29 @@ class ChatMessagesBackgroundJob:
                     response_json: dict = response.json()
                     chats: list[dict] = response_json.get("data", None)
 
-                    # for each chat, fetch and ingest messages
+                    # fetch messages from every chat first, accumulating the
+                    # messages and offset updates to flush in as few calls as possible
+                    all_messages: list[dict] = []
+                    offset_updates: list[dict] = []
                     for chat in chats:
-                        await self.fetch_chat_messages(client, chat, 10)
+                        messages, offset_update = await self.fetch_chat_messages(
+                            client, chat, 10
+                        )
+                        all_messages.extend(messages)
+                        if offset_update is not None:
+                            offset_updates.append(offset_update)
+
+                    # bulk ingest all accumulated messages
+                    # need to chunk the array, if not will throw payload entity too large error
+                    if len(all_messages) > 0:
+                        CHUNK_SIZE = 50
+                        for index in range(0, len(all_messages), CHUNK_SIZE):
+                            await self.ingest_messages(
+                                client, all_messages[index : index + CHUNK_SIZE]
+                            )
+
+                    # update all chat offset_ids and last crawl dates in one bulk call
+                    await self.update_chat_offsets(client, offset_updates)
 
                 except httpx.HTTPStatusError as http_error:
                     logging.exception(http_error)

@@ -97,6 +97,34 @@ export default class DatabaseService {
     }
   }
 
+  /** bulk update documents. Each document must contain a unique _id field */
+  async bulkUpdateDocuments<T>(
+    documents: Array<DatabaseDocument<T>>,
+    indexName: DatabaseIndex,
+  ): Promise<number> {
+    try {
+      const response = await this.databaseClient.helpers.bulk({
+        datasource: documents,
+        refresh: true,
+        onDocument(document) {
+          const { _id, ...rest } = document;
+
+          return [
+            {
+              update: { _index: indexName, _id },
+            },
+            { doc: rest },
+          ];
+        },
+      });
+
+      return response.successful;
+    } catch (error) {
+      console.error(error);
+      throw new ErrorResponse();
+    }
+  }
+
   async fetchDocuments<T>(
     indexName: DatabaseIndex,
     query: Search_RequestBody,

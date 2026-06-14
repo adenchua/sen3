@@ -1,5 +1,6 @@
 import { Router } from "express";
 
+import bulkUpdateChatsController from "../controllers/chat-controllers/bulkUpdateChats";
 import createChatController from "../controllers/chat-controllers/createChat";
 import getChatByIdController from "../controllers/chat-controllers/getChatById";
 import getChatsController from "../controllers/chat-controllers/getChats";
@@ -20,6 +21,13 @@ chatRouter.post(
   createChatController.validator,
   validationMiddleware,
   createChatController.controller,
+);
+
+chatRouter.patch(
+  "/bulk",
+  bulkUpdateChatsController.validator,
+  validationMiddleware,
+  bulkUpdateChatsController.controller,
 );
 
 chatRouter.get("/:id", getChatByIdController.controller);
