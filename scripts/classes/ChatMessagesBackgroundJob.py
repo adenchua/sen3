@@ -26,7 +26,7 @@ class ChatMessagesBackgroundJob:
         request_body = {"chats": offset_updates}
         response = await client.patch(URL, json=dict(request_body))
         response.raise_for_status()
-        logging.info(f"Updated offsets for {len(offset_updates)} chats...")
+        logging.info(f"Updated offsets for {len(offset_updates)} chats!")
 
     async def ingest_messages(
         self, client: httpx.AsyncClient, messages: list[dict]
@@ -52,7 +52,7 @@ class ChatMessagesBackgroundJob:
         request_body = {"messages": transformed_messages}
         response = await client.post(URL, json=dict(request_body))
         response.raise_for_status()
-        logging.info(f"Ingested {len(messages)} messages...")
+        logging.info(f"Ingested {len(messages)} messages!")
 
     async def fetch_chat_messages(
         self, client: httpx.AsyncClient, chat: dict, latest_max_limit=10
@@ -162,7 +162,6 @@ class ChatMessagesBackgroundJob:
 
             # update all chat offset_ids and last crawl dates in one bulk call
             await self.update_chat_offsets(client, offset_updates)
-            logging.info(f"Updated chat offsets successfully!")
 
         except httpx.HTTPStatusError as http_error:
             logging.exception(http_error)
