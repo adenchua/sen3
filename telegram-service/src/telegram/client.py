@@ -107,8 +107,21 @@ def run_on_loop(coroutine: Awaitable[ReturnType]) -> ReturnType:
     Ensures the shared client (and its loop) are initialized, schedules the
     coroutine on that loop, and blocks until it completes so synchronous Flask
     views can drive the async Telegram client. Returns the coroutine's result.
+    If the client is disconnected, it attempts to reconnect before running.
     """
     get_client()
     assert _background_loop is not None
-    future = asyncio.run_coroutine_threadsafe(coroutine, _background_loop)
+
+    async def _ensure_connected_and_run() -> ReturnType:
+        if _client is not None and not _client.is_connected():
+            logger.warning("Telegram client disconnected; attempting lazy reconnect...")
+            await _client.connect()
+            if not await _client.is_user_authorized():
+                raise RuntimeError("Telegram session is no longer authorized during reconnect.")
+            logger.info("Telegram client successfully reconnected")
+        return await coroutine
+
+    future = asyncio.run_coroutine_threadsafe(
+        _ensure_connected_and_run(), _background_loop
+    )
     return future.result()
