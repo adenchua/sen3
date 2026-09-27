@@ -1,4 +1,4 @@
-FROM node:24.16-alpine
+FROM node:24.21-alpine
 
 WORKDIR /app/backend
 

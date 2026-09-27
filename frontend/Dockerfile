@@ -1,4 +1,4 @@
-FROM node:24.16-alpine AS builder
+FROM node:24.21-alpine AS builder
 
 WORKDIR /app/frontend
 
@@ -10,7 +10,7 @@ COPY ./frontend .
 
 RUN npm run build
 
-FROM nginx:1.30.1
+FROM nginx:1.30.5
 
 WORKDIR /app
 
